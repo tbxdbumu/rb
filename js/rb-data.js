@@ -6,6 +6,7 @@ window.RB_DATA = (function () {
         id: 'risebunny-bot', icon: 'fa-brands fa-discord', pIcon: 'fa-brands fa-discord',
         platform: 'Discord', status: 'active', order: 0, name: 'RiseBunny Bot',
         color: '#7c3aed', image: '', download: 'https://top.gg/bot/1540401487581020252',
+        invite: 'https://discord.com/api/oauth2/authorize?client_id=1540401487581020252&permissions=8&scope=bot%20applications.commands',
         desc: {
           en: 'Our multi-purpose Discord bot, live on top.gg: AI registration, subscriber roles, economy, moderation and automated raid protection — updated non-stop. Live the Future Today!',
           tr: "top.gg'de yayında olan çok amaçlı Discord botumuz: Yapay zeka kayıt, abone rol sistemi, ekonomi, moderasyon ve otomatik koruma — sürekli güncel. Geleceği Bugünden Yaşa!"
@@ -76,7 +77,7 @@ window.RB_DATA = (function () {
       {
         id: 'v1', order: 0, icon: 'fa-solid fa-infinity', color: '#7c3aed',
         title: { en: 'Non-Stop Shipping', tr: 'Durmadan Yayınlıyoruz' },
-        desc: { en: 'Updates Land Very often. Bunny doesnt sleep, and neither do we', tr: 'Güncellemeler Çok Sık Yayınlanır, Tavşan uyumaz, biz de.' }
+        desc: { en: 'Updates Land Very often. RiseBunny doesnt sleep, and neither do we', tr: 'Güncellemeler Çok Sık Yayınlanır, RiseBunny uyumaz, biz de.' }
       },
       {
         id: 'v2', order: 1, icon: 'fa-solid fa-shield-halved', color: '#10b981',
@@ -99,12 +100,12 @@ window.RB_DATA = (function () {
         nav_home: 'Home', nav_products: 'Products', nav_about: 'About', nav_faq: 'FAQ', nav_contact: 'Contact',
         hero_badge: '🐰 RiseBunny Software — Live the Future Today',
         hero_title: 'We Code All Night. <span class="gradient-text">You Rise All Day.</span>',
-        hero_sub: 'Discord bots, Minecraft clients, Brawl Stars projects — one bunny crew.',
+        hero_sub: 'Discord bots, Minecraft clients, Brawl Stars projects — one RiseBunny crew.',
         hero_desc: 'From the RiseBunny Bot guarding servers 24/7 to Rubidium Client squeezing every frame: we build, ship and polish — non-stop.',
         btn_explore: 'Explore the Lab', btn_learn: 'Meet the Crew',
         prod_title: 'The Project Lab', prod_sub: 'Everything below is designed, coded and shipped under RiseBunny Software.',
         view_details: 'Inspect', status_dev: 'In the Lab', status_project: 'Prototype', status_active: 'Live 24/7',
-        feat_title: 'Why the Bunny Never Sleeps', feat_sub: 'Four obsessions behind every release.',
+        feat_title: 'Why RiseBunny Never Sleeps', feat_sub: 'Four obsessions behind every release.',
         about_title: 'Born to Rise.',
         about_p1: 'RiseBunny started as a small crew shipping a Discord bot with AI registration, subscriber roles, economy and raid-proof protection. Today the same crew builds Minecraft clients and game projects.',
         about_p2: 'One rule never changed: ship fast, update constantly, and keep every project free for the community.',
@@ -126,12 +127,12 @@ window.RB_DATA = (function () {
         nav_home: 'Ana Sayfa', nav_products: 'Ürünler', nav_about: 'Hakkımızda', nav_faq: 'SSS', nav_contact: 'İletişim',
         hero_badge: '🐰 RiseBunny Software — Geleceği Bugünden Yaşa',
         hero_title: 'Biz Gece Kodlarız. <span class="gradient-text">Sen Gündüz Yükselirsin.</span>',
-        hero_sub: 'Discord botları, Minecraft istemcileri, Brawl Stars projeleri — tek tavşan ekibi.',
+        hero_sub: 'Discord botları, Minecraft istemcileri, Brawl Stars projeleri — tek RiseBunny ekibi.',
         hero_desc: 'Sunucuları 7/24 koruyan RiseBunny Bot ile her kareyi zorlayan Rubidium Client aynı atölyeden çıkıyor: geliştir, yayınla, parlat — durmadan.',
         btn_explore: 'Laboratuvarı Keşfet', btn_learn: 'Ekiple Tanış',
         prod_title: 'Proje Laboratuvarı', prod_sub: 'Aşağıdaki her şey RiseBunny Software çatısında tasarlandı, kodlandı ve yayınlandı.',
         view_details: 'İncele', status_dev: 'Laboratuvarda', status_project: 'Prototip', status_active: '7/24 Yayında',
-        feat_title: 'Tavşan Neden Uyumaz?', feat_sub: 'Her sürümün arkasındaki dört takıntı.',
+        feat_title: 'RiseBunny Neden Uyumaz?', feat_sub: 'Her sürümün arkasındaki dört takıntı.',
         about_title: 'Yükselmek İçin Doğduk.',
         about_p1: 'RiseBunny; yapay zeka kayıt, abone rol sistemi, ekonomi ve raid dayanıklı koruma sunan bir Discord botuyla yola çıktı. Bugün aynı ekip Minecraft istemcileri ve oyun projeleri geliştiriyor.',
         about_p2: 'Kural hiç değişmedi: hızlı yayınla, sürekli güncelle, her projeyi topluluk için ücretsiz tut.',

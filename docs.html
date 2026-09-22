@@ -69,7 +69,7 @@ html[lang="en"] [data-i18n-block="en"]{display:block}
 <div class="wrap">
 <header class="hero">
   <h1><span data-i18n="tr">Dökümantasyon</span><span data-i18n="en">Documentation</span></h1>
-  <p><span data-i18n="tr">Prefix: <code>r!</code> · Toplam <strong>177 komut</strong> · Komutlar hem Türkçe hem İngilizce adlarla çalışır. Önce <code>r!dil</code> ile dilini seçip onayı ver.</span><span data-i18n="en">Prefix: <code>r!</code> · <strong>177 commands</strong> total · Commands work with both Turkish and English names. First pick your language and accept with <code>r!dil</code>.</span></p>
+  <p><span data-i18n="tr">Prefix: <code>r!</code> · Toplam <strong>165 komut</strong> · Komutlar hem Türkçe hem İngilizce adlarla çalışır. Önce <code>r!dil</code> ile dilini seçip onayı ver.</span><span data-i18n="en">Prefix: <code>r!</code> · <strong>165 commands</strong> total · Commands work with both Turkish and English names. First pick your language and accept with <code>r!dil</code>.</span></p>
 </header>
 
 <main>
@@ -79,28 +79,24 @@ html[lang="en"] [data-i18n-block="en"]{display:block}
       <p><strong>✨ AI ile komut çalıştırma:</strong> <code>rise &lt;doğal dilde istek&gt;</code> yaz. Örn: <code>rise @Ahmet'i 10dk sustur spam</code>, <code>rise param ne kadar</code>. AI isteği anlayıp doğru komutu çalıştırır.</p>
       <ul>
         <li><strong>Yetki denetimi:</strong> Yetki isteyen komutlarda Discord yetkin sorgulanır; yetkin yoksa komut çalışmaz, ret sahibe loglanır.</li>
-        <li><strong>Koruma katmanları:</strong> rol sıralaması, kendine/bota/sahibe işlem engeli, sahip komutları (eval, bakım, veri, yedek, kupon, karaliste, siterol) AI'ya kapalı.</li>
         <li><strong>Beta + Premium:</strong> AI komutları beta testerlara ve Premium üyelere açıktır.</li>
       </ul>
       <p><strong>🧠 AI'ya öğret:</strong> AI cevabındaki 🧠 butonuna bas → önerin onay havuzuna gider → sahip veya mod kabul ederse AI kalıcı öğrenir (tüm sunucularda).</p>
-      <p><strong>🛡️ Beta &amp; Mod sistemi (sadece sahip):</strong> <code>r!betatester ekle/sil/liste @kullanıcı</code>, <code>r!mod ekle/sil/liste @kullanıcı</code>. Modlar karaliste, beyazliste, kupon ve bakım komutlarını kullanabilir.</p>
       <p><strong>🌍 Dil + onay:</strong> İlk kullanımda <code>r!dil</code> ile dilini seç, sonra <strong>Kaydet ve Kabul Et</strong>'e bas. Dil seçmeden kabul edilemez; reddedersen kabul edene kadar komutlar ve AI kilitli kalır.</p>
     </div>
     <div data-i18n-block="en">
       <p><strong>✨ Run commands with AI:</strong> type <code>rise &lt;request in plain words&gt;</code>. Ex: <code>rise mute @Ahmet 10m spam</code>, <code>rise how much money do I have</code>. The AI understands and runs the right command.</p>
       <ul>
         <li><strong>Permission checks:</strong> your Discord permission is verified for privileged commands; without it the command never runs and the denial is logged to the owner.</li>
-        <li><strong>Safety layers:</strong> role hierarchy, self/bot/owner protection, owner commands (eval, maintenance, data, backup, coupon, blacklist, site-role) closed to AI.</li>
         <li><strong>Beta + Premium:</strong> AI commands are open to beta testers and Premium members.</li>
       </ul>
       <p><strong>🧠 Teach the AI:</strong> press 🧠 on an AI answer → your suggestion goes to the approval pool → if the owner or a mod accepts, the AI learns it permanently (all servers).</p>
-      <p><strong>🛡️ Beta &amp; mod system (owner only):</strong> <code>r!beta-tester add/remove/list @user</code>, <code>r!moderator-add add/remove/list @user</code>. Mods can use blacklist, whitelist, coupon and maintenance commands.</p>
       <p><strong>🌍 Language + consent:</strong> on first use pick your language with <code>r!dil</code>, then press <strong>Save &amp; Accept</strong>. Accepting without a language is blocked; if you decline, commands and AI stay locked until you accept.</p>
     </div>
   </div>
 
   <div class="card">
-    <h2><span class="num">📋</span><span data-i18n="tr">Tüm Komutlar (177)</span><span data-i18n="en">All Commands (177)</span></h2>
+    <h2><span class="num">📋</span><span data-i18n="tr">Tüm Komutlar (165)</span><span data-i18n="en">All Commands (165)</span></h2>
     <p><input class="search" id="ara" placeholder="Komut ara... / Search commands..."></p>
       <h3>👤 <span data-i18n="tr">Kullanıcı</span><span data-i18n="en">User</span> <span class="sayi">9</span></h3>
       <div class="cmds">
@@ -302,24 +298,9 @@ html[lang="en"] [data-i18n-block="en"]{display:block}
       </div>
       <h3>🔗 <span data-i18n="tr">Site</span><span data-i18n="en">Website</span> <span class="sayi">3</span></h3>
       <div class="cmds">
-        <div class="cmd"><code>r!siterol</code> / <code>r!site-role</code><span data-i18n="tr">Site rolünü seçip kullanıcılara verir (kurucu hariç, yetkililer). <span class="use">Kullanım: <code>r!siterol @kullanıcı [ID...]</code></span></span><span data-i18n="en">Assign a site role to users (kurucu excluded, staff only). <span class="use">Usage: <code>r!siterol @user [IDs...]</code></span></span></div>
         <div class="cmd"><code>r!kuponkullan</code> / <code>r!redeem-coupon</code><span data-i18n="tr">Kupon kodunu kullanır. <span class="use">Kullanım: <code>r!kuponkullan &lt;kod&gt;</code></span></span><span data-i18n="en">Redeems a coupon code. <span class="use">Usage: <code>r!redeem-coupon &lt;code&gt;</code></span></span></div>
-        <div class="cmd"><code>r!kodoluştur</code> / <code>r!create-coupon</code><span data-i18n="tr">V2 kalıcı kuponunu oluşturur veya panele yönlendirir. <span class="use">Kullanım: <code>r!kodoluştur [v2]</code></span></span><span data-i18n="en">Creates the V2 permanent coupon or redirects to the panel. <span class="use">Usage: <code>r!create-coupon [v2]</code></span></span></div>
       </div>
-      <h3>👑 <span data-i18n="tr">Sahip</span><span data-i18n="en">Owner</span> <span class="sayi">10</span></h3>
-      <div class="cmds">
-        <div class="cmd"><code>r!bakım</code> / <code>r!maintenance</code><span data-i18n="tr">Bakım modunu açar/kapatır. (Sahip) <span class="use">Kullanım: <code>r!bakım [sebep]</code></span></span><span data-i18n="en">Toggles maintenance mode. (Owner) <span class="use">Usage: <code>r!maintenance [reason]</code></span></span></div>
-        <div class="cmd"><code>r!mağaza-yönet</code> / <code>r!shop-manage</code><span data-i18n="tr">Site mağazası: fiyat değiştir, ürün göster/gizle (sahip).</span><span data-i18n="en">Website shop: change prices, show/hide items (owner).</span></div>
-        <div class="cmd"><code>r!yedek</code> / <code>r!backup</code><span data-i18n="tr">croxydb&#39;nin tüm verisini DM&#39;e yedekler (sahip).</span><span data-i18n="en">Backs up the entire croxydb to your DM (owner).</span></div>
-        <div class="cmd"><code>r!yedek-yükle</code> / <code>r!restore</code><span data-i18n="tr">Tam yedek dosyasını geri yükler (sahip). <span class="use">Kullanım: <code>r!yedek-yükle + dosya eki</code></span></span><span data-i18n="en">Restores a full backup file (owner). <span class="use">Usage: <code>r!restore + file attachment</code></span></span></div>
-        <div class="cmd"><code>r!kupon</code> / <code>r!coupon</code><span data-i18n="tr">Butonlu kupon yönetimi: para/pet/premium, süreli/süresiz, bot/site (sahip).</span><span data-i18n="en">Button-based coupon manager: cash/pet/premium, timed/permanent, bot/site (owner).</span></div>
-        <div class="cmd"><code>r!eval</code><span data-i18n="tr">Kod çalıştırır. (Sahip) <span class="use">Kullanım: <code>r!eval &lt;kod&gt;</code></span></span><span data-i18n="en">Executes code. (Owner) <span class="use">Usage: <code>r!eval &lt;code&gt;</code></span></span></div>
-        <div class="cmd"><code>r!verisil</code> / <code>r!data-delete</code><span data-i18n="tr">Bot ve sitedeki tüm verilerinin silinmesini talep eder.</span><span data-i18n="en">Requests deletion of all your bot and site data.</span></div>
-        <div class="cmd"><code>r!betatester</code> / <code>r!beta-tester</code><span data-i18n="tr">Beta tester ekler/siler/listeler. (Sadece sahip) <span class="use">Kullanım: <code>r!betatester ekle @kullanıcı</code></span></span><span data-i18n="en">Adds/removes/lists beta testers. (Owner only) <span class="use">Usage: <code>r!beta-tester add @user</code></span></span></div>
-        <div class="cmd"><code>r!mod</code> / <code>r!moderator-add</code><span data-i18n="tr">Mod ekler/siler/listeler. (Sadece sahip) <span class="use">Kullanım: <code>r!mod ekle @kullanıcı</code></span></span><span data-i18n="en">Adds/removes/lists mods. (Owner only) <span class="use">Usage: <code>r!moderator-add add @user</code></span></span></div>
-        <div class="cmd"><code>r!veri</code> / <code>r!data</code><span data-i18n="tr">Sunucu/kullanıcı verilerini görür ve siler. (Sadece sahip) <span class="use">Kullanım: <code>r!veri gör &lt;ID&gt; | veri sil &lt;ID&gt;</code></span></span><span data-i18n="en">Views and deletes server/user data. (Owner only) <span class="use">Usage: <code>r!veri gör &lt;ID&gt; | veri sil &lt;ID&gt;</code></span></span></div>
-      </div>
-      <h3>🏆 <span data-i18n="tr">Seviye</span><span data-i18n="en">Level</span> <span class="sayi">4</span></h3>
+       <span data-i18n="tr">Seviye</span><span data-i18n="en">Level</span> <span class="sayi">4</span></h3>
       <div class="cmds">
         <div class="cmd"><code>r!rolal</code> / <code>r!claim-role</code><span data-i18n="tr">Seviye 25+ ise hedef sunucuda VIP rolünü alır.</span><span data-i18n="en">Claims the VIP role on the target server (level 25+).</span></div>
         <div class="cmd"><code>r!seviye</code> / <code>r!level</code><span data-i18n="tr">Seviyeni ve XP kartını gösterir. <span class="use">Kullanım: <code>r!seviye [@kullanıcı]</code></span></span><span data-i18n="en">Shows your level and XP card. <span class="use">Usage: <code>r!level [@user]</code></span></span></div>

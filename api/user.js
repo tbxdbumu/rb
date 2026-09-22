@@ -110,19 +110,21 @@ export default async function handler(req, res) {
   }
 
   if (op.endsWith('/contact') && req.method === 'POST') {
+    /* Discord-only iletişim: isim/e-posta YOK, kimlik cookie oturumundan gelir. */
+    const s = getSession(req);
+    if (!s) return res.status(401).json({ error: 'Önce Discord ile giriş yapmalısın.' });
     const body = await readJson(req);
-    const name = String(body.name || '').slice(0, 60);
-    const email = String(body.email || '').slice(0, 120);
     const subject = String(body.subject || '').slice(0, 120);
     const message = String(body.message || '').slice(0, 2000);
-    if (!name || !email.includes('@') || message.length < 3)
+    const lang = body.lang === 'en' ? 'en' : 'tr';
+    if (!subject || message.length < 3)
       return res.status(400).json({ error: 'eksik alan' });
     if (bBase && bSec) {
       try {
         await fetch(`${bBase}/api/contact`, {
           method: 'POST',
           headers: { ...botHeaders(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, subject, message })
+          body: JSON.stringify({ discordId: s.id, username: s.username || '', subject, message, lang })
         });
       } catch {}
     }

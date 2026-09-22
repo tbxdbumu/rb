@@ -20,7 +20,7 @@ var I18N_DICT = {
   en: { nav_arena: 'Rubidium', nav_bot: 'Mod Bot', nav_sys: 'Systems', nav_faq: 'FAQ', nav_contact: 'Contact',
     hero_badge: 'RiseBunny Software',
     hero_title: 'Rise Beyond Limits.',
-    hero_sub: 'Discord bots, Minecraft clients, Brawl Stars projects — one bunny crew.',
+    hero_sub: 'Discord bots, Minecraft clients, Brawl Stars projects — one RiseBunny crew.',
     btn_explore: 'Explore the Lab', btn_learn: 'Meet the Crew', scroll_cue: 'Scroll to explore',
     sec_mc: 'Minecraft',
     arena_title: 'Rubidium V4',
@@ -31,25 +31,26 @@ var I18N_DICT = {
     bot_desc: 'Our multi-purpose Discord bot, live on top.gg: AI registration, subscriber roles, economy, moderation and automated raid protection — updated non-stop.',
     demo_msg1: 'anyone up for ranked?', demo_msg2: 'you suck',
     bot_flagged: 'Message flagged → removed.', bot_banned: 'USER BANNED',
-    bot_cta: 'Get It', bot_replay: 'Replay moderation',
-    feat_title: 'Why the Bunny Never Sleeps', feat_sub: 'Four obsessions behind every release.',
+    bot_cta: 'Invite', bot_replay: 'Replay moderation',
+    feat_title: 'Why RiseBunny Never Sleeps', feat_sub: 'Four obsessions behind every release.',
     faq_title: 'Questions? We Answer Fast.',
     con_title: 'Got an Idea? Let Us Build It.', con_sub: 'Feedback, collabs, bug reports or wild ideas — the inbox is open.',
     lbl_name: 'Name', lbl_email: 'Email', lbl_subject: 'Subject', lbl_message: 'Message',
     ph_name: 'Your name', ph_email: 'you@example.com', ph_subject: 'Subject', ph_message: 'Your message...',
     btn_send: 'Send It', form_success: 'Message landed!', form_mailto: 'Opening your mail app…',
+    form_login: 'Sign in with Discord to send a message.',
     form_note: 'Encrypted end-to-end. No spam, ever.',
     form_rate: 'Please wait a minute before sending again.', form_invalid: 'Please fill all fields correctly.',
     discord_title: 'Join the War Room', discord_desc: 'New builds drop on our Discord first. The invite link lands here very soon.',
     footer_nav: 'Navigation', footer_legal: 'Legal',
     privacy: 'Privacy Policy', terms: 'Terms of Service',
     copyright: '© 2026 RiseBunny. All rights reserved.', footer_slogan: 'Rise Beyond Limits.',
-    modal_features: 'Under the Hood', btn_community: 'Join the Crew', btn_download: 'Cooking…', btn_download_now: 'Get It',
+    modal_features: 'Under the Hood', btn_community: 'Join the Crew', btn_invite: 'Invite', btn_download: 'Cooking…', btn_download_now: 'Get It',
     status_dev: 'In the Lab', status_project: 'Prototype', status_active: 'Live 24/7' },
   tr: { nav_arena: 'Rubidium', nav_bot: 'Mod Bot', nav_sys: 'Sistemler', nav_faq: 'SSS', nav_contact: 'İletişim',
     hero_badge: 'RiseBunny Software',
     hero_title: 'Sınırların Ötesine Yüksel.',
-    hero_sub: 'Discord botları, Minecraft istemcileri, Brawl Stars projeleri — tek tavşan ekibi.',
+    hero_sub: 'Discord botları, Minecraft istemcileri, Brawl Stars projeleri — tek RiseBunny ekibi.',
     btn_explore: 'Laboratuvarı Keşfet', btn_learn: 'Ekiple Tanış', scroll_cue: 'Keşfetmek için kaydır',
     sec_mc: 'Minecraft',
     arena_title: 'Rubidium V4',
@@ -60,20 +61,21 @@ var I18N_DICT = {
     bot_desc: "top.gg'de yayında olan çok amaçlı Discord botumuz: Yapay zeka kayıt, abone rol sistemi, ekonomi, moderasyon ve otomatik koruma — sürekli güncel.",
     demo_msg1: 'ranked giren var mı?', demo_msg2: 'lanet olsun / küfür',
     bot_flagged: 'Mesaj işaretlendi → silindi.', bot_banned: 'KULLANICI BANLANDI',
-    bot_cta: 'İndir', bot_replay: 'Moderasyonu tekrarla',
-    feat_title: 'Tavşan Neden Uyumaz?', feat_sub: 'Her sürümün arkasındaki dört takıntı.',
+    bot_cta: 'Davet Et', bot_replay: 'Moderasyonu tekrarla',
+    feat_title: 'RiseBunny Neden Uyumaz?', feat_sub: 'Her sürümün arkasındaki dört takıntı.',
     faq_title: 'Sorun mu Var? Hızlı Cevaplar.',
     con_title: 'Fikrin mi Var? Biz İnşa Edelim.', con_sub: 'Geri bildirim, iş birliği, hata raporu ya da çılgın fikirler — kutu açık.',
     lbl_name: 'İsim', lbl_email: 'E-posta', lbl_subject: 'Konu', lbl_message: 'Mesaj',
     ph_name: 'Adınız', ph_email: 'ornek@eposta.com', ph_subject: 'Konu', ph_message: 'Mesajınız...',
     btn_send: 'Gönder', form_success: 'Mesaj ulaştı!', form_mailto: 'E-posta uygulaması açılıyor…',
+    form_login: 'Mesaj göndermek için Discord ile giriş yap.',
     form_note: 'Uçtan uca şifreli. Spam yok, asla.',
     form_rate: 'Tekrar göndermeden önce bir dakika bekle.', form_invalid: 'Lütfen tüm alanları doğru doldur.',
     discord_title: 'Komuta Merkezine Katıl', discord_desc: 'Yeni buildler ilk olarak Discord sunucumuzda paylaşılır. Davet linki çok yakında burada.',
     footer_nav: 'Navigasyon', footer_legal: 'Yasal',
     privacy: 'Gizlilik Politikası', terms: 'Kullanım Şartları',
     copyright: '© 2026 RiseBunny. Tüm hakları saklıdır.', footer_slogan: 'Sınırların Ötesine Yüksel.',
-    modal_features: 'Kaputun Altında', btn_community: 'Ekibe Katıl', btn_download: 'Pişiyor…', btn_download_now: 'İndir',
+    modal_features: 'Kaputun Altında', btn_community: 'Ekibe Katıl', btn_invite: 'Davet Et', btn_download: 'Pişiyor…', btn_download_now: 'İndir',
     status_dev: 'Laboratuvarda', status_project: 'Prototip', status_active: '7/24 Yayında' }
 };
 
@@ -166,6 +168,8 @@ function openModal(id) {
   var fe = $('#m-features'); fe.innerHTML = '';
   feats.slice(0, 12).forEach(function (f) { var d = document.createElement('div'); d.className = 'mf'; var ic = document.createElement('i'); ic.className = 'fa-solid fa-check'; d.appendChild(ic); d.appendChild(document.createTextNode(String(f))); fe.appendChild(d); });
   var act = $('#modal-actions'); act.innerHTML = '';
+  var inv = safeUrl(p.invite, false);
+  if (inv) { var ai = document.createElement('a'); ai.className = 'btn solid sm'; ai.href = inv; ai.target = '_blank'; ai.rel = 'noopener'; ai.textContent = '🤖 ' + t('btn_invite'); act.appendChild(ai); }
   var dl = safeUrl(p.download, false);
   if (dl) { var a = document.createElement('a'); a.className = 'btn solid sm'; a.href = dl; a.target = '_blank'; a.rel = 'noopener'; a.textContent = '⬇ ' + t('btn_download_now'); act.appendChild(a); }
   else { var b = document.createElement('button'); b.type = 'button'; b.className = 'btn solid sm'; b.disabled = true; b.textContent = t('btn_download'); act.appendChild(b); }
@@ -183,6 +187,11 @@ document.addEventListener('click', function (e) {
   var pid = b.getAttribute('data-open-product');
   var p = null;
   for (var i = 0; i < PRODUCTS.length; i++) if (PRODUCTS[i].id === pid) p = PRODUCTS[i];
+  var inv0 = p ? safeUrl(p.invite, false) : '';
+  if (inv0) {
+    window.open(inv0, '_blank', 'noopener');
+    return;
+  }
   var dl = p ? safeUrl(p.download, false) : '';
   if (dl) {
     window.open(dl, '_blank', 'noopener');
@@ -317,37 +326,50 @@ window.addEventListener('scroll', function () {
   $$('#nav-links a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + cur); });
 }, { passive: true });
 
-/* contact (mailto only, no external API) */
-var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+/* contact (Discord-only: konu + mesaj, kimlik cookie'den) */
 function cooldown() {
   try { return Date.now() - parseInt(localStorage.getItem('rb_con_last') || '0', 10) < 60000; }
   catch (e) { return false; }
 }
 var form = $('#con-form');
+function conLoginDurumu() {
+  try {
+    var note = $('#con-login-note');
+    var giris = !!(window.RBSession && window.RBSession.ok);
+    if (note) note.hidden = giris;
+    var btn = $('#send-btn');
+    if (btn) btn.disabled = !giris;
+  } catch (e) {}
+}
+try { document.addEventListener('rb-session', conLoginDurumu); } catch (e) {}
+conLoginDurumu();
 if (form) form.addEventListener('submit', function (e) {
   e.preventDefault();
   var hp = $('#n-hp'); if (hp && hp.value) return;
-  var name = String($('#n-name').value || '').trim().slice(0, 60);
-  var email = String($('#n-mail').value || '').trim().slice(0, 120);
+  if (!(window.RBSession && window.RBSession.ok)) { toast(t('form_login'), 'error'); conLoginDurumu(); return; }
   var subject = String($('#n-subj').value || '').trim().slice(0, 120);
   var message = String($('#n-msg').value || '').trim().slice(0, 2000);
-  if (!name || !EMAIL_RE.test(email) || !subject || message.length < 3) { toast(t('form_invalid'), 'error'); return; }
+  var lang = 'tr';
+  try { lang = localStorage.getItem('rb-lang') || localStorage.getItem('rb_lang') || 'tr'; } catch (e2) {}
+  if (!subject || message.length < 3) { toast(t('form_invalid'), 'error'); return; }
   if (cooldown()) { toast(t('form_rate'), 'error'); return; }
   var btn = $('#send-btn'); btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> …';
   fetch('/api/contact', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name, email: email, subject: subject, message: message })
+    body: JSON.stringify({ subject: subject, message: message, lang: lang === 'en' ? 'en' : 'tr' })
   }).then(function (r) {
+    if (r.status === 401) { toast(t('form_login'), 'error'); conLoginDurumu(); throw new Error('login'); }
     if (!r.ok) throw new Error('contact failed');
     try { localStorage.setItem('rb_con_last', String(Date.now())); } catch (e2) {}
     toast(t('form_success'), 'success');
     form.reset();
-  }).catch(function () {
+  }).catch(function (err) {
+    if (err && err.message === 'login') return;
     toast(LANG === 'tr' ? 'Mesaj gönderilemedi.' : 'Message could not be sent.', 'error');
   }).finally(function () {
-    btn.disabled = false;
+    btn.disabled = !(window.RBSession && window.RBSession.ok);
     btn.innerHTML = esc(t('btn_send')) + ' <i class="fa-solid fa-arrow-right"></i>';
   });
 });

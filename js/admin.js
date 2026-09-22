@@ -341,6 +341,36 @@
     translations = { en: en, tr: tr };
     db.collection('translations').doc('site').set(translations).then(function () { toast('Çeviriler kaydedildi', 'success'); logAction('update_translations', 'Çeviriler güncellendi'); }).catch(function (e) { toast('Hata: ' + e.message, 'error'); });
   });
+  /* İletişim mesajını yanıtla: Firestore'a yaz + kullanıcıya DM (kendi dilinde) */
+  window.yanitVer = async function (mid) {
+    try {
+      const doc = await db.collection('messages').doc(mid).get();
+      if (!doc.exists) return toast('Mesaj bulunamadı.', 'error');
+      const m = doc.data() || {};
+      const metin = prompt('Yanıtın (' + (m.discordName || m.name || '?') + '):', m.yanit || '');
+      if (!metin || !metin.trim()) return;
+      const kim = (function () { try { return (auth.currentUser && auth.currentUser.email) || '?'; } catch (e) { return '?'; } })();
+      await db.collection('messages').doc(mid).update({
+        yanit: metin.trim().slice(0, 1000),
+        yanitAt: Date.now(),
+        yanitlayan: String(kim).slice(0, 120)
+      });
+      toast('Yanıt kaydedildi, DM gönderiliyor…', 'info');
+      // DM: kullanıcının dili neyse o dilde "yanıt geldi" + yanıt
+      const dil = m.lang === 'en' ? 'en' : 'tr';
+      const baslik = dil === 'en' ? '💬 You have a reply to your message' : '💬 Mesajınıza yanıt geldi';
+      const govde = (dil === 'en' ? 'Subject: ' : 'Konu: ') + (m.subject || '-') + '\n\n' + metin.trim().slice(0, 400);
+      if (m.discordId) {
+        try {
+          await fetch('/api/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userIds: [String(m.discordId)], title: baslik, text: govde, url: 'index.html#iletisim' }) });
+        } catch (e) {}
+      }
+      toast('✅ Yanıt verildi + DM gönderildi.', 'success');
+      logAction('mesaj-yanit', mid);
+      loadMessages();
+    } catch (e) { toast('Hata: ' + (e.message || e), 'error'); }
+  };
   function loadMessages() {
     var l = $('#messages-list'); if (!l) return;
     l.innerHTML = '<div class="msg-empty">Yükleniyor...</div>';
@@ -349,8 +379,13 @@
       if (messages.length === 0) { l.innerHTML = '<div class="msg-empty">Henüz mesaj yok.</div>'; return; }
       l.innerHTML = messages.map(function (m) {
         var dt = new Date(m.createdAt || 0);
-        return '<div class="msg-item"><div class="msg-header"><span class="msg-sender">' + esc(m.name || '?') + ' &lt;' + esc(m.email || '?') + '&gt;</span><span class="msg-date">' + dt.toLocaleString('tr-TR') + '</span></div><div class="msg-subject">' + esc(m.subject || '(konu yok)') + '</div><div class="msg-body">' + esc(m.message || '') + '</div><div class="row-actions" style="margin-top:10px"><button type="button" class="btn btn-outline btn-sm danger msg-del" data-mid="' + m.id + '"><i class="fa-solid fa-trash"></i> Sil</button></div></div>';
+        var kim = m.discordName ? esc(m.discordName) + ' <span style="opacity:.6">(' + esc(m.discordId || '') + ')</span>' : esc(m.name || '?') + ' &lt;' + esc(m.email || '?') + '&gt;';
+        var yanitHtml = m.yanit ? '<div class="msg-body" style="border-left:3px solid #10b981;padding-left:10px;margin-top:8px"><b>↩️ Yanıt (' + esc(m.yanitlayan || '') + '):</b><br>' + esc(m.yanit) + '</div>' : '';
+        return '<div class="msg-item"><div class="msg-header"><span class="msg-sender">' + kim + '</span><span class="msg-date">' + dt.toLocaleString('tr-TR') + '</span></div><div class="msg-subject">' + esc(m.subject || '(konu yok)') + '</div><div class="msg-body">' + esc(m.message || '') + '</div>' + yanitHtml + '<div class="row-actions" style="margin-top:10px"><button type="button" class="btn btn-primary btn-sm msg-reply" data-mid="' + m.id + '"><i class="fa-solid fa-reply"></i> Yanıtla</button> <button type="button" class="btn btn-outline btn-sm danger msg-del" data-mid="' + m.id + '"><i class="fa-solid fa-trash"></i> Sil</button></div></div>';
       }).join('');
+      $$('.msg-reply').forEach(function (b) {
+        b.addEventListener('click', function () { yanitVer(b.getAttribute('data-mid')); });
+      });
       $$('.msg-del').forEach(function (b) {
         b.addEventListener('click', function () {
           if (!confirm('Mesaj silinsin mi?')) return;

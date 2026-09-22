@@ -151,10 +151,7 @@
   </div>
   <div class="con-grid">
     <form class="con-form" id="con-form" novalidate>
-      <div class="con-row">
-        <label><span data-i18n="lbl_name">Name</span><input type="text" id="n-name" name="name" required maxlength="60" data-i18n-ph="ph_name" placeholder="Your name"></label>
-        <label><span data-i18n="lbl_email">Email</span><input type="email" id="n-mail" name="email" required maxlength="120" data-i18n-ph="ph_email" placeholder="you@example.com"></label>
-      </div>
+      <p class="form-note" id="con-login-note" hidden><a href="/api/auth/discord/start?next=/index.html%23iletisim"><i class="fa-brands fa-discord"></i> <span data-i18n="form_login">Mesaj göndermek için Discord ile giriş yap</span></a></p>
       <label><span data-i18n="lbl_subject">Subject</span><input type="text" id="n-subj" name="subject" required maxlength="120" data-i18n-ph="ph_subject" placeholder="Subject"></label>
       <label><span data-i18n="lbl_message">Message</span><textarea id="n-msg" name="message" required maxlength="2000" data-i18n-ph="ph_message" placeholder="Your message..."></textarea></label>
       <input type="text" name="website" id="n-hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">

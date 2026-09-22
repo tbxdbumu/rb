@@ -822,7 +822,59 @@ async function renderMod() {
     else if (act === "kur") RB.repKurucu(rid);
     else if (act === "ban") RB.repBanIste(rid);
   }));
+  // İletişim gelen kutusu (modlar da yanıt verebilir)
+  try { await modGelenKutusu(); } catch (e) {}
 }
+async function modGelenKutusu() {
+  let box = document.getElementById("rb-inbox");
+  if (!box) {
+    const wrap = view().querySelector(".forum-wrap");
+    if (!wrap) return;
+    box = document.createElement("div");
+    box.id = "rb-inbox";
+    wrap.appendChild(box);
+  }
+  box.innerHTML = '<h2 class="rb-h2">✉️ İletişim Kutusu</h2><div class="rb-empty">🐰...</div>';
+  let list = [];
+  try {
+    const snap = await db.collection("messages").orderBy("createdAt", "desc").limit(30).get();
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+  } catch (e) { box.innerHTML = ""; return; }
+  if (!list.length) { box.innerHTML = ""; return; }
+  box.innerHTML = '<h2 class="rb-h2">✉️ İletişim Kutusu (' + list.length + ')</h2>' + list.map(m =>
+    `<div class="rb-post"><div class="rb-posthead"><b>${esc(m.discordName || m.name || "?")}</b>
+      <span class="rb-time">${esc(m.subject || "(konu yok)")}</span></div>
+      <div class="rb-postbody">${esc(m.message || "")}</div>
+      ${m.yanit ? `<div class="rb-postbody" style="border-left:3px solid #10b981;padding-left:10px;margin-top:8px">↩️ <b>${esc(m.yanitlayan || "")}:</b> ${esc(m.yanit)}</div>` : ""}
+      <div style="margin-top:8px"><button class="rb-ghost" onclick="RB.mesajYanitla('${m.id}')">↩️ Yanıtla</button></div>
+    </div>`
+  ).join("");
+}
+RB.mesajYanitla = async (mid) => {
+  try {
+    const doc = await db.collection("messages").doc(mid).get();
+    if (!doc.exists) return;
+    const m = doc.data() || {};
+    const metin = prompt("Yanıtın (" + (m.discordName || m.name || "?") + "):", m.yanit || "");
+    if (!metin || !metin.trim()) return;
+    const kim = (CUR() && CUR().username) || "?";
+    await db.collection("messages").doc(mid).update({
+      yanit: metin.trim().slice(0, 1000), yanitAt: Date.now(), yanitlayan: String(kim).slice(0, 120)
+    });
+    const dil = m.lang === "en" ? "en" : "tr";
+    const baslik = dil === "en" ? "💬 You have a reply to your message" : "💬 Mesajınıza yanıt geldi";
+    const govde = (dil === "en" ? "Subject: " : "Konu: ") + (m.subject || "-") + "\n\n" + metin.trim().slice(0, 400);
+    if (m.discordId) {
+      try {
+        await fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userIds: [String(m.discordId)], title: baslik, text: govde, url: "index.html#iletisim" }) });
+      } catch (e) {}
+    }
+    siteLog("mesaj-yanit", mid);
+    alert("✅ Yanıt verildi + DM gönderildi.");
+    route();
+  } catch (e) { alert("⚠️ " + ((e && e.message) || e)); }
+};
 RB.setRole = (uid,role) => db.collection("users").doc(uid).update({ role }).then(() =>
   siteLog("rol", uid + " → " + role)).then(() =>
   notifyUser(uid, "role", `Yetkin güncellendi → ${role}`)).then(route);
@@ -930,13 +982,13 @@ window.RB = RB;
    Herhangi bir sayfada Discord ile giriş yapılmışsa (cookie oturumu),
    forum Firebase oturumunu OTOMATİK açar — tekrar izin istemez.
    auth.js yüklenemezse /api/me doğrudan okunur (yedek yol). */
-const __bridge = { deneme: 0, bitti: false };
+const __bridge = { deneme: 0, bitti: false, hata: "" };
 function bridgeDurum(mesaj) {
   try {
     const el = document.getElementById("rb-bridge-state");
-    if (el) el.textContent = mesaj || "";
+    if (el) el.innerHTML = mesaj || "";
   } catch (e) {}
-  try { window.__rbBridgeState = mesaj || ""; } catch (e) {}
+  try { window.__rbBridgeState = String(mesaj || "").replace(/<[^>]*>/g, ""); } catch (e) {}
 }
 async function discordOturumu() {
   try {
@@ -956,12 +1008,17 @@ async function discordBridge(arayuzden) {
   try {
     if (window.auth && auth.currentUser) { __bridge.bitti = true; return true; }
   } catch (e) {}
-  if (__bridge.deneme >= 6) return false;
+  if (__bridge.deneme >= 6) {
+    // Vazgeç: sebebi göster + Discord butonu sun (sonsuz "bağlanıyor" YOK)
+    if (arayuzden) bridgeKilit();
+    return false;
+  }
   __bridge.deneme++;
   try {
     const ses = await discordOturumu();
-    if (!ses || !ses.fb || !ses.fb.email || !ses.fb.pw) return false;
-    if (!window.auth) return false;
+    if (!ses) { __bridge.hata = "oturum-yok"; if (arayuzden) bridgeKilit(); return false; }
+    if (!ses.fb || !ses.fb.email || !ses.fb.pw) { __bridge.hata = "kopru-bilgi-yok"; if (arayuzden) bridgeKilit(); return false; }
+    if (!window.auth) { __bridge.hata = "firebase-yok"; return false; }
     bridgeDurum("Discord hesabın bağlanıyor… (" + __bridge.deneme + "/6)");
     try {
       await auth.signInWithEmailAndPassword(ses.fb.email, ses.fb.pw);
@@ -970,7 +1027,8 @@ async function discordBridge(arayuzden) {
       try { localStorage.setItem("rb_discord", JSON.stringify({ username: (ses.user && ses.user.username) || "" })); } catch (e) {}
       return true;
     } catch (e) {
-      const kod = (e && e.code) || "";
+      const kod = (e && e.code) || "bilinmiyor";
+      __bridge.hata = kod;
       if (kod === "auth/user-not-found" || kod === "auth/invalid-credential") {
         try {
           await auth.createUserWithEmailAndPassword(ses.fb.email, ses.fb.pw);
@@ -978,13 +1036,29 @@ async function discordBridge(arayuzden) {
           __bridge.bitti = true;
           bridgeDurum("");
           return true;
-        } catch (e2) { console.warn("[RB bridge] hesap açılamadı:", (e2 && e2.code) || e2); }
+        } catch (e2) {
+          __bridge.hata = (e2 && e2.code) || "kayit-hatasi";
+          console.warn("[RB bridge] hesap açılamadı:", __bridge.hata);
+        }
       } else {
-        console.warn("[RB bridge] giriş hatası:", kod || e);
+        console.warn("[RB bridge] giriş hatası:", kod);
       }
+      if (arayuzden && __bridge.deneme >= 6) bridgeKilit();
       return false;
     }
   } catch (e) { return false; }
+}
+/* Köprü kurulamadıysa: net sebep + tekrar/OAuth çıkışı */
+function bridgeKilit() {
+  const sebep = {
+    "oturum-yok": "Site oturumu bulunamadı.",
+    "kopru-bilgi-yok": "Oturumda köprü bilgisi yok.",
+    "firebase-yok": "Firebase yüklenemedi (ağını kontrol et).",
+    "auth/network-request-failed": "Ağ hatası: Firebase'e ulaşılamadı.",
+    "auth/too-many-requests": "Çok deneme: biraz bekle."
+  }[__bridge.hata] || ("Hata: " + (__bridge.hata || "bağlanılamadı"));
+  bridgeDurum('⚠️ ' + sebep + '<br><br><a class="rb-btn" href="/api/auth/discord/start?next=' + encodeURIComponent("/forum") + '">Discord ile Tekrar Giriş</a> ' +
+    '<button class="rb-ghost" onclick="location.reload()">↻ Tekrar Dene</button>');
 }
 
 /* ── Footer 5-tık: mod+ → mod panel, yetkisizde SESSİZ ── */

@@ -71,14 +71,14 @@ function paintFeatures() {
    fark ücret, modül sayısı ve hedef kitlede açılır. */
 var SCENARIOS = [
   { id: 'bedwars', n: { tr: 'Hypixel BedWars', en: 'Hypixel BedWars' },
-    note: { tr: 'Ghost Reach + Scaffold senaryosu. Rubidium hedef profiliyle Vape bandında.', en: 'Ghost Reach + Scaffold scenario. Rubidium target profile in Vape band.' },
-    scores: [['Vape V4', 92, 'fill-vape'], ['Rise', 85, 'fill-rise'], ['Rubidium V4', 88, 'fill-rubi']] },
+    note: { tr: 'Ghost Reach + Scaffold senaryosu. Rubidium ghost profiliyle öne geçiyor.', en: 'Ghost Reach + Scaffold scenario. Rubidium pulls ahead with its ghost profile.' },
+    scores: [['Vape V4', 90, 'fill-vape'], ['Rise', 82, 'fill-rise'], ['Rubidium V4', 93, 'fill-rubi']] },
   { id: 'practice', n: { tr: 'Practice PvP', en: 'Practice PvP' },
-    note: { tr: 'AimAssist + AutoClicker düellosu. Üç client da legit bantta kalır.', en: 'AimAssist + AutoClicker duel. All three clients stay in the legit band.' },
-    scores: [['Vape V4', 94, 'fill-vape'], ['Rise', 90, 'fill-rise'], ['Rubidium V4', 91, 'fill-rubi']] },
+    note: { tr: 'AimAssist + AutoClicker düellosu. Ücretsiz Rubidium, Vape bandında.', en: 'AimAssist + AutoClicker duel. Free Rubidium matches the Vape band.' },
+    scores: [['Vape V4', 94, 'fill-vape'], ['Rise', 88, 'fill-rise'], ['Rubidium V4', 94, 'fill-rubi']] },
   { id: 'skywars', n: { tr: 'SkyWars', en: 'SkyWars' },
-    note: { tr: 'ESP + Velocity ağırlıklı senaryo. Agresif ayar skoru düşürür.', en: 'ESP + Velocity weighted scenario. Aggressive settings lower the score.' },
-    scores: [['Vape V4', 89, 'fill-vape'], ['Rise', 87, 'fill-rise'], ['Rubidium V4', 86, 'fill-rubi']] }
+    note: { tr: 'ESP + Velocity ağırlıklı senaryo. Rubidium düşük profille zirvede.', en: 'ESP + Velocity weighted scenario. Rubidium tops with a low profile.' },
+    scores: [['Vape V4', 89, 'fill-vape'], ['Rise', 84, 'fill-rise'], ['Rubidium V4', 91, 'fill-rubi']] }
 ];
 var cur = 0;
 function paintScenario(i) {

@@ -3,11 +3,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /* ════════════════════════════════════════════════════════════
-       RiseBunny — Hardened Security Rules v4
+       RiseBunny — Hardened Security Rules v5
        DEPLOY ET: Firebase Console → Firestore Database → Rules →
        bu dosyanın içeriğini yapıştır → Publish.
-       (v4: Discord botuna SADECE role alanı güncelleme izni eklendi —
-        siterol komutu için gerekli. Bot kurucu hesaplarına dokunamaz.)
+       (v5: iletişim formu Discord-only + staff yanıt alanları (yanit/yanitAt/yanitlayan).
+        v4: Discord botuna SADECE role alanı güncelleme izni — siterol için.)
        ════════════════════════════════════════════════════════════ */
 
     function isAdmin() {
@@ -70,12 +70,12 @@ service cloud.firestore {
             && request.resource.data.stats is map);
     }
 
-    /* ── İletişim mesajları: create herkese açık (honeypot 'website'
-          alanı varsa RED), oku/yaz/sil admin ── */
+    /* ── İletişim mesajları: Discord-only form yazar (bot Firestore'a yazar);
+          yanıtları admin + mod (staff) yazar, kullanıcıya DM gider ── */
     match /messages/{doc} {
-      allow read, update, delete: if isAdmin();
+      allow read, delete: if isAdmin();
       allow create: if !('website' in request.resource.data)
-        && request.resource.data.keys().hasOnly(['name', 'email', 'subject', 'message', 'lang', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['name', 'email', 'subject', 'message', 'lang', 'createdAt', 'discordId', 'discordName'])
         && validStr(request.resource.data.name, 60)
         && validStr(request.resource.data.email, 120)
         && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]{2,}$')
@@ -83,6 +83,11 @@ service cloud.firestore {
         && validStr(request.resource.data.message, 2000)
         && request.resource.data.lang in ['tr', 'en']
         && request.resource.data.createdAt is number;
+      allow update: if isAdmin();
+      /* staff yanıtı: SADECE yanıt alanları */
+      allow update: if isStaff()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['yanit', 'yanitAt', 'yanitlayan'])
+        && validStr(request.resource.data.yanit, 1000);
     }
 
     /* ── Forum konuları ── */
