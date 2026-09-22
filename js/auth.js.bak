@@ -50,10 +50,7 @@ function restoreFromFirebase() {
   } catch (e) { __restoring = false; }
 }
 
-/* Site→forum yönü: Discord çerezi varsa Firebase'e otomatik gir (yazma yetkisi için)
-   GÜÇLENDİRİLDİ: tekrar denemeli + hesap yoksa açmalı + sessiz değil (konsol tanılı).
-   Herhangi bir sayfada Discord girişi yapılmışsa forum/admin bir daha izin SORMAZ. */
-var __bridgeRun = false;
+/* Site→forum yönü: Discord çerezi varsa Firebase'e otomatik gir (yazma yetkisi için) */
 function forumBridge(s) {
   try {
     if (!s.ok || !s.fb || !s.fb.email || !s.fb.pw) return;
@@ -61,40 +58,16 @@ function forumBridge(s) {
     var isAdmin = /admin\.html/.test(location.pathname);
     var isAccount = /risebunny(\.html)?$/.test(location.pathname) || !!document.getElementById('acc-box');
     if (!isForum && !isAdmin && !isAccount) return;
-    if (__bridgeRun) return;
-    __bridgeRun = true;
-    var deneme = 0;
-    var email = s.fb.email, pw = s.fb.pw;
-    try { localStorage.setItem('rb_discord', JSON.stringify({ username: (s.user && s.user.username) || '' })); } catch (e) {}
-    function gir() {
-      deneme++;
-      var durumEl = document.getElementById('bridge-state');
-      if (durumEl) durumEl.textContent = 'Discord hesabın bağlanıyor… (' + deneme + ')';
-      try {
-        if (!window.firebase || !firebase.auth) { if (deneme < 10) return void setTimeout(gir, 1000); return; }
-        if (!firebase.apps.length) {
-          if (!window.firebaseConfig) { if (deneme < 10) return void setTimeout(gir, 1000); return; }
-          try { firebase.initializeApp(window.firebaseConfig); } catch (e2) { if (deneme < 10) return void setTimeout(gir, 1000); return; }
-        }
-        var au = firebase.auth();
-        if (au.currentUser) return;
-        au.signInWithEmailAndPassword(email, pw).then(function () {
-          setTimeout(function () { location.reload(); }, 400);
-        }).catch(function (err) {
-          var kod = (err && err.code) || '';
-          if ((kod === 'auth/user-not-found' || kod === 'auth/invalid-credential') && deneme === 1) {
-            au.createUserWithEmailAndPassword(email, pw).then(function () {
-              return au.signInWithEmailAndPassword(email, pw);
-            }).then(function () { setTimeout(function () { location.reload(); }, 400); })
-            .catch(function () { if (deneme < 4) setTimeout(gir, 2000); });
-            return;
-          }
-          console.warn('[RB bridge]', kod || err);
-          if (deneme < 4) setTimeout(gir, 2000);
-        });
-      } catch (e) { if (deneme < 10) setTimeout(gir, 1000); }
+    if (!window.firebase || !firebase.auth) return;
+    if (!firebase.apps.length) {
+      if (!window.firebaseConfig) return;
+      try { firebase.initializeApp(window.firebaseConfig); } catch (e2) { return; }
     }
-    gir();
+    var au = firebase.auth();
+    if (au.currentUser) return;
+    au.signInWithEmailAndPassword(s.fb.email, s.fb.pw).then(function () {
+      setTimeout(function () { location.reload(); }, 400);
+    }).catch(function () {});
   } catch (e) {}
 }
 

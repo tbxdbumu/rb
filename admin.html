@@ -23,6 +23,7 @@
     <h1>Admin Girişi</h1>
     <p>RiseBunny Yönetim Paneli — yalnızca Discord ile giriş (2 yetkili).</p>
     <a class="btn btn-primary" href="/api/auth/discord/start?next=/admin.html" style="width:100%;padding:12px"><i class="fa-brands fa-discord"></i> Discord ile Giriş</a>
+    <p id="bridge-state" class="login-hint" aria-live="polite"></p>
     <p id="login-attempts" class="login-hint" aria-live="polite"></p>
   </div>
 </div>
@@ -233,7 +234,7 @@
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script src="js/firebase-config.js?v=9"></script>
-<script src="js/auth.js?v=2"></script>
+<script src="js/auth.js?v=4"></script>
 <script src="js/admin.js?v=12"></script>
 <script src="js/admin-forum.js?v=12"></script>
 <script src="js/admin-extra.js?v=12"></script>

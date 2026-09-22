@@ -51,7 +51,6 @@
   <p><span data-i18n="tr">Topluluğumuza katıl, konular aç, tartış, bilgi paylaş. Discord ile giriş yaparak tüm özelliklere eriş.</span><span data-i18n="en">Join our community, create threads, discuss, share knowledge. Sign in with Discord to access all features.</span></p>
   <div class="btn-row">
     <a class="btn btn-discord" href="/api/auth/discord/start?next=/forum"><i class="fa-brands fa-discord"></i> <span data-i18n="tr">Discord ile Giriş</span><span data-i18n="en">Login with Discord</span></a>
-    <a class="btn btn-outline" href="changelog.html"><i class="fa-solid fa-list-check"></i> <span data-i18n="tr">Güncelleme Notları</span><span data-i18n="en">Changelog</span></a>
   </div>
 </section>
 
@@ -61,43 +60,48 @@
   <div class="footer-links">
     <a href="index.html">RiseBunny</a>
     <a href="risebunny.html">Bot</a>
-    <a href="changelog.html"><span data-i18n="tr">Güncelleme Notları</span><span data-i18n="en">Changelog</span></a>
+    <a href="docs.html"><span data-i18n="tr">Dökümantasyon</span><span data-i18n="en">Docs</span></a>
   </div>
   <span data-i18n="tr">© 2026 RiseBunny — Tüm hakları saklıdır.</span>
   <span data-i18n="en">© 2026 RiseBunny — All rights reserved.</span>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js?v=9"></script>
 <script src="js/maintenance.js?v=6"></script>
 <script>
+  /* Forum Firebase başlatma — statik SDK etiketleri yukarıda yüklendiği için
+     maintenance.js yarışına girilmez. Başarısız olursa forum.js boot ekranı gösterir. */
+  window.__rbFbReady = false;
   function __rbInitForumFirebase() {
     try {
-      if (!window.firebase) return;
-      if (!firebase.apps.length) firebase.initializeApp(window.firebaseConfig);
+      if (!window.firebase) return false;
+      var cfg = window.firebaseConfig;
+      if (!cfg || !cfg.projectId) return false;
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
       window.db = firebase.firestore();
       window.auth = firebase.auth();
-    } catch (e) {
-      try { var fa = firebase.initializeApp(window.firebaseConfig, 'forum'); window.db = fa.firestore(); window.auth = fa.auth(); } catch (e2) {}
-    }
+      try { window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch (e) {}
+      window.__rbFbReady = !!(window.db && window.auth);
+      return window.__rbFbReady;
+    } catch (e) { return false; }
   }
-  // Try immediately; if SDK not yet loaded, retry after it finishes loading
-  if (window.firebase && window.firebase.firestore) {
-    __rbInitForumFirebase();
-  } else {
+  if (!__rbInitForumFirebase()) {
     document.addEventListener('DOMContentLoaded', function() {
       var tries = 0;
       var iv = setInterval(function() {
         tries++;
-        if (window.firebase && window.firebase.firestore) { clearInterval(iv); __rbInitForumFirebase(); }
-        else if (tries > 20) clearInterval(iv);
+        if (__rbInitForumFirebase() || tries > 50) clearInterval(iv);
       }, 200);
     });
   }
 </script>
 <script src="js/forum-auth.js"></script>
 <script src="js/rb-env.js"></script>
-<script src="js/auth.js?v=3"></script>
-<script src="js/forum.js?v=16"></script>
+<script src="js/auth.js?v=4"></script>
+<script src="js/forum.js?v=18"></script>
 <script>
   // Show/hide hero based on auth state (auth.js will call paint())
   window.addEventListener('load', function() {

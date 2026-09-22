@@ -3,12 +3,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /* ════════════════════════════════════════════════════════════
-       RiseBunny — Hardened Security Rules v3
+       RiseBunny — Hardened Security Rules v4
        DEPLOY ET: Firebase Console → Firestore Database → Rules →
        bu dosyanın içeriğini yapıştır → Publish.
-       (Eski kurallar 'ADMIN_UID_BURAYA' placeholder'ı içeriyordu —
-        yani hiç kimse admin sayılmıyordu VEYA test modunda herkese
-        açıktı. Bu sürüm gerçek UID ile çalışır.)
+       (v4: Discord botuna SADECE role alanı güncelleme izni eklendi —
+        siterol komutu için gerekli. Bot kurucu hesaplarına dokunamaz.)
        ════════════════════════════════════════════════════════════ */
 
     function isAdmin() {
@@ -17,6 +16,13 @@ service cloud.firestore {
         || request.auth.token.email in ['d985126554306773063@discord.risebunny.local',
                                         'd1310366324731547798@discord.risebunny.local']
       );
+    }
+    /* Bot hesabı: veri silme talebi onaylandığında kullanıcının forum
+       içeriklerini bota sildirir. Firebase Console → Authentication →
+       Add user → bot@discord.risebunny.local (şifre bot .env: FIREBASE_BOT_SIFRE). */
+    function isBot() {
+      return request.auth != null
+        && request.auth.token.email == 'bot@discord.risebunny.local';
     }
     /* Staff rolü users koleksiyonundan okunur; rol atamayı YALNIZCA
        admin yapabildiği için bu kontrol sahtelenemez. */
@@ -157,6 +163,12 @@ service cloud.firestore {
       /* staff (admin onaylı rol) yönetir; kurucu dokümanlarına dokunulamaz */
       allow update, delete: if (isAdmin() || (isStaff()
         && !(doc in ['oblLBCNGXEYF8plKq8KUr3m6o4f1', '1310366324731547798'])));
+      /* Discord botu (siterol komutu): SADECE role alanını günceller.
+         Geçerli rol olmalı, başka alana dokunamaz, kurucu hesaplarına dokunamaz. */
+      allow update: if isBot()
+        && validRole(request.resource.data.role)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role'])
+        && !(doc in ['oblLBCNGXEYF8plKq8KUr3m6o4f1', '1310366324731547798']);
       /* kullanıcı kendi hesabını silebilir (veri silme talebi onay akışı) */
       allow delete: if request.auth != null && request.auth.uid == doc;
       /* kullanıcı kendi profilini sınırlı alanlarda günceller */
@@ -246,9 +258,17 @@ service cloud.firestore {
        (şifreyi bot .env → FIREBASE_BOT_SIFRE olarak işle). */
     match /leaderboard/{doc} {
       allow read: if true;
-      allow write: if request.auth != null
-        && request.auth.token.email == 'bot@discord.risebunny.local';
+      allow write: if isBot();
     }
+
+    /* ── Bot veri silme yetkisi ──
+       Sahip veri silme talebini onayladığında bot, kullanıcının forum
+       içeriklerini (konu/yanıt/bildirim) ve forum hesabını silebilir. Okuma
+       yetkisi verilmez, sadece silme. */
+    match /threads/{doc} { allow delete: if isBot(); }
+    match /posts/{doc} { allow delete: if isBot(); }
+    match /notifications/{doc} { allow delete: if isBot(); }
+    match /users/{doc} { allow delete: if isBot(); }
 
     /* ── RısEBUNNY LAUNCHER CİHAZ KÖPRÜSÜ (ZORUNLU) ──
        Launcher bir kod üretir, site Discord OAuth callback'inde bu dokümanı
