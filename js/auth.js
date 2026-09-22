@@ -24,83 +24,25 @@ function chipHTML(u) {
     + '</span>';
 }
 
-/* Çıkış: cookie sil + reload */
+/* Çıkış: cookie + Firebase birlikte kapatılır (RBLogin), sonra yenile */
 document.addEventListener('click', function (e) {
   var a = e.target.closest ? e.target.closest('a.rb-logout, #btn-logout2, a[href*="/api/me?logout=1"]') : null;
   if (!a) return;
   e.preventDefault();
+  if (window.RBLogin) { window.RBLogin.cikis(); return; }
   fetch('/api/me?logout=1').then(function () { location.reload(); }).catch(function () { location.reload(); });
 });
 
-/* Forum→site yönü: Discord çerezi yok ama Firebase oturumu varsa geri yükle */
+/* ESKİ köprü/restore kodları RBLogin modülüne taşındı (js/rb-login.js).
+   Aşağıdaki sarmalayıcılar geriye uyumluluk için durur, işi RBLogin yapar. */
 var __restoring = false;
-function restoreFromFirebase() {
-  if (__restoring) return;
-  try {
-    if (!window.firebase || !firebase.auth || !firebase.apps || !firebase.apps.length) return;
-    var u = firebase.auth().currentUser;
-    if (!u) return;
-    __restoring = true;
-    u.getIdToken().then(function (tok) {
-      return fetch('/api/session/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: tok }) });
-    }).then(function (r) { return r.json(); }).then(function (j) {
-      if (j && j.ok) location.reload();
-      else __restoring = false;
-    }).catch(function () { __restoring = false; });
-  } catch (e) { __restoring = false; }
-}
+function restoreFromFirebase() { try { if (window.RBLogin) window.RBLogin.init(); } catch (e) {} }
 
-/* Site→forum yönü: Discord çerezi varsa Firebase'e otomatik gir (yazma yetkisi için)
-   GÜÇLENDİRİLDİ: tekrar denemeli + hesap yoksa açmalı + sessiz değil (konsol tanılı).
-   Herhangi bir sayfada Discord girişi yapılmışsa forum/admin bir daha izin SORMAZ. */
+/* Site→forum yönü RBLogin içindedir (cookie ⇄ Firebase çift yönlü).
+   Bu fonksiyon geriye uyumluluk sarmalayıcısıdır. */
 var __bridgeRun = false;
 function forumBridge(s) {
-  try {
-    if (!s.ok || !s.fb || !s.fb.email || !s.fb.pw) return;
-    var isForum = !!document.getElementById('rb-nav-user') || location.pathname.indexOf('forum') > -1;
-    var isAdmin = /admin\.html/.test(location.pathname);
-    var isAccount = /risebunny(\.html)?$/.test(location.pathname) || !!document.getElementById('acc-box');
-    if (!isForum && !isAdmin && !isAccount) return;
-    if (__bridgeRun) return;
-    __bridgeRun = true;
-    var deneme = 0;
-    var email = s.fb.email, pw = s.fb.pw;
-    try { localStorage.setItem('rb_discord', JSON.stringify({ username: (s.user && s.user.username) || '' })); } catch (e) {}
-    function gir() {
-      deneme++;
-      var durumEl = document.getElementById('bridge-state');
-      if (durumEl) durumEl.textContent = 'Discord hesabın bağlanıyor… (' + deneme + ')';
-      if (deneme > 10) {
-        if (durumEl) durumEl.innerHTML = '⚠️ Bağlanamadı (' + (window.__rbBridgeHata || 'bilinmiyor') + '). <a href="/api/auth/discord/start?next=' + encodeURIComponent(location.pathname) + '">Discord ile tekrar giriş yap</a> veya sayfayı yenile.';
-        return;
-      }
-      try {
-        if (!window.firebase || !firebase.auth) { if (deneme < 10) return void setTimeout(gir, 1000); return; }
-        if (!firebase.apps.length) {
-          if (!window.firebaseConfig) { if (deneme < 10) return void setTimeout(gir, 1000); return; }
-          try { firebase.initializeApp(window.firebaseConfig); } catch (e2) { if (deneme < 10) return void setTimeout(gir, 1000); return; }
-        }
-        var au = firebase.auth();
-        if (au.currentUser) return;
-        au.signInWithEmailAndPassword(email, pw).then(function () {
-          setTimeout(function () { location.reload(); }, 400);
-        }).catch(function (err) {
-          var kod = (err && err.code) || '';
-          try { window.__rbBridgeHata = kod; } catch (e) {}
-          if ((kod === 'auth/user-not-found' || kod === 'auth/invalid-credential') && deneme === 1) {
-            au.createUserWithEmailAndPassword(email, pw).then(function () {
-              return au.signInWithEmailAndPassword(email, pw);
-            }).then(function () { setTimeout(function () { location.reload(); }, 400); })
-            .catch(function (e2) { try { window.__rbBridgeHata = (e2 && e2.code) || 'kayit-hatasi'; } catch (e3) {} if (deneme < 4) setTimeout(gir, 2000); else { deneme = 10; gir(); } });
-            return;
-          }
-          console.warn('[RB bridge]', kod || err);
-          if (deneme < 4) setTimeout(gir, 2000); else { deneme = 10; gir(); }
-        });
-      } catch (e) { if (deneme < 10) setTimeout(gir, 1000); }
-    }
-    gir();
-  } catch (e) {}
+  try { if (window.RBLogin) window.RBLogin.init(); } catch (e) {}
 }
 
 function paint() {
@@ -175,16 +117,33 @@ window.rbSetLang = function(l) {
   if (hero) hero.style.display = (window.RBSession && window.RBSession.ok) ? 'none' : 'block';
 };
 
+/* Oturum: TEK kaynak RBLogin. Yüklenince boya + köprüyü ona bırak. */
+function __rbPaintFromSession() {
+  try { paint(); } catch (e) {}
+  try {
+    var el = document.getElementById('bridge-state');
+    if (el && window.RBLogin) {
+      var d = window.RBLogin.durum();
+      if (d.cookie && !d.firebase) el.textContent = 'Discord hesabın bağlanıyor…';
+      else if (!d.cookie && !d.firebase) el.textContent = '';
+    }
+  } catch (e) {}
+}
 function loadSession() {
+  if (window.RBLogin) {
+    try {
+      document.addEventListener('rb-login', __rbPaintFromSession);
+      document.addEventListener('rb-session', __rbPaintFromSession);
+    } catch (e) {}
+    window.RBLogin.init().then(function () { __rbPaintFromSession(); }).catch(function () { __rbPaintFromSession(); });
+    return;
+  }
   fetch('/api/me').then(function (r) { return r.json(); }).then(function (j) {
-    window.RBSession = { loading: false, ok: !!j.ok, user: j.user || null, fb: j.fb || null, game: j.game || null, botOnline: j.botOnline || false };
+    window.RBSession = { loading: false, ok: !!j.ok, user: j.user || null, fb: j.fb || null, game: j.game || null, botOnline: !!j.botOnline };
     paint();
-    if (j.ok) forumBridge(j);
-    else restoreFromFirebase();
   }).catch(function () {
     window.RBSession = { loading: false, ok: false, user: null, fb: null, game: null, botOnline: false };
     paint();
-    restoreFromFirebase();
   });
 }
 

@@ -1,5 +1,5 @@
 import { setSession, botBase } from '../lib/_session.js';
-import { FB_KEY, readJson } from '../lib/_helpers.js';
+import { FB_KEY, readJson, fbCreds } from '../lib/_helpers.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
@@ -36,7 +36,10 @@ export default async function handler(req, res) {
         }
       } catch {}
     }
-    setSession(res, { id, username, avatar: null, email: '' });
+    setSession(res, { id, username, avatar: null, email: '',
+      fbEmail: (() => { try { return fbCreds(String(id)).email; } catch { return ''; } })(),
+      fbPw: (() => { try { return fbCreds(String(id)).pw; } catch { return ''; } })()
+    });
     return res.json({ ok: true });
   } catch { return res.status(500).json({ error: 'hata' }); }
 }

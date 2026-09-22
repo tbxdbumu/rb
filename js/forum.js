@@ -409,15 +409,23 @@ function renderLogin() {
   const ses = (window.RBSession && window.RBSession.ok) ? window.RBSession : null;
   if (ses) {
     view().innerHTML = `<div class="forum-wrap"><div class="rb-empty">🐰 Discord hesabın bağlanıyor, bekle…<br><small id="rb-bridge-state"></small></div></div>`;
-    discordBridge(true);
+    discordBridge(true).then(ok => { if (ok) route(); });
     return;
   }
-  try {
-    location.replace('/api/auth/discord/start?next=' + encodeURIComponent('/forum'));
-  } catch (e) {
-    location.href = '/api/auth/discord/start?next=/forum';
+  // Döngü koruması: OAuth'tan yeni dönüldüyse ve hâlâ oturum yoksa buton göster (otomatik sekme YOK)
+  let bounced = false;
+  try { bounced = sessionStorage.getItem("rb_login_bounce") === "1"; } catch (e) {}
+  if (!bounced) {
+    try { sessionStorage.setItem("rb_login_bounce", "1"); } catch (e) {}
+    try {
+      location.replace('/api/auth/discord/start?next=' + encodeURIComponent('/forum'));
+    } catch (e) {
+      location.href = '/api/auth/discord/start?next=/forum';
+    }
+    view().innerHTML = `<div class="rb-empty">🐰 Discord'a yönlendiriliyorsun…</div>`;
+    return;
   }
-  view().innerHTML = `<div class="rb-empty">🐰 Discord'a yönlendiriliyorsun…</div>`;
+  view().innerHTML = `<div class="forum-wrap"><div class="rb-empty">🐰 Devam etmek için Discord ile giriş yap.<br><br><a class="rb-btn" href="/api/auth/discord/start?next=${encodeURIComponent("/forum")}">Discord ile Giriş</a></div></div>`;
 }
 
 /* ── Yetkili mini paneli ── */
@@ -978,10 +986,8 @@ document.addEventListener("click", function (e) {
 });
 window.RB = RB;
 
-/* ══════════ DISCORD KÖPRÜSÜ (dahili) ══════════
-   Herhangi bir sayfada Discord ile giriş yapılmışsa (cookie oturumu),
-   forum Firebase oturumunu OTOMATİK açar — tekrar izin istemez.
-   auth.js yüklenemezse /api/me doğrudan okunur (yedek yol). */
+/* ══════════ BİRLEŞİK OTURUM (RBLogin) ══════════
+   Cookie ⇄ Firebase senkronu js/rb-login.js yapar; forum sadece izler. */
 const __bridge = { deneme: 0, bitti: false, hata: "" };
 function __debugAcik() { try { return /[?&]debug=1/.test(location.search); } catch (e) { return false; } }
 function __debugYaz() {
@@ -1009,7 +1015,17 @@ function bridgeDurum(mesaj) {
 }
 async function discordOturumu() {
   try {
-    if (window.RBSession && window.RBSession.ok && window.RBSession.fb) return window.RBSession;
+    if (window.RBLogin) {
+      const d = await window.RBLogin.init().catch(() => null);
+      const st = (d || window.RBLogin.durum());
+      if (st && st.cookie) {
+        try { window.RBSession = { loading: false, ok: true, user: st.cookie, fb: (st.cookie.fb || null) }; } catch (e) {}
+        return window.RBSession;
+      }
+    }
+  } catch (e) {}
+  try {
+    if (window.RBSession && window.RBSession.ok) return window.RBSession;
   } catch (e) {}
   try {
     const r = await fetch("/api/me", { credentials: "same-origin" }).then(x => x.json()).catch(() => null);
@@ -1021,48 +1037,19 @@ async function discordOturumu() {
   return null;
 }
 async function discordBridge(arayuzden) {
-  if (__bridge.bitti) return true;
+  // Gerçek iş RBLogin'de; burada sadece durum izlenir + arayüz güncellenir
   try {
-    if (window.auth && auth.currentUser) { __bridge.bitti = true; return true; }
-  } catch (e) {}
-  if (__bridge.deneme >= 6) {
-    // Vazgeç: sebebi göster + Discord butonu sun (sonsuz "bağlanıyor" YOK)
-    if (arayuzden) bridgeKilit();
-    return false;
-  }
-  __bridge.deneme++;
-  try {
-    const ses = await discordOturumu();
-    if (!ses) { __bridge.hata = "oturum-yok"; if (arayuzden) bridgeKilit(); return false; }
-    if (!ses.fb || !ses.fb.email || !ses.fb.pw) { __bridge.hata = "kopru-bilgi-yok"; if (arayuzden) bridgeKilit(); return false; }
-    if (!window.auth) { __bridge.hata = "firebase-yok"; return false; }
-    bridgeDurum("Discord hesabın bağlanıyor… (" + __bridge.deneme + "/6)");
-    try {
-      await auth.signInWithEmailAndPassword(ses.fb.email, ses.fb.pw);
-      __bridge.bitti = true;
-      bridgeDurum("");
-      try { localStorage.setItem("rb_discord", JSON.stringify({ username: (ses.user && ses.user.username) || "" })); } catch (e) {}
-      return true;
-    } catch (e) {
-      const kod = (e && e.code) || "bilinmiyor";
-      __bridge.hata = kod;
-      if (kod === "auth/user-not-found" || kod === "auth/invalid-credential") {
-        try {
-          await auth.createUserWithEmailAndPassword(ses.fb.email, ses.fb.pw);
-          await auth.signInWithEmailAndPassword(ses.fb.email, ses.fb.pw);
-          __bridge.bitti = true;
-          bridgeDurum("");
-          return true;
-        } catch (e2) {
-          __bridge.hata = (e2 && e2.code) || "kayit-hatasi";
-          console.warn("[RB bridge] hesap açılamadı:", __bridge.hata);
-        }
-      } else {
-        console.warn("[RB bridge] giriş hatası:", kod);
-      }
-      if (arayuzden && __bridge.deneme >= 6) bridgeKilit();
-      return false;
+    if (!window.RBLogin) return !!(window.auth && auth.currentUser);
+    const d = await window.RBLogin.init().catch(() => null);
+    const st = d || window.RBLogin.durum();
+    if (st.firebase || (window.auth && auth.currentUser)) { __bridge.bitti = true; bridgeDurum(""); return true; }
+    __bridge.hata = (st && st.bridgeHata) || "baglanamadi";
+    __bridge.deneme++;
+    if (arayuzden) {
+      if (st && st.cookie) bridgeDurum("Discord hesabın bağlanıyor…");
+      else bridgeKilit();
     }
+    return false;
   } catch (e) { return false; }
 }
 /* Köprü kurulamadıysa: net sebep + tekrar/OAuth çıkışı */
@@ -1127,6 +1114,7 @@ async function boot() {
         RBAuth.onAuth(function () {
           __boot.authIlk = true;
           try { touchLastLogin(); } catch (e) {}
+          try { sessionStorage.removeItem("rb_login_bounce"); } catch (e) {}
           try {
             const v = view();
             if (v) v.dataset.hazir = "1";
@@ -1137,18 +1125,25 @@ async function boot() {
       } catch (e) {}
       try { window.addEventListener("hashchange", route); } catch (e) {}
       try { setupFooterTap(); } catch (e) {}
-      // auth.js köprüsü yoksa/yavaşsa dahili köprü devralır
-      (async () => {
-        for (let i = 0; i < 12; i++) {
+      // Birleşik oturum: RBLogin bitince (cookie/Firebase her yönde) yeniden çiz
+      try {
+        window.addEventListener("rb-login", function () {
+          __boot.authIlk = true;
           try {
-            if (window.auth && auth.currentUser) break;
-            await discordBridge(false);
-            if (window.auth && auth.currentUser) break;
+            const v = view();
+            if (v) v.dataset.hazir = "1";
           } catch (e) {}
-          await new Promise(r => setTimeout(r, 1500));
-        }
+          try { __debugYaz(); } catch (e) {}
+          route();
+        });
+      } catch (e) {}
+      // auth.js köprüsü yoksa/yavaşsa RBLogin doğrudan devralır
+      (async () => {
+        try {
+          if (window.RBLogin) await window.RBLogin.init().catch(() => null);
+        } catch (e) {}
+        await new Promise(r => setTimeout(r, 4000));
         if (!__boot.authIlk) { try { route(); } catch (e) {} }
-      try { __debugYaz(); } catch (e) {}
       })();
     }
   } catch (e) { console.error("[RB boot]", e); }
