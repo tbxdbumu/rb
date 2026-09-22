@@ -9,11 +9,26 @@ const STATIC_SHOP = [
   { id: 'pet_balik', ad: '🐠 Balık', fiyat: 162000, tip: 'pet', premiumGerek: false },
   { id: 'pet_aslan', ad: '🦁 Aslan', fiyat: 315000, tip: 'pet', premiumGerek: true },
   { id: 'pet_kaplan', ad: '🐅 Kaplan', fiyat: 342000, tip: 'pet', premiumGerek: true },
+  { id: 'paket_rastgele', ad: '🎁 Rastgele Paket', fiyat: 150000, tip: 'paket', premiumGerek: false },
   { id: 'minecon2011', ad: '🏛️ Minecon 2011 Pelerini', fiyat: 100000, tip: 'cape', premiumGerek: false },
   { id: 'bunny-neon', ad: '⚡ Bunny Neon Pelerini', fiyat: 200000, tip: 'cape', premiumGerek: false },
   { id: 'anniversary15', ad: '💚 15. Yıl Creeper Pelerini', fiyat: 300000, tip: 'cape', premiumGerek: false },
   { id: 'ender-heart', ad: '💜 Ender Heart Pelerini', fiyat: 400000, tip: 'cape', premiumGerek: false },
-  { id: 'bunny-gold', ad: '🐰 Bunny Gold Pelerini', fiyat: 500000, tip: 'cape', premiumGerek: false }
+  { id: 'bunny-gold', ad: '🐰 Bunny Gold Pelerini', fiyat: 500000, tip: 'cape', premiumGerek: false },
+  { id: 'migrator', ad: '🧭 Migrator Pelerini', fiyat: 600000, tip: 'cape', premiumGerek: true },
+  { id: 'trosa-crown', ad: '👑 Trosa Crown Pelerini', fiyat: 700000, tip: 'cape', premiumGerek: true },
+  { id: 'bandana-red', ad: '🎀 Kırmızı Bandana', fiyat: 50000, tip: 'bandana', premiumGerek: false },
+  { id: 'bandana-blue', ad: '💙 Mavi Bandana', fiyat: 100000, tip: 'bandana', premiumGerek: false },
+  { id: 'bandana-gold', ad: '👑 Altın Bandana', fiyat: 150000, tip: 'bandana', premiumGerek: false },
+  { id: 'ember-cape', ad: '🔥 Ember Pelerini', fiyat: 0, tip: 'cape', premiumGerek: false },
+  { id: 'ocean-cape', ad: '🌊 Ocean Pelerini', fiyat: 0, tip: 'cape', premiumGerek: false },
+  { id: 'mint-cape', ad: '🌿 Mint Pelerini', fiyat: 0, tip: 'cape', premiumGerek: false },
+  { id: 'blossom-cape', ad: '🌸 Blossom Pelerini', fiyat: 0, tip: 'cape', premiumGerek: false },
+  { id: 'royal-cape', ad: '👑 Royal Pelerini', fiyat: 250000, tip: 'cape', premiumGerek: false },
+  { id: 'bloodmoon-cape', ad: '🌙 Blood Moon Pelerini', fiyat: 350000, tip: 'cape', premiumGerek: false },
+  { id: 'frost-cape', ad: '❄️ Frost Pelerini', fiyat: 450000, tip: 'cape', premiumGerek: false },
+  { id: 'shadow-cape', ad: '🌑 Shadow Pelerini', fiyat: 600000, tip: 'cape', premiumGerek: false },
+  { id: 'dragon-wings', ad: '🐲 Dragon Wings', fiyat: 250000, tip: 'cape', premiumGerek: false }
 ];
 
 export default async function handler(req, res) {

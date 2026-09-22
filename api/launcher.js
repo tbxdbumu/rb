@@ -29,6 +29,9 @@ export default async function handler(req, res) {
   // ═══════════════ VERIFY ═══════════════
   if (op.endsWith('/verify')) {
     let id = url.searchParams.get('id');
+    /* notify=1 → kullanıcı launcher'dan ELLE giriş yaptı; bot DM + sahip log
+       üretir. Arka plan tazelemeleri notify göndermediği için spam olmaz. */
+    const notify = url.searchParams.get('notify') === '1';
     if (!id && req.method === 'POST') {
       const body = await readJson(req);
       id = body.id || body.discordId;
@@ -88,6 +91,16 @@ export default async function handler(req, res) {
     }
 
     if (!isPremium) {
+      /* Premium olmasa da giriş başarılı sayılır (oynamak ücretsiz); bildirim yine gider. */
+      if (notify && bBase && process.env.BOT_API_SECRET) {
+        try {
+          await fetch(`${bBase}/api/login`, {
+            method: 'POST',
+            headers: { ...botHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: id, username, source: 'launcher' })
+          });
+        } catch (e) { console.error('[launcher] login notify err:', e.message); }
+      }
       return res.status(403).json({
         ok: false, premium: false, discordId: id,
         error: 'Bu Discord ID için aktif Premium bulunamadı.'
@@ -113,6 +126,17 @@ export default async function handler(req, res) {
           }
         );
       } catch (e) { console.error('[launcher] firestore write err:', e.message); }
+    }
+
+    /* Launcher giriş bildirimi: bota ilet (DM + sahip log). */
+    if (notify && bBase && process.env.BOT_API_SECRET) {
+      try {
+        await fetch(`${bBase}/api/login`, {
+          method: 'POST',
+          headers: { ...botHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: id, username, source: 'launcher' })
+        });
+      } catch (e) { console.error('[launcher] login notify err:', e.message); }
     }
 
     return res.json({

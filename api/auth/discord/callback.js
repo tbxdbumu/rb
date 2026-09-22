@@ -110,12 +110,14 @@ export default async function handler(req, res) {
     await ensureFirebaseUser(fb.email, fb.pw);
     console.log('[cb] ✅ firebase user hazır');
 
-    linkBot(String(u.id), u.username, u.email || '');
-    console.log('[cb] ✅ bot link çağrısı yapıldı');
+    /* Launcher cihaz akışıyla mı gelindi? Bota giriş kaynağını da bildir. */
+    const deviceKod = (String(next).match(/[?&]device=([A-Za-z0-9]{4,12})/) || [])[1];
+    linkBot(String(u.id), u.username, u.email || '', deviceKod ? 'launcher' : 'site');
+    console.log('[cb] ✅ bot link çağrısı yapıldı (kaynak:', deviceKod ? 'launcher' : 'site', ')');
 
     // Launcher device bridge
     try {
-     const dm = String(next).match(/[?&]device=([A-Za-z0-9]{4,12})/);
+     const dm = deviceKod ? [null, deviceKod] : null;
       if (dm && PROJECT && FB_KEY) {
         console.log('[cb] launcher device bridge:', dm[1]);
         const dav = u.avatar

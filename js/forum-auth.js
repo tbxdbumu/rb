@@ -30,6 +30,13 @@ async function loadCurrent(uid) {
   let data = s.exists ? s.data() : null;
   if (!data && uid === window.ADMIN_UID)
     data = { username:"kurucu", role:"kurucu", banned:false, avatar:"", stats:{ threads:0, posts:0, likes:0 } };
+  /* self-heal: eski/Discord-köprülü hesaplarda eksik alanları onar —
+     rol yoksa member yaz (yoksa rozet/konu açma ağırlığı tutarsız olur) */
+  if (data && !data.role) {
+    data.role = "member";
+    try { await db.collection("users").doc(uid).update({ role: "member" }); } catch (e) {}
+  }
+  if (data && data.banned == null) data.banned = false;
   CURRENT = data ? { uid, ...data } : null;
   return CURRENT;
 }

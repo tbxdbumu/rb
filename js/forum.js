@@ -261,7 +261,12 @@ function route() {
     if (page === "new")     return renderNew(arg);
     if (page === "login")   return renderLogin();
     if (page === "notif")   return renderNotif();
-    if (page === "mod") return renderMod();
+    if (page === "mod") {
+      /* Sessiz kapı: giriş yoksa veya rol yetkili değilse (member/vip/developer)
+         HİÇBİR ŞEY göstermeden ana sayfaya dön — footer 5-tık denemeleri iz bırakmaz. */
+      if (!CUR() || myW() < 3) { location.hash = "#/"; return; }
+      return renderMod();
+    }
     if (page === "admin") {
       if (!adminUnlocked() || myW() < 3)
         return view().innerHTML = `<div class="rb-empty">${t("notFound")}</div>`;
@@ -826,7 +831,9 @@ RB.repBanIste = async rid => {
   } catch (e) { alert("⚠️ " + (e.message || e)); }
 };
 async function renderMod() {
-  if (!CUR() || myW() < 3) return view().innerHTML = `<div class="rb-empty">${t("noPerm")}</div>`;
+  if (!CUR() || myW() < 3) { location.hash = "#/"; return; }
+  const _cu = CUR();
+  const _isAdmin = _cu && (_cu.uid === window.ADMIN_UID || ((window.ADMIN_UIDS || []).indexOf(_cu.uid) > -1));
   let rows = [];
   try {
     const snap = await db.collection("reports").where("durum", "==", "acik").get();
@@ -835,6 +842,7 @@ async function renderMod() {
   rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   view().innerHTML = `<div class="forum-wrap"><a class="rb-back" href="#/">${t("back")}</a>
     <h2 class="rb-h2">🛡️ Mod Paneli — Açık Raporlar (${rows.length})</h2>
+    ${_isAdmin ? `<button class="rb-btn" onclick="try{sessionStorage.setItem('rb_admin_token','1');sessionStorage.setItem('rb_admin_time',String(Date.now()));}catch(e){}location.href='admin.html'">⚙️ Admin Panel</button>` : ""}
     ${rows.map(r => {
       const tipRenk = r.hedefTip === "user" ? "#ef4444" : r.hedefTip === "post" ? "#3b82f6" : "#f59e0b";
       const tipAd = r.hedefTip === "user" ? "👤 Kullanıcı" : r.hedefTip === "post" ? "💬 Yanıt" : "📝 Konu";

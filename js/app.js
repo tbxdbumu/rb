@@ -214,9 +214,11 @@ function setLang(l) {
 window.RB = { setLang: setLang };
 $$('.lang-btn').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
 
-/* secret footer entry → admin panel (5 taps, sessiz + 5 dk tek kullanımlık jeton)
-   Gizlilik: başarıda bile görsel ipucu YOK — doğrudan admin.html'e geçilir.
-   admin.html + firebase-config.js jetonu + zamanı doğrular; süre dolmuşsa 404. */
+/* secret footer entry → mod panel (5 taps, sessiz + 5 dk tek kullanımlık jeton)
+   Gizlilik: görsel ipucu YOK — forum.html#/mod açılır.
+   Yetki forumda doğrulanır: giriş yoksa veya rol yetkili değilse (member/vip/developer)
+   SESSİZCE ana sayfaya dönülür, hiçbir şey gösterilmez. Sadece moderator/kurucu paneli görür.
+   Admin paneline (admin.html) buradan geçilmez; yetkililer mod panelindeki butonu kullanır. */
 (function secretEntry() {
   var foot = document.getElementById('foot-base') || document.querySelector('.site-footer .footer-base') || document.querySelector('.site-footer') || document.querySelector('footer.site-footer');
   if (!foot) return;
@@ -228,10 +230,10 @@ $$('.lang-btn').forEach(function (b) { b.addEventListener('click', function () {
     if (taps >= 5) {
       taps = 0;
       try {
-        sessionStorage.setItem('rb_admin_token', '1');
-        sessionStorage.setItem('rb_admin_time', String(Date.now()));
+        sessionStorage.setItem('rb_mod_token', '1');
+        sessionStorage.setItem('rb_mod_time', String(Date.now()));
       } catch (e) {}
-      window.location.href = 'admin.html';
+      window.location.href = 'forum.html#/mod';
     }
   });
 })();
