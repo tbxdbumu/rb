@@ -342,6 +342,8 @@ function conLoginDurumu() {
   } catch (e) {}
 }
 try { document.addEventListener('rb-session', conLoginDurumu); } catch (e) {}
+try { document.addEventListener('rb-login', conLoginDurumu); } catch (e) {}
+try { document.addEventListener('visibilitychange', function () { if (!document.hidden && window.RBLogin) window.RBLogin.yenile().catch(function () {}); }); } catch (e) {}
 conLoginDurumu();
 if (form) form.addEventListener('submit', function (e) {
   e.preventDefault();

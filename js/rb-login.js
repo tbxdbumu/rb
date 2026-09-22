@@ -163,9 +163,53 @@ window.RBLogin = {
   durum: function () { return DURUM; },
   cikis: cikis,
   girisUrl: girisUrl,
-  kopru: firebaseKopru
+  kopru: firebaseKopru,
+  /* Başka sekmede giriş/çıkış olduysa veya sayfa odağa döndüyse yeniden tara */
+  yenile: function () { BASLADI = false; DURUM.bridgeHata = ''; return init(); }
 };
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-else init();
+var __sonYenile = 0;
+function odakYenile() {
+  try {
+    var simdi = Date.now();
+    if (simdi - __sonYenile < 5000) return;
+    __sonYenile = simdi;
+    if (window.RBLogin) window.RBLogin.yenile().catch(function () {});
+  } catch (e) {}
+}
+try {
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) odakYenile();
+  });
+  window.addEventListener('focus', odakYenile);
+  window.addEventListener('storage', function (e) {
+    if (e && (e.key === 'rb_discord' || e.key === null)) odakYenile();
+  });
+} catch (e) {}
+
+/* OAuth dönüşü doğrulama: ?login=ok varsa cookie gerçekten yazılmış mı bak.
+   Yazılmamışsa (nadir) sebebi göster, sessizce "girişli gibi" davranma. */
+async function girisDogrula() {
+  try {
+    if (!/[?&]login=ok/.test(location.search)) return;
+    for (var i = 0; i < 3; i++) {
+      try {
+        const j = await fetch('/api/me', { credentials: 'same-origin' }).then(x => x.json()).catch(() => null);
+        if (j && j.ok) { try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {} return; }
+      } catch (e) {}
+      await bekle(1200);
+    }
+    // Hâlâ yok → kullanıcıya söyle
+    try {
+      const msg = document.createElement('div');
+      msg.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99999;background:#7f1d1d;color:#fff;font:13px/1.5 system-ui;padding:10px 16px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3)';
+      msg.textContent = '⚠️ Giriş kaydedilemedi (oturum çerezi yazılamadı). Gizli sekme/reklam engelleyiciyi kapatıp tekrar dene.';
+      document.body.appendChild(msg);
+      setTimeout(function () { try { msg.remove(); } catch (e) {} }, 9000);
+    } catch (e) {}
+  } catch (e) {}
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(); girisDogrula(); });
+else { init(); girisDogrula(); }
 })();
