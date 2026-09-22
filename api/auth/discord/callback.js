@@ -152,7 +152,13 @@ export default async function handler(req, res) {
       fbPw: fb.pw
     });
 
-    const finalUrl = next + (next.includes('?') ? '&' : '?') + 'login=ok';
+    /* login=ok parametresi fragment'tan ÖNCE eklenmeli:
+       /risebunny#hesabim + ?login=ok → /risebunny#hesabim?login=ok (BOZUK: sunucu görmez)
+       doğrusu: /risebunny?login=ok#hesabim */
+    const hashIx = next.indexOf('#');
+    const yol = hashIx > -1 ? next.slice(0, hashIx) : next;
+    const frag = hashIx > -1 ? next.slice(hashIx) : '';
+    const finalUrl = yol + (yol.includes('?') ? '&' : '?') + 'login=ok' + frag;
     console.log('[cb] ✅✅✅ BAŞARILI → redirect:', finalUrl);
     return res.redirect(302, finalUrl);
 

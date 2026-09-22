@@ -70,6 +70,10 @@ function forumBridge(s) {
       deneme++;
       var durumEl = document.getElementById('bridge-state');
       if (durumEl) durumEl.textContent = 'Discord hesabın bağlanıyor… (' + deneme + ')';
+      if (deneme > 10) {
+        if (durumEl) durumEl.innerHTML = '⚠️ Bağlanamadı (' + (window.__rbBridgeHata || 'bilinmiyor') + '). <a href="/api/auth/discord/start?next=' + encodeURIComponent(location.pathname) + '">Discord ile tekrar giriş yap</a> veya sayfayı yenile.';
+        return;
+      }
       try {
         if (!window.firebase || !firebase.auth) { if (deneme < 10) return void setTimeout(gir, 1000); return; }
         if (!firebase.apps.length) {
@@ -82,15 +86,16 @@ function forumBridge(s) {
           setTimeout(function () { location.reload(); }, 400);
         }).catch(function (err) {
           var kod = (err && err.code) || '';
+          try { window.__rbBridgeHata = kod; } catch (e) {}
           if ((kod === 'auth/user-not-found' || kod === 'auth/invalid-credential') && deneme === 1) {
             au.createUserWithEmailAndPassword(email, pw).then(function () {
               return au.signInWithEmailAndPassword(email, pw);
             }).then(function () { setTimeout(function () { location.reload(); }, 400); })
-            .catch(function () { if (deneme < 4) setTimeout(gir, 2000); });
+            .catch(function (e2) { try { window.__rbBridgeHata = (e2 && e2.code) || 'kayit-hatasi'; } catch (e3) {} if (deneme < 4) setTimeout(gir, 2000); else { deneme = 10; gir(); } });
             return;
           }
           console.warn('[RB bridge]', kod || err);
-          if (deneme < 4) setTimeout(gir, 2000);
+          if (deneme < 4) setTimeout(gir, 2000); else { deneme = 10; gir(); }
         });
       } catch (e) { if (deneme < 10) setTimeout(gir, 1000); }
     }

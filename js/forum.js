@@ -983,6 +983,23 @@ window.RB = RB;
    forum Firebase oturumunu OTOMATİK açar — tekrar izin istemez.
    auth.js yüklenemezse /api/me doğrudan okunur (yedek yol). */
 const __bridge = { deneme: 0, bitti: false, hata: "" };
+function __debugAcik() { try { return /[?&]debug=1/.test(location.search); } catch (e) { return false; } }
+function __debugYaz() {
+  try {
+    if (!__debugAcik()) return;
+    let el = document.getElementById("rb-debug");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "rb-debug";
+      el.style.cssText = "position:fixed;left:8px;bottom:8px;z-index:99999;background:#111827;color:#e5e7eb;font:11px/1.5 monospace;padding:10px 12px;border-radius:10px;max-width:92vw;white-space:pre-wrap;opacity:.95";
+      document.body.appendChild(el);
+    }
+    const ses = (window.RBSession && window.RBSession.ok) ? ("oturum:VAR (" + ((window.RBSession.user && window.RBSession.user.id) || "?") + ") fb:" + (window.RBSession.fb ? "var" : "YOK")) : "oturum:yok";
+    let fb = "sdk:yok";
+    try { fb = (window.firebase && firebase.apps && firebase.apps.length) ? ("fbu:" + (firebase.auth().currentUser ? firebase.auth().currentUser.email : "yok")) : "sdk:yok"; } catch (e) { fb = "sdk:hata"; }
+    el.textContent = "[RB debug]\n" + ses + "\n" + fb + "\nköprü: " + __bridge.deneme + "/6 hata:" + (__bridge.hata || "-") + "\nrol:" + ((CUR() && CUR().role) || "-");
+  } catch (e) {}
+}
 function bridgeDurum(mesaj) {
   try {
     const el = document.getElementById("rb-bridge-state");
@@ -1052,13 +1069,16 @@ async function discordBridge(arayuzden) {
 function bridgeKilit() {
   const sebep = {
     "oturum-yok": "Site oturumu bulunamadı.",
-    "kopru-bilgi-yok": "Oturumda köprü bilgisi yok.",
+    "kopru-bilgi-yok": "Oturumda köprü bilgisi yok. Çıkış yapıp Discord ile yeniden gir.",
     "firebase-yok": "Firebase yüklenemedi (ağını kontrol et).",
     "auth/network-request-failed": "Ağ hatası: Firebase'e ulaşılamadı.",
-    "auth/too-many-requests": "Çok deneme: biraz bekle."
+    "auth/too-many-requests": "Çok deneme: biraz bekle.",
+    "auth/operation-not-allowed": "Firebase'de E-posta/Şifre girişi KAPALI. Açılması gerek (bkz. docs).",
+    "auth/unauthorized-domain": "Domain Firebase yetkili listesinde değil."
   }[__bridge.hata] || ("Hata: " + (__bridge.hata || "bağlanılamadı"));
   bridgeDurum('⚠️ ' + sebep + '<br><br><a class="rb-btn" href="/api/auth/discord/start?next=' + encodeURIComponent("/forum") + '">Discord ile Tekrar Giriş</a> ' +
     '<button class="rb-ghost" onclick="location.reload()">↻ Tekrar Dene</button>');
+  __debugYaz();
 }
 
 /* ── Footer 5-tık: mod+ → mod panel, yetkisizde SESSİZ ── */
@@ -1111,6 +1131,7 @@ async function boot() {
             const v = view();
             if (v) v.dataset.hazir = "1";
           } catch (e) {}
+          try { __debugYaz(); } catch (e) {}
           route();
         });
       } catch (e) {}
@@ -1127,6 +1148,7 @@ async function boot() {
           await new Promise(r => setTimeout(r, 1500));
         }
         if (!__boot.authIlk) { try { route(); } catch (e) {} }
+      try { __debugYaz(); } catch (e) {}
       })();
     }
   } catch (e) { console.error("[RB boot]", e); }
