@@ -17,8 +17,8 @@ var BASLADI = false;
 
 function olay() {
   try { window.RBSession = DURUM.cookie
-    ? { loading: false, ok: true, user: DURUM.cookie, fb: DURUM.cookie.fb || null, game: null, botOnline: false }
-    : { loading: false, ok: false, user: null, fb: null, game: null, botOnline: false };
+    ? { loading: false, ok: true, user: DURUM.cookie, fb: DURUM.cookie.fb || null, game: DURUM.cookie.game || null, botOnline: !!DURUM.cookie.botOnline, botNeden: DURUM.cookie.botNeden || null }
+    : { loading: false, ok: false, user: null, fb: null, game: null, botOnline: false, botNeden: null };
   } catch (e) {}
   try { window.dispatchEvent(new CustomEvent('rb-login', { detail: DURUM })); } catch (e) {}
   try { window.dispatchEvent(new CustomEvent('rb-session', { detail: window.RBSession })); } catch (e) {}
@@ -45,7 +45,8 @@ async function cookieOku() {
       if (j && j.ok) {
         DURUM.cookie = {
           id: j.user.id, username: j.user.username, avatar: j.user.avatar,
-          email: j.user.email || '', fb: j.fb || null
+          email: j.user.email || '', fb: j.fb || null,
+          game: j.game || null, botOnline: !!j.botOnline, botNeden: j.botNeden || null
         };
         try { localStorage.setItem('rb_discord', JSON.stringify({ username: j.user.username || '' })); } catch (e) {}
         return true;

@@ -139,7 +139,7 @@ function loadSession() {
     return;
   }
   fetch('/api/me').then(function (r) { return r.json(); }).then(function (j) {
-    window.RBSession = { loading: false, ok: !!j.ok, user: j.user || null, fb: j.fb || null, game: j.game || null, botOnline: !!j.botOnline };
+    window.RBSession = { loading: false, ok: !!j.ok, user: j.user || null, fb: j.fb || null, game: j.game || null, botOnline: !!j.botOnline, botNeden: j.botNeden || null };
     paint();
   }).catch(function () {
     window.RBSession = { loading: false, ok: false, user: null, fb: null, game: null, botOnline: false };

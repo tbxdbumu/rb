@@ -28,13 +28,16 @@ export default async function handler(req, res) {
 
   const bBase = botBase();
   const bSec = process.env.BOT_API_SECRET || '';
+  if (!bBase) out.botNeden = 'no-url';
+  else if (!bSec) out.botNeden = 'no-secret';
   if (bBase && bSec) {
     try {
       const r = await fetch(`${bBase}/api/user/${encodeURIComponent(s.id)}`, {
         headers: botHeaders()
       });
       if (r.ok) { out.game = await r.json(); out.botOnline = true; }
-    } catch {}
+      else out.botNeden = 'http-' + r.status;
+    } catch { out.botNeden = 'erisim-yok'; }
   }
   return res.json(out);
 }

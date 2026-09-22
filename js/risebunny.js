@@ -324,7 +324,13 @@ function paintAccount(s) {
     s.user.username.replace(/[<>&"]/g, '') + '</div>';
   if (s.user.email) html += '<p class="lb-note" style="margin:2px 0 0">✉️ ' + String(s.user.email).replace(/[<>&"]/g, '') + '</p>';
   if (!s.botOnline || !g) {
-    html += '<p class="lb-note">' + (LANG === 'tr' ? 'Bot çevrimdışı — bakiye şu an görünmüyor.' : 'Bot offline — balance unavailable right now.') + '</p>';
+    var neden = s.botNeden || 'erisim-yok';
+    var nedenTxt = {
+      'no-url': 'BOT_API_URL tanımsız (Vercel env).',
+      'no-secret': 'BOT_API_SECRET tanımsız (Vercel env).',
+      'erisim-yok': 'Bota erişilemiyor (bot kapalı olabilir).'
+    }[neden] || (String(neden).indexOf('http-') === 0 ? 'Bot hata döndürdü (' + neden + ').' : 'Bota erişilemiyor.');
+    html += '<p class="lb-note">' + (LANG === 'tr' ? 'Bot çevrimdışı — bakiye şu an görünmüyor. (' + nedenTxt + ')' : 'Bot offline — balance unavailable right now. (' + nedenTxt + ')') + '</p>';
   } else {
     html += '<div class="acc-stats">'
       + '<span class="acc-stat">💸<b>' + fmtN(g.total) + '</b>' + (LANG === 'tr' ? 'Toplam' : 'Total') + '</span>'
@@ -336,7 +342,7 @@ function paintAccount(s) {
   html += '</div><a class="btn line sm rb-logout" href="/api/me?logout=1" id="btn-logout2"><i class="fa-solid fa-right-from-bracket"></i><span>' + (LANG === 'tr' ? 'Çıkış' : 'Logout') + '</span></a></div>';
   box.innerHTML = html;
   var lo = $('#btn-logout2');
-  if (lo) lo.addEventListener('click', function (e) { e.preventDefault(); fetch('/api/me?logout=1').then(function () { location.reload(); }); });
+  if (lo) lo.addEventListener('click', function (e) { e.preventDefault(); if (window.RBLogin) { window.RBLogin.cikis(); return; } fetch('/api/me?logout=1').then(function () { try { return firebase.auth().signOut(); } catch (e2) {} }).then(function () { location.reload(); }); });
   var cbx = $('#coupon-box');
   if (cbx) cbx.hidden = false;
   var cbtn = $('#coupon-btn');
@@ -353,7 +359,7 @@ function paintAccount(s) {
           if (res.j.ok) {
             alert('✅ ' + (res.j.mesaj || 'Kupon kullanıldı!'));
             fetch('/api/me').then(function (r) { return r.json(); }).then(function (j2) {
-              window.RBSession = { loading: false, ok: !!j2.ok, user: j2.user || null, fb: j2.fb || null, game: j2.game || null, botOnline: !!j2.botOnline };
+              window.RBSession = { loading: false, ok: !!j2.ok, user: j2.user || null, fb: j2.fb || null, game: j2.game || null, botOnline: !!j2.botOnline, botNeden: j2.botNeden || null };
               paintAccount(window.RBSession);
             }).catch(function () {});
           } else {
@@ -655,7 +661,7 @@ function buyItem(it, btn) {
         else msg += '\nDM ile bildirim gönderildi.';
         alert(msg);
         fetch('/api/me').then(function (r) { return r.json(); }).then(function (j2) {
-          window.RBSession = { loading: false, ok: !!j2.ok, user: j2.user || null, fb: j2.fb || null, game: j2.game || null, botOnline: !!j2.botOnline };
+          window.RBSession = { loading: false, ok: !!j2.ok, user: j2.user || null, fb: j2.fb || null, game: j2.game || null, botOnline: !!j2.botOnline, botNeden: j2.botNeden || null };
           paintAccount(window.RBSession);
         }).catch(function () {});
       } else {
