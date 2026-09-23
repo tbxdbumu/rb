@@ -341,9 +341,11 @@ function conLoginDurumu() {
     if (btn) btn.disabled = !giris;
   } catch (e) {}
 }
-try { document.addEventListener('rb-session', conLoginDurumu); } catch (e) {}
-try { document.addEventListener('rb-login', conLoginDurumu); } catch (e) {}
+try { window.addEventListener('rb-session', conLoginDurumu); } catch (e) {}
+try { window.addEventListener('rb-login', conLoginDurumu); } catch (e) {}
 try { document.addEventListener('visibilitychange', function () { if (!document.hidden && window.RBLogin) window.RBLogin.yenile().catch(function () {}); }); } catch (e) {}
+/* rb-login.js async olduğu için, sayfa tamamen yüklenince tekrar kontrol et */
+try { window.addEventListener('load', conLoginDurumu); } catch (e) {}
 conLoginDurumu();
 if (form) form.addEventListener('submit', function (e) {
   e.preventDefault();

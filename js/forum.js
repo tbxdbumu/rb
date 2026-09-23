@@ -189,14 +189,24 @@ function touchLastLogin() {
 function nav() {
   const u = CUR();
   const box = document.getElementById("rb-nav-user"); if (!box) return;
-  box.innerHTML = u
-    ? `${myW()>=2 ? `<a class="rb-navvip" href="#/c/vip" title="${t("vip")}">⭐</a>` : ""}
+  /* Fallback: Firebase henüz bağlanmadıysa ama Discord cookie oturumu varsa
+     kullanıcıyı hemen göster, bağlantı sessizce tamamlanır */
+  const ses = !u && window.RBSession && window.RBSession.ok ? window.RBSession.user : null;
+  if (u) {
+    box.innerHTML = `${myW()>=2 ? `<a class="rb-navvip" href="#/c/vip" title="${t("vip")}">⭐</a>` : ""}
        <button class="rb-bell" onclick="location.hash='#/notif'" title="${t("notif")}">🔔<i id="rb-bell-n" class="rb-belln" hidden></i></button>
        <a class="rb-userchip" href="#/u/${esc(u.username)}">${badge(u.role)}<b>${esc(u.username)}</b></a>
        ${myW()>=3 && adminUnlocked() ? `<a class="rb-navadmin" href="#/admin" title="${t("admin")}">⚙️</a>` : ""}
-        <a class="rb-navmod" style="display:${myW()>=3?"":"none"}" href="#/mod" title="Mod Paneli">🛡️</a><button class="rb-navexit" onclick="RB.logout()" title="${t("logout")}"><i class="fa-solid fa-right-from-bracket"></i> ${t("logout")}</button>`
-    : `<a class="rb-loginbtn" href="#/login">🐰 ${t("login")}</a>`;
-  bellCount();
+        <a class="rb-navmod" style="display:${myW()>=3?"":"none"}" href="#/mod" title="Mod Paneli">🛡️</a><button class="rb-navexit" onclick="RB.logout()" title="${t("logout")}"><i class="fa-solid fa-right-from-bracket"></i> ${t("logout")}</button>`;
+    bellCount();
+  } else if (ses) {
+    /* Discord oturumu var ama Firebase köprüsü henüz tamamlanmadı */
+    box.innerHTML = `<span class="rb-authstate" id="rb-bridge-state">🔄 Bağlanıyor…</span>
+      <a class="rb-userchip" href="/risebunny#hesabim"><img src="${esc(ses.avatar||"")}" style="width:26px;height:26px;border-radius:50%;vertical-align:middle;margin-right:5px">${esc(ses.username)}</a>
+      <button class="rb-navexit" onclick="RB.logout()" title="${t("logout")}"><i class="fa-solid fa-right-from-bracket"></i></button>`;
+  } else {
+    box.innerHTML = `<a class="rb-loginbtn" href="#/login">🐰 ${t("login")}</a>`;
+  }
 }
 
 /* ── Router ── */
@@ -410,6 +420,12 @@ function renderLogin() {
   if (ses) {
     view().innerHTML = `<div class="forum-wrap"><div class="rb-empty">🐰 Discord hesabın bağlanıyor, bekle…<br><small id="rb-bridge-state"></small></div></div>`;
     discordBridge(true).then(ok => { if (ok) route(); });
+    return;
+  }
+  /* RBSession henüz yüklenmediyse (loading:true) kısa bekle, tekrar kontrol et */
+  if (window.RBSession && window.RBSession.loading) {
+    view().innerHTML = `<div class="rb-empty">🐰 Yükleniyor…</div>`;
+    setTimeout(function() { renderLogin(); }, 600);
     return;
   }
   // Döngü koruması: OAuth'tan yeni dönüldüyse ve hâlâ oturum yoksa buton göster (otomatik sekme YOK)
@@ -1135,6 +1151,15 @@ async function boot() {
           } catch (e) {}
           try { __debugYaz(); } catch (e) {}
           route();
+        });
+        /* rb-session: auth.js'in paint() çağrısından sonra nav'ı da güncelle */
+        window.addEventListener("rb-session", function () {
+          try { nav(); } catch (e) {}
+          if (!__boot.authIlk) {
+            __boot.authIlk = true;
+            try { const v = view(); if (v) v.dataset.hazir = "1"; } catch (e) {}
+            try { route(); } catch (e) {}
+          }
         });
       } catch (e) {}
       // auth.js köprüsü yoksa/yavaşsa RBLogin doğrudan devralır
