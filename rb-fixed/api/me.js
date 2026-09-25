@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const url = new URL(req.url, base);
 
   if (url.searchParams.get('logout') === '1') {
-    clearSession(res);
+    clearSession(res, req);
     return res.json({ ok: false });
   }
 

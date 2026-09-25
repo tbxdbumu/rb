@@ -847,7 +847,7 @@ async function renderMod() {
   rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
   view().innerHTML = `<div class="forum-wrap"><a class="rb-back" href="#/">${t("back")}</a>
     <h2 class="rb-h2">🛡️ Mod Paneli — Açık Raporlar (${rows.length})</h2>
-    ${_isAdmin ? `<button class="rb-btn" onclick="try{sessionStorage.setItem('rb_admin_token','1');sessionStorage.setItem('rb_admin_time',String(Date.now()));}catch(e){}location.href='admin.html'">⚙️ Admin Panel</button>` : ""}
+    ${_isAdmin ? `<button class="rb-btn" onclick="try{sessionStorage.setItem('rb_admin_token','1');sessionStorage.setItem('rb_admin_time',String(Date.now()));}catch(e){}try{localStorage.setItem('rb_admin_grant','1');localStorage.setItem('rb_admin_time',String(Date.now()));}catch(e2){}location.href='admin.html'">⚙️ Admin Panel</button>` : ""}
     ${rows.map(r => {
       const tipRenk = r.hedefTip === "user" ? "#ef4444" : r.hedefTip === "post" ? "#3b82f6" : "#f59e0b";
       const tipAd = r.hedefTip === "user" ? "👤 Kullanıcı" : r.hedefTip === "post" ? "💬 Yanıt" : "📝 Konu";

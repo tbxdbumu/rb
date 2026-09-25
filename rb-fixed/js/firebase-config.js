@@ -3,24 +3,9 @@
   if (window.__rbCoreLoaded) return;
   window.__rbCoreLoaded = true;
 
-  if (/admin\.html(\?|$)/.test(location.pathname)) {
-    var _tok = null;
-    var _tim = 0;
-    try {
-      _tok = sessionStorage.getItem('rb_admin_token');
-      _tim = parseInt(sessionStorage.getItem('rb_admin_time') || '0', 10) || 0;
-    } catch (e) {}
-    var _fresh = _tok === '1' && (Date.now() - _tim) < 5 * 60 * 1000;
-    var _discordBack = /[?&]login=ok/.test(location.search);
-    if (!_fresh && !_discordBack) {
-      try {
-        sessionStorage.removeItem('rb_admin_token');
-        sessionStorage.removeItem('rb_admin_time');
-      } catch (e2) {}
-      show404();
-      return;
-    }
-  }
+  // admin.html erişim kararı admin.js'e aittir (oturum öncelikli).
+  // Burada kör 404 basılmaz; yoksa Discord oturumu olan kullanıcı bile
+  // ?login=ok olmadan panele giremez ve giriş döngüsüne düşer.
   var FORCE_PREVIEW = /[?&]mnt=1/.test(location.search);
 
   function show404() {

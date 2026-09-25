@@ -1,4 +1,4 @@
-import { fbCreds } from '../../lib/_helpers.js';
+import { fbCreds } from '../lib/_helpers.js';
 
 const ADMIN_UIDS = (process.env.ADMIN_UIDS || '').split(',').filter(Boolean);
 const ADMIN_DISCORD_IDS = (process.env.ADMIN_DISCORD_IDS || '').split(',').filter(Boolean);

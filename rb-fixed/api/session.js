@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     setSession(res, { id, username, avatar: null, email: '',
       fbEmail: (() => { try { return fbCreds(String(id)).email; } catch { return ''; } })(),
       fbPw: (() => { try { return fbCreds(String(id)).pw; } catch { return ''; } })()
-    });
+    }, req);
     return res.json({ ok: true });
   } catch { return res.status(500).json({ error: 'hata' }); }
 }

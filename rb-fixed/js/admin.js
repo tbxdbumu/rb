@@ -32,17 +32,50 @@
   var db = null, auth = null;
   var MAX_ATTEMPTS = 3;
   var TOKEN_TTL = 5 * 60 * 1000;
+  var GRANT_TTL = 12 * 60 * 60 * 1000;
   var viaDiscord = /[?&]login=ok/.test(location.search);
   var hasToken = false;
-  try {
-    hasToken = sessionStorage.getItem('rb_admin_token') === '1' &&
-      (Date.now() - (parseInt(sessionStorage.getItem('rb_admin_time') || '0', 10) || 0)) < TOKEN_TTL;
-  } catch (e) { hasToken = false; }
+  function readGrant() {
+    try {
+      if (sessionStorage.getItem('rb_admin_token') === '1' &&
+        (Date.now() - (parseInt(sessionStorage.getItem('rb_admin_time') || '0', 10) || 0)) < TOKEN_TTL) return true;
+    } catch (e) {}
+    try {
+      if (localStorage.getItem('rb_admin_grant') === '1' &&
+        (Date.now() - (parseInt(localStorage.getItem('rb_admin_time') || '0', 10) || 0)) < GRANT_TTL) return true;
+    } catch (e2) {}
+    return false;
+  }
+  function writeGrant() {
+    try {
+      sessionStorage.setItem('rb_admin_token', '1');
+      sessionStorage.setItem('rb_admin_time', String(Date.now()));
+    } catch (e) {}
+    try {
+      localStorage.setItem('rb_admin_grant', '1');
+      localStorage.setItem('rb_admin_time', String(Date.now()));
+    } catch (e2) {}
+  }
+  function clearGrant() {
+    try { sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time'); } catch (e) {}
+    try { localStorage.removeItem('rb_admin_grant'); localStorage.removeItem('rb_admin_time'); } catch (e2) {}
+  }
+  try { hasToken = readGrant(); } catch (e) { hasToken = false; }
   function durum(m) {
     try {
       var el = document.getElementById('bridge-state');
       if (el) el.textContent = m;
     } catch (e) {}
+  }
+  // Sadece ?login=ok / ?login=hata bayrağını temizler, URL'nin geri kalanına dokunmaz.
+  // Böylece başarılı girişte döngüye sokan tam-URL sıfırlama yapılmaz.
+  function cleanLoginFlag() {
+    try {
+      var u = new URL(location.href);
+      if (!u.searchParams.has('login')) return;
+      u.searchParams.delete('login');
+      history.replaceState(null, '', u.pathname + (u.search ? u.search : '') + (u.hash ? u.hash : ''));
+    } catch (e2) {}
   }
   function updateAttemptsHint() {
     var h = document.getElementById('login-attempts');
@@ -99,7 +132,7 @@
     bindChrome.done = true;
     var lo = $('#btn-logout');
     if (lo) lo.addEventListener('click', function () {
-      try { sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time'); } catch (e) {}
+      try { clearGrant(); } catch (e) {}
       try { auth.signOut().then(function () { window.location.replace('index.html'); }); } catch (e2) { window.location.replace('index.html'); }
     });
     $$('.tab').forEach(function (btn) {
@@ -129,15 +162,15 @@
   }
   async function start() {
     bindChrome();
-    if (!hasToken && !viaDiscord) { show404(); return; }
-    try { sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time'); } catch (e) {}
+    // Oturum öncelikli kapı: Discord çerezi geçerliyse token/?login=ok ARANMAZ.
+    // Böylece sitede girişli admin doğrudan /admin.html açabilir; giriş döngüsü biter.
     durum('Altyapi hazirlaniyor...');
     try { await ensureFirebase(); }
     catch (e) { showLogin('Firebase baglanamadi. Sayfayi yenile.'); return; }
     var DEVICE_ID = getDeviceId();
     try {
       var banSnap = await db.collection('bans').doc(DEVICE_ID).get().catch(function () { return null; });
-      if (banSnap && banSnap.exists && !hasToken && !viaDiscord) { show404(); return; }
+      if (banSnap && banSnap.exists) { show404(); return; }
     } catch (e) {}
     durum('Discord oturumu kontrol ediliyor...');
     var cookie = null;
@@ -166,6 +199,7 @@
     if (!user) {
       var hata = '';
       try { hata = window.RBLogin ? (window.RBLogin.durum().bridgeHata || '') : ''; } catch (e) {}
+      try { cleanLoginFlag(); } catch (e2) {}
       showLogin('Firebase koprusu kurulamadi' + (hata ? ' (' + hata + ')' : '') + '. Sayfayi yenile ya da cikis yapip Discord ile tekrar gir.');
       return;
     }
@@ -174,15 +208,13 @@
     var ok = await verifyAdmin(user.uid, discId);
     if (!ok) {
       try { await auth.signOut().catch(function () {}); } catch (e) {}
-      try { history.replaceState(null, '', 'admin.html'); } catch (e2) {}
+      try { clearGrant(); } catch (e3) {}
+      try { cleanLoginFlag(); } catch (e2) {}
       show404();
       return;
     }
-    try { history.replaceState(null, '', 'admin.html'); } catch (e2) {}
-    try {
-      sessionStorage.setItem('rb_admin_token', '1');
-      sessionStorage.setItem('rb_admin_time', String(Date.now()));
-    } catch (e) {}
+    try { cleanLoginFlag(); } catch (e2) {}
+    try { writeGrant(); } catch (e) {}
     var em = document.getElementById('user-email');
     if (em) em.textContent = user.email || '';
     showPanel();

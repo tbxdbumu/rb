@@ -142,6 +142,7 @@ async function cikis() {
   try { if (firebaseHazirla()) await firebase.auth().signOut().catch(() => {}); } catch (e) {}
   try { localStorage.removeItem('rb_discord'); } catch (e) {}
   try { sessionStorage.removeItem('rb_fadmin'); sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time'); } catch (e) {}
+  try { localStorage.removeItem('rb_admin_grant'); localStorage.removeItem('rb_admin_time'); } catch (e2) {}
   DURUM.cookie = null; DURUM.firebase = null;
   olay();
   location.reload();

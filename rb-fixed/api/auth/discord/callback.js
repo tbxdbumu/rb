@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
 
   if (!code) {
-    return res.redirect(302, '/risebunny?login=hata');
+    return res.redirect(302, withLoginFlag(next, 'hata'));
   }
 
   const secretKey = process.env.DISCORD_CLIENT_SECRET || '';
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
       email: u.email || '',
       fbEmail: fb.email,
       fbPw: fb.pw
-    });
+    }, req);
 
     /* login=ok parametresi fragment'tan ÖNCE eklenmeli:
        /risebunny#hesabim + ?login=ok → /risebunny#hesabim?login=ok (BOZUK: sunucu görmez)
@@ -121,6 +121,15 @@ export default async function handler(req, res) {
     return res.redirect(302, finalUrl);
 
   } catch (e) {
-    return res.redirect(302, '/risebunny?login=hata');
+    return res.redirect(302, withLoginFlag(next, 'hata'));
   }
+}
+
+function withLoginFlag(next, val) {
+  try {
+    const hashIx = String(next).indexOf('#');
+    const yol = hashIx > -1 ? String(next).slice(0, hashIx) : String(next);
+    const frag = hashIx > -1 ? String(next).slice(hashIx) : '';
+    return yol + (yol.includes('?') ? '&' : '?') + 'login=' + val + frag;
+  } catch { return '/risebunny?login=hata'; }
 }

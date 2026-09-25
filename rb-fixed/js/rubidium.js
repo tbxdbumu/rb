@@ -36,6 +36,10 @@ $$('.lang-btn').forEach(function (b) { b.addEventListener('click', function () {
         sessionStorage.setItem('rb_admin_token', '1');
         sessionStorage.setItem('rb_admin_time', String(Date.now()));
       } catch (e) {}
+      try {
+        localStorage.setItem('rb_admin_grant', '1');
+        localStorage.setItem('rb_admin_time', String(Date.now()));
+      } catch (e2) {}
       window.location.href = 'admin.html';
     }
   });
