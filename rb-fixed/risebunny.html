@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" type="image/svg+xml" href="images/bot.svg">
+<link rel="alternate icon" type="image/png" href="images/bot.png">
+<link rel="apple-touch-icon" href="images/bot.svg">
+<title>RiseBunny Bot | Türkçe Discord Botu — 162 Komut, Moderasyon, Ekonomi</title>
+<meta name="description" content="RiseBunny Discord botu: 162 Türkçe komut — moderasyon, yapay zeka kayıt, ekonomi, raid koruması, çekiliş. Top.gg'de oy ver, komutları canlı simülasyonda dene.">
+<meta name="keywords" content="discord bot, türkçe discord botu, discord moderasyon botu, discord ekonomi botu, discord kayıt botu, risebunny, top.gg bot, discord çekiliş botu, raid koruması">
+<meta name="author" content="RiseBunny Software">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://risebunny.vercel.app/risebunny">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RiseBunny Software">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:title" content="RiseBunny Bot — Türkçe Discord Botu (162 Komut)">
+<meta property="og:description" content="Moderasyon, yapay zeka kayıt, ekonomi, raid koruması, çekiliş. Top.gg'de oy ver, canlı simülasyonu dene.">
+<meta property="og:url" content="https://risebunny.vercel.app/risebunny">
+<meta property="og:image" content="https://risebunny.vercel.app/images/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RiseBunny Bot — Türkçe Discord Botu (162 Komut)">
+<meta name="twitter:description" content="Moderasyon, kayıt, ekonomi, koruma. Top.gg'de oy ver, simülasyonu dene.">
+<meta name="twitter:image" content="https://risebunny.vercel.app/images/og.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"RiseBunny Bot","applicationCategory":"CommunicationApplication","operatingSystem":"Discord","url":"https://risebunny.vercel.app/risebunny","image":"https://risebunny.vercel.app/images/og.png","offers":{"@type":"Offer","price":"0","priceCurrency":"TRY"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","ratingCount":"127"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"RiseBunny Bot ücretsiz mi?","acceptedAnswer":{"@type":"Answer","text":"Evet, tüm 162 komut ücretsizdir. Premium yalnızca ekstra kotalar açar."}},{"@type":"Question","name":"RiseBunny Bot nasıl davet edilir?","acceptedAnswer":{"@type":"Answer","text":"Sayfadaki Botu Davet Et butonuyla; sunucuda yönetici yetkisi gerekir."}},{"@type":"Question","name":"Oy ödülü nasıl alınır?","acceptedAnswer":{"@type":"Answer","text":"top.gg üzerinde oy verin; 12 saatte bir +1.000 para ve +150 XP otomatik yüklenir."}}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"RiseBunny","item":"https://risebunny.vercel.app/"},{"@type":"ListItem","position":2,"name":"RiseBunny Bot","item":"https://risebunny.vercel.app/risebunny"}]}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/styles.css?v=13">
+<style>
+.section{padding-top:104px}
+.section-head{padding-top:14px}
+.rb-hero{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.rb-avatar{width:96px;height:96px;border-radius:28px;flex:none;box-shadow:0 12px 32px rgba(124,58,237,.22)}
+.rb-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.rb-badge{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;font-weight:700;padding:6px 13px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:#fafafa}
+.rb-badge.live{color:#16a34a;border-color:#bbf7d0;background:#f0fdf4}
+.rb-badge .dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:rbPulse 1.6s infinite}
+@keyframes rbPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.widgets{display:flex;gap:14px;flex-wrap:wrap;margin-top:26px}
+.widgets a{display:inline-block;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;transition:.15s}
+.widgets a:hover{border-color:var(--ink);transform:translateY(-1px)}
+.widgets img{display:block;height:40px;width:auto}
+.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:8px}
+.stat-card{border:1px solid var(--line);border-radius:10px;padding:18px 14px;text-align:center;background:#fff}
+.stat-card b{display:block;font-size:1.6rem;letter-spacing:-.02em}
+.stat-card span{font-size:.78rem;color:var(--muted)}
+.stat-card small{display:block;font-size:.68rem;color:var(--faint);margin-top:6px}
+@media(max-width:700px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.feat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
+@media(max-width:700px){.feat-grid{grid-template-columns:1fr}}
+.feat-card{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+.feat-card .fi{font-size:1.4rem;margin-bottom:10px}
+.feat-card h3{font-size:1rem;margin-bottom:6px}
+.feat-card p{font-size:.86rem;color:var(--muted);margin-bottom:10px}
+.feat-card code{display:block;font-size:.76rem;color:var(--accent-ink);background:#eff6ff;border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:nowrap}
+.sim-shell{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:8px;background:#fff}
+.sim-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:#fafafa;font-size:.82rem;color:var(--muted);font-weight:600}
+.sim-head .dots{display:flex;gap:6px}
+.sim-head .dots i{width:10px;height:10px;border-radius:50%;background:#e5e7eb;display:block}
+.sim-body{padding:18px;display:grid;gap:12px}
+.dmsg{display:flex;gap:10px;align-items:flex-start;font-size:.9rem}
+.dmsg .da{width:34px;height:34px;border-radius:50%;background:#e5e7eb;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:#6b7280}
+.dmsg .da.bot{background:transparent;padding:0}
+.dmsg .da.bot img{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block}
+.dmsg .db{min-width:0}
+.dmsg .dn{font-weight:700;font-size:.82rem}
+.dmsg .dn .tag{font-size:.68rem;font-weight:700;background:#5865F2;color:#fff;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.dmsg .dt{font-size:.82rem;color:var(--ink);background:#f3f4f6;border-radius:0 10px 10px 10px;padding:8px 12px;margin-top:4px;display:inline-block;max-width:100%}
+.dmsg .dt.embed{background:#fff;border:1px solid var(--line);border-left:3px solid #7c3aed}
+.sim-input{display:flex;gap:8px;margin-top:4px}
+.sim-input input{flex:1;padding:11px 14px;border:1px solid var(--line);border-radius:8px;font-size:.9rem}
+.sim-input input:focus{border-color:var(--accent);outline:none}
+.sim-hints{display:flex;gap:8px;flex-wrap:wrap}
+.sim-hints button{background:#f3f4f6;border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:.76rem;color:var(--muted)}
+.sim-hints button:hover{border-color:var(--ink);color:var(--ink)}
+.vote-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+@media(max-width:700px){.vote-steps{grid-template-columns:1fr}}
+.vote-step{border:1px solid var(--line);border-radius:10px;padding:20px;text-align:center;background:#fff}
+.vote-step .n{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.vote-step h3{font-size:.95rem;margin-bottom:6px}
+.vote-step p{font-size:.83rem;color:var(--muted)}
+.lb-tabs{display:flex;gap:8px;margin:14px 0}
+.lb-tabs button{padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:.85rem;font-weight:600;color:var(--muted)}
+.lb-tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lb-list{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.lb-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line);font-size:.88rem;background:#fff}
+.lb-row:last-child{border-bottom:none}
+.lb-row .rk{font-weight:800;min-width:30px;color:var(--faint)}
+.lb-row:nth-child(1) .rk,.lb-row:nth-child(2) .rk,.lb-row:nth-child(3) .rk{color:#b45309}
+.lb-row b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-row .vl{color:var(--muted);font-weight:600}
+.lb-note{font-size:.76rem;color:var(--faint);margin-top:10px}
+.sim-tag{display:inline-block;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;border-radius:999px;padding:6px 14px;margin-top:10px}
+.lb-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+@media(max-width:700px){.lb-cols{grid-template-columns:1fr}}
+.lb-h{font-size:.95rem;margin:6px 0 10px}
+.acc-card{display:flex;gap:16px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:18px;background:#fff;flex-wrap:wrap}
+.acc-card img{width:64px;height:64px;border-radius:50%;border:2px solid #5865F2}
+.acc-card .an{font-weight:800;font-size:1.05rem}
+.acc-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.acc-stat{border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:.82rem;background:#fafafa}
+.acc-stat b{display:block;font-size:1rem}
+.shop-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+@media(max-width:700px){.shop-grid{grid-template-columns:1fr}}
+.shop-card{border:1px solid var(--line);border-radius:10px;padding:18px;background:#fff;text-align:center}
+.shop-card .emoji{font-size:2rem}
+.shop-card h4{font-size:.95rem;margin:8px 0 4px}
+.shop-card .price{font-weight:800;color:var(--accent-ink);margin-bottom:12px}
+.shop-card .old{font-size:.75rem;color:var(--faint);text-decoration:line-through;margin-right:6px}
+.lang-note{font-size:.78rem;color:var(--faint)}
+</style>
+</head>
+<body>
+
+<div id="site-banner" class="site-banner" hidden></div>
+
+<header class="site-header" id="navbar">
+  <div class="header-in">
+    <a href="index.html" class="brand"><img src="images/bot.svg" alt="RiseBunny" class="brand-icon">RiseBunny</a>
+    <nav class="nav-links" id="nav-links">
+      <a href="index.html#arena">Rubidium</a>
+      <a href="rubidium.html">Rubidium Client</a>
+      <a href="risebunny.html" class="on">RiseBunny Bot</a>
+      <a href="index.html#sistemler">Systems</a>
+      <a href="index.html#sss">FAQ</a>
+      <a href="forum.html">Forum</a>
+    </nav>
+    <div class="header-side">
+      <span data-auth-slot></span>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="tr"><span class="flag" aria-hidden="true">🇹🇷</span>TR</button>
+        <button type="button" class="lang-btn active" data-lang="en"><span class="flag" aria-hidden="true">🇬🇧</span>EN</button>
+      </div>
+      <a href="#oyver" class="btn sm solid">Oy Ver</a>
+      <button type="button" class="burger" id="burger" aria-label="Menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="hero" id="top">
+  <div class="rb-hero">
+    <img src="images/bot.svg" alt="RiseBunny Bot" class="rb-avatar">
+    <div style="flex:1;min-width:240px">
+      <p class="eyebrow">Discord Botu • top.gg listeli • ID 1540401487581020252</p>
+      <h1 class="hero-title" data-tr="Sunuculara sınıf atlat." data-en="Level up your server.">Sunuculara sınıf atlat.</h1>
+      <p class="hero-sub" data-tr="162 komut: moderasyon, yapay zeka kayıt, ekonomi, koruma, çekiliş, seviye. 7/24 çevrimiçi, sürekli güncelleniyor." data-en="162 commands: moderation, AI registration, economy, protection, giveaways, levels. Online 24/7, updated non-stop.">162 komut: moderasyon, yapay zeka kayıt, ekonomi, koruma, çekiliş, seviye. 7/24 çevrimiçi, sürekli güncelleniyor.</p>
+      <div class="rb-badges">
+        <span class="rb-badge live"><span class="dot"></span><span data-tr="7/24 Çevrimiçi" data-en="Online 24/7">7/24 Çevrimiçi</span></span>
+        <span class="rb-badge">r! • 162 <span data-tr="komut" data-en="commands">komut</span></span>
+        <span class="rb-badge">TR + EN</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-cta">
+    <a class="btn solid" id="btn-invite" href="https://discord.com/api/oauth2/authorize?client_id=1540401487581020252&amp;permissions=8&amp;scope=bot%20applications.commands" target="_blank" rel="noopener"><i class="fa-brands fa-discord"></i><span data-tr="Botu Davet Et" data-en="Invite the Bot">Botu Davet Et</span></a>
+    <a class="btn line" href="https://top.gg/bot/1540401487581020252/vote" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up"></i><span data-tr="top.gg'de Oy Ver" data-en="Vote on top.gg">top.gg'de Oy Ver</span></a>
+    <a class="btn line" href="https://top.gg/bot/1540401487581020252" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>top.gg</span></a>
+  </div>
+  <div class="widgets" aria-label="top.gg widgets">
+    <a href="https://top.gg/bot/1540401487581020252" target="_blank" rel="noopener" title="top.gg — RiseBunny">
+      <img src="https://top.gg/api/widget/servers/1540401487581020252.svg" alt="top.gg sunucu sayısı" loading="lazy">
+    </a>
+    <a href="https://top.gg/bot/1540401487581020252" target="_blank" rel="noopener" title="top.gg — RiseBunny oyları">
+      <img src="https://top.gg/api/widget/upvotes/1540401487581020252.svg" alt="top.gg oy sayısı" loading="lazy">
+    </a>
+  </div>
+</section>
+
+
+<section class="section" id="istatistik">
+  <div class="section-head">
+    <span class="sec-num">01</span>
+    <div>
+      <h2 class="sec-title" data-tr="Canlı Sayılar" data-en="Live Numbers">Canlı Sayılar</h2>
+      <p class="sec-desc" data-tr="Sunucu, kullanıcı ve oy sayıları anlık olarak güncellenir." data-en="Server, user and vote counts update live.">Sunucu, kullanıcı ve oy sayıları anlık olarak güncellenir.</p>
+    </div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><b id="st-servers">—</b><span data-tr="Sunucu" data-en="Servers">Sunucu</span><small id="st-servers-src">…</small></div>
+    <div class="stat-card"><b id="st-users">—</b><span data-tr="Kullanıcı" data-en="Users">Kullanıcı</span><small id="st-users-src">…</small></div>
+    <div class="stat-card"><b id="st-cmds">162</b><span data-tr="Komut" data-en="Commands">Komut</span><small>17 kategori</small></div>
+    <div class="stat-card"><b id="st-votes">—</b><span data-tr="Oy (aylık)" data-en="Votes (monthly)">Oy (aylık)</span><small id="st-votes-src">…</small></div>
+  </div>
+  <p class="lb-note" data-tr="Sayılar periyodik olarak tazelenir." data-en="Numbers refresh periodically.">Sayılar periyodik olarak tazelenir.</p>
+</section>
+
+
+<section class="section" id="ozellikler">
+  <div class="section-head">
+    <span class="sec-num">02</span>
+    <div>
+      <h2 class="sec-title" data-tr="Neler Yapıyor?" data-en="What Does It Do?">Neler Yapıyor?</h2>
+      <p class="sec-desc" data-tr="Botun gerçek komut kategorilerinden öne çıkanlar. Prefix: r!" data-en="Highlights from the bot's real command categories. Prefix: r!">Botun gerçek komut kategorilerinden öne çıkanlar. Prefix: r!</p>
+    </div>
+  </div>
+  <div class="feat-grid" id="feat-grid"></div>
+</section>
+
+
+<section class="section" id="simulasyon">
+  <div class="section-head">
+    <span class="sec-num">03</span>
+    <div>
+      <h2 class="sec-title" data-tr="Komut Simülatörü" data-en="Command Simulator">Komut Simülatörü</h2>
+      <p class="sec-desc" data-tr="Botu davet etmeden dene. Bir komut yaz, botun cevabını gör." data-en="Try before inviting. Type a command, see the bot's reply.">Botu davet etmeden dene. Bir komut yaz, botun cevabını gör.</p>
+      <p class="lb-note sim-tag" data-tr="🎮 Discord botu simülasyonu — banka, IBAN, cüzdan ve diğer ekonomi özellikleri burada aynen canlandırılır; bakiyeler örnektir." data-en="🎮 Discord-bot simulation — bank, IBAN, wallet and other economy features are reenacted here; balances are samples.">🎮 Discord botu simülasyonu — banka, IBAN, cüzdan ve diğer ekonomi özellikleri burada aynen canlandırılır; bakiyeler örnektir.</p>
+    </div>
+  </div>
+  <div class="sim-shell">
+    <div class="sim-head"><span class="dots"><i></i><i></i><i></i></span><span>#genel — RiseBunny Simülasyon</span></div>
+    <div class="sim-body">
+      <div id="sim-log"></div>
+      <div class="sim-hints" id="sim-hints"></div>
+      <form class="sim-input" id="sim-form">
+        <input id="sim-in" type="text" maxlength="120" autocomplete="off" placeholder="r!yardım yaz ve Enter'a bas…" aria-label="Komut yaz">
+        <button class="btn solid sm" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+      </form>
+    </div>
+  </div>
+  <p class="lb-note" data-tr="Bu bir önizlemedir; gerçek ekonomi/XP bakiyeleri bot veritabanında tutulur." data-en="This is a preview; real economy/XP balances live in the bot database.">Bu bir önizlemedir; gerçek ekonomi/XP bakiyeleri bot veritabanında tutulur.</p>
+</section>
+
+
+<section class="section" id="moderasyon">
+  <div class="section-head">
+    <span class="sec-num">04</span>
+    <div>
+      <h2 class="sec-title" data-tr="Otomatik Moderasyon" data-en="Auto Moderation">Otomatik Moderasyon</h2>
+      <p class="sec-desc" data-tr="Küfür, reklam, spam ve raid koruması mesajı anında yakalar." data-en="Swear, ad, spam and raid protection catch messages instantly.">Küfür, reklam, spam ve raid koruması mesajı anında yakalar.</p>
+    </div>
+  </div>
+  <div class="feed" id="mod-demo" aria-live="polite">
+    <div class="feed-line"><b>nova_77</b><span data-tr="ranked giren var mı?" data-en="anyone up for ranked?">ranked giren var mı?</span></div>
+    <div class="feed-line toxic"><b>griefer_x</b><span class="txt">reklam: bedava-nitro.xyz</span><span class="strike"></span></div>
+    <div class="feed-line sys"><img src="images/bot.png" alt="RiseBunny Bot" class="bot-avatar"><span data-tr="Mesaj işaretlendi → silindi." data-en="Message flagged → removed.">Mesaj işaretlendi → silindi.</span></div>
+    <div class="feed-line ban" id="ban-badge"><span data-tr="REKLAM ENGELLENDİ" data-en="AD BLOCKED">REKLAM ENGELLENDİ</span></div>
+  </div>
+  <div class="row-cta">
+    <button class="btn line" id="btn-replay-mod"><i class="fa-solid fa-rotate-right"></i><span data-tr="Tekrar oynat" data-en="Replay">Tekrar oynat</span></button>
+  </div>
+</section>
+
+
+<section class="section" id="liderlik">
+  <div class="section-head">
+    <span class="sec-num">05</span>
+    <div>
+      <h2 class="sec-title" data-tr="Liderlik Tablosu" data-en="Leaderboard">Liderlik Tablosu</h2>
+      <p class="sec-desc" data-tr="Bot çevrimiçiyken gerçek ekonomi + seviye verisi. Değilse simülasyon." data-en="Real economy + level data when the bot is online. Simulation otherwise.">Bot çevrimiçiyken gerçek ekonomi + seviye verisi. Değilse simülasyon.</p>
+    </div>
+  </div>
+  <div class="lb-cols">
+    <div><h3 class="lb-h">💸 <span data-tr="En Zengin 10" data-en="Top 10 Richest">En Zengin 10</span></h3><div class="lb-list" id="lb-rich"></div></div>
+    <div><h3 class="lb-h">🏆 <span data-tr="En Levelli 10" data-en="Top 10 Level">En Levelli 10</span></h3><div class="lb-list" id="lb-level"></div></div>
+  </div>
+  <p class="lb-note" id="lb-src">…</p>
+</section>
+
+
+<section class="section" id="oyver">
+  <div class="section-head">
+    <span class="sec-num">06</span>
+    <div>
+      <h2 class="sec-title" data-tr="Oy Ver, Ödülü Kap" data-en="Vote, Get Rewarded">Oy Ver, Ödülü Kap</h2>
+      <p class="sec-desc" data-tr="12 saatte bir oy ver, bot içinde para + XP kazan. Hafta sonu oylar 2× sayılır." data-en="Vote every 12 hours, earn money + XP inside the bot. Weekend votes count 2×.">12 saatte bir oy ver, bot içinde para + XP kazan. Hafta sonu oylar 2× sayılır.</p>
+    </div>
+  </div>
+  <div class="vote-steps">
+    <div class="vote-step"><div class="n">1</div><h3>top.gg</h3><p data-tr="Bot sayfasını aç ve Vote'a bas." data-en="Open the bot page and hit Vote.">Bot sayfasını aç ve Vote'a bas.</p></div>
+    <div class="vote-step"><div class="n">2</div><h3>Webhook</h3><p data-tr="top.gg botuna anında haber verir (imzalı)." data-en="top.gg instantly notifies the bot (signed).">top.gg botuna anında haber verir (imzalı).</p></div>
+    <div class="vote-step"><div class="n">3</div><h3>Ödül</h3><p>+1.000 💸 +150 XP <span data-tr="(hafta sonu 2×)" data-en="(2× on weekends)">(hafta sonu 2×)</span></p></div>
+  </div>
+  <div class="row-cta">
+    <a class="btn solid" href="https://top.gg/bot/1540401487581020252/vote" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up"></i><span data-tr="Hemen Oy Ver" data-en="Vote Now">Hemen Oy Ver</span></a>
+    <button class="btn line" id="btn-sim-vote"><i class="fa-solid fa-flask"></i><span data-tr="Ödülü Simüle Et" data-en="Simulate Reward">Ödülü Simüle Et</span></button>
+  </div>
+  <div class="sim-shell" id="vote-sim" hidden style="margin-top:16px">
+    <div class="sim-head"><span class="dots"><i></i><i></i><i></i></span><span>DM — RiseBunny</span></div>
+    <div class="sim-body"><div class="dmsg"><span class="da bot"><img src="images/bot.png" alt="RiseBunny Bot"></span><div class="db"><div class="dn">RiseBunny<span class="tag">BOT</span></div><div class="dt embed" id="vote-sim-text"></div></div></div></div>
+  </div>
+</section>
+
+
+<section class="section" id="hesabim">
+  <div class="section-head">
+    <span class="sec-num">07</span>
+    <div>
+      <h2 class="sec-title" data-tr="Hesabım & Mağaza" data-en="Account & Shop">Hesabım & Mağaza</h2>
+      <p class="sec-desc" data-tr="Discord ile giriş yap, bot cüzdanını gör, siteye özel indirimli premium ve pet al." data-en="Sign in with Discord, see your bot wallet, buy discounted premium and pets.">Discord ile giriş yap, bot cüzdanını gör, siteye özel indirimli premium ve pet al.</p>
+    </div>
+  </div>
+  <div id="acc-box"><p class="lb-note">…</p></div>
+  <div id="coupon-box" hidden style="margin-top:16px">
+    <h3 class="lb-h">🎟️ <span data-tr="Kupon Kullan" data-en="Redeem Coupon">Kupon Kullan</span></h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="coupon-in" type="text" maxlength="20" placeholder="RISE-V2" style="flex:1;min-width:160px;padding:11px 14px;border:1px solid var(--line);border-radius:8px;font-size:.95rem;text-transform:uppercase" aria-label="Kupon kodu">
+      <button class="btn solid sm" type="button" id="coupon-btn"><i class="fa-solid fa-ticket"></i> <span data-tr="Kullan" data-en="Redeem">Kullan</span></button>
+    </div>
+    <p class="lb-note" id="coupon-note" data-tr="V2.0 kuponu RISE-V2 — 250.000 Cash, hesap başına tek." data-en="V2.0 coupon RISE-V2 — 250,000 cash, one per account.">V2.0 kuponu RISE-V2 — 250.000 Cash, hesap başına tek.</p>
+  </div>
+  <div id="shop-box" hidden>
+    <h3 class="lb-h">🛒 <span data-tr="Site Mağazası (indirimli)" data-en="Site Shop (discounted)">Site Mağazası (indirimli)</span></h3>
+    <div class="shop-grid" id="shop-grid"></div>
+    <p class="lb-note" data-tr="Ödeme önce cüzdandan, kalan bankadan çekilir. Fiyatlar bot tarafından doğrulanır." data-en="Wallet is charged first, then the bank. Prices are verified by the bot.">Ödeme önce cüzdandan, kalan bankadan çekilir. Fiyatlar bot tarafından doğrulanır.</p>
+  </div>
+  <div id="del-box" hidden style="margin-top:16px">
+    <h3 class="lb-h">🗑️ <span data-tr="Verilerimi Sil" data-en="Delete My Data">Verilerimi Sil</span></h3>
+    <p class="lb-note" data-tr="Tüm bot + site verilerinin silinmesini talep et. Sahip onaylayınca silinir, sonuç Discord DM ile bildirilir." data-en="Request deletion of all your bot + site data. Deleted after owner approval, result via Discord DM.">Tüm bot + site verilerinin silinmesini talep et. Sahip onaylayınca silinir, sonuç Discord DM ile bildirilir.</p>
+    <div id="del-area"></div>
+  </div>
+</section>
+
+
+<section class="section section-narrow" id="sss-mini">
+  <div class="section-head">
+    <span class="sec-num">08</span>
+    <div><h2 class="sec-title" data-tr="Hızlı Sorular" data-en="Quick Questions">Hızlı Sorular</h2></div>
+  </div>
+  <div class="faq" id="sss-list"></div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-in">
+    <div class="footer-brand">RiseBunny</div>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <a href="index.html#arena">Rubidium</a>
+        <a href="rubidium.html">Rubidium Client</a>
+        <a href="risebunny.html">RiseBunny Bot</a>
+        <a href="index.html#sss">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="docs.html">Docs</a>
+        <a href="forum.html">Forum</a>
+      </div>
+    </div>
+    <div class="footer-base" id="foot-base">
+      <span>© 2026 RiseBunny. All rights reserved.</span>
+      <span class="slogan">Rise Beyond Limits.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="js/firebase-config.js?v=10"></script>
+<script src="js/maintenance.js?v=7"></script>
+<script src="js/rb-env.js?v=2"></script>
+<script src="js/rb-login.js?v=3"></script>
+<script src="js/auth.js?v=6"></script>
+<script src="js/risebunny.js?v=2"></script>
+</body>
+</html>

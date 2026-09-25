@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" type="image/svg+xml" href="images/bot.svg">
+<link rel="alternate icon" type="image/png" href="images/bot.png">
+<link rel="apple-touch-icon" href="images/bot.svg">
+<title>Rubidium V4 | Minecraft Hack Client — ClickGUI, Modüller, Vape/Rise Karşılaştırma</title>
+<meta name="description" content="Rubidium V4: Minecraft hack client. Oyun içi ClickGUI, combat/movement/visual modüller, Discord + Telegram. Vape V4 ve Rise ile karşılaştır, senaryo simülasyonunu dene. Ücretsiz.">
+<meta name="keywords" content="minecraft hack client, rubidium v4, ghost client, clickgui, vape v4 alternatifi, rise client alternatifi, minecraft pvp client, ücretsiz hack client, risebunny">
+<meta name="author" content="RiseBunny Software">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://risebunny.vercel.app/rubidium">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RiseBunny Software">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:title" content="Rubidium V4 — Minecraft Hack Client">
+<meta property="og:description" content="Minecraft hack client: ClickGUI, combat/movement/visual modüller. Vape V4 ve Rise ile karşılaştır. Ücretsiz.">
+<meta property="og:url" content="https://risebunny.vercel.app/rubidium">
+<meta property="og:image" content="https://risebunny.vercel.app/images/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Rubidium V4 — Minecraft Hack Client">
+<meta name="twitter:description" content="ClickGUI, modüller, karşılaştırma simülasyonu. Ücretsiz Minecraft hack client.">
+<meta name="twitter:image" content="https://risebunny.vercel.app/images/og.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Rubidium V4","applicationCategory":"GameApplication","operatingSystem":"Windows","url":"https://risebunny.vercel.app/rubidium","image":"https://risebunny.vercel.app/images/og.png","offers":{"@type":"Offer","price":"0","priceCurrency":"TRY"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","ratingCount":"86"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Rubidium V4 ücretsiz mi?","acceptedAnswer":{"@type":"Answer","text":"Evet, Rubidium V4 tamamen ücretsizdir."}},{"@type":"Question","name":"Rubidium ban yedirir mi?","acceptedAnswer":{"@type":"Answer","text":"Her hile clientında ban riski vardır; ghost profiller riski düşürür ama sıfırlamaz."}},{"@type":"Question","name":"Rubidium Vape V4 ve Rise'dan nasıl ayrışır?","acceptedAnswer":{"@type":"Answer","text":"Ücretsizdir, oyun içi ClickGUI + Discord/Telegram entegrasyonu sunar ve ghost odağında geliştirilir."}}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"RiseBunny","item":"https://risebunny.vercel.app/"},{"@type":"ListItem","position":2,"name":"Rubidium V4","item":"https://risebunny.vercel.app/rubidium"}]}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/styles.css?v=13">
+<style>
+.rb-hero{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.rb-avatar{width:96px;height:96px;border-radius:28px;flex:none;box-shadow:0 12px 32px rgba(124,58,237,.28);object-fit:cover;background:#0b0b10}
+.rb-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.rb-badge{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;font-weight:700;padding:6px 13px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:#fafafa}
+.rb-badge.live{color:#16a34a;border-color:#bbf7d0;background:#f0fdf4}
+.rb-badge.ghost{color:#7c3aed;border-color:#ddd6fe;background:#f5f3ff}
+.rb-badge .dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:rbPulse 1.6s infinite}
+@keyframes rbPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:8px}
+.stat-card{border:1px solid var(--line);border-radius:10px;padding:18px 14px;text-align:center;background:#fff}
+.stat-card b{display:block;font-size:1.6rem;letter-spacing:-.02em}
+.stat-card span{font-size:.78rem;color:var(--muted)}
+.stat-card small{display:block;font-size:.68rem;color:var(--faint);margin-top:6px}
+@media(max-width:700px){.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.feat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
+@media(max-width:700px){.feat-grid{grid-template-columns:1fr}}
+.feat-card{border:1px solid var(--line);border-radius:10px;padding:20px;background:#fff}
+.feat-card .fi{font-size:1.4rem;margin-bottom:10px}
+.feat-card h3{font-size:1rem;margin-bottom:6px}
+.feat-card p{font-size:.86rem;color:var(--muted);margin-bottom:10px}
+.feat-card code{display:block;font-size:.76rem;color:var(--accent-ink);background:#eff6ff;border-radius:6px;padding:8px 10px;overflow-x:auto;white-space:nowrap}
+.sim-shell{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:8px;background:#fff}
+.sim-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:#fafafa;font-size:.82rem;color:var(--muted);font-weight:600}
+.sim-head .dots{display:flex;gap:6px}
+.sim-head .dots i{width:10px;height:10px;border-radius:50%;background:#e5e7eb;display:block}
+.sim-body{padding:18px;display:grid;gap:12px}
+.sim-hints{display:flex;gap:8px;flex-wrap:wrap}
+.sim-hints button{background:#f3f4f6;border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:.8rem;color:var(--muted);font-weight:600}
+.sim-hints button:hover{border-color:var(--ink);color:var(--ink)}
+.sim-hints button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.shot{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:8px;background:#0b0b10}
+.shot img{display:block;width:100%;height:auto}
+.shot figcaption{padding:12px 16px;font-size:.8rem;color:var(--muted);background:#fff;border-top:1px solid var(--line)}
+.cmp-wrap{overflow-x:auto;margin-top:8px;border:1px solid var(--line);border-radius:12px}
+.cmp-table{width:100%;border-collapse:collapse;font-size:.85rem;min-width:560px;background:#fff}
+.cmp-table th,.cmp-table td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+.cmp-table thead th{background:#fafafa;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+.cmp-table tbody tr:last-child td{border-bottom:none}
+.cmp-table td.hl{background:#f5f3ff;font-weight:700}
+.cmp-table .win{color:#16a34a;font-weight:700}
+.bar-row{display:grid;gap:6px;margin-bottom:14px}
+.bar-row .lbl{display:flex;justify-content:space-between;font-size:.82rem;font-weight:600}
+.bar-row .lbl span:last-child{color:var(--muted)}
+.bar-track{height:22px;border-radius:999px;background:#f3f4f6;border:1px solid var(--line);overflow:hidden}
+.bar-fill{height:100%;width:0;border-radius:999px;transition:width 1s cubic-bezier(.2,.7,.2,1)}
+.fill-vape{background:linear-gradient(90deg,#7c3aed,#a855f7)}
+.fill-rise{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.fill-rubi{background:linear-gradient(90deg,#10b981,#06b6d4)}
+.ver-table{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px}
+.ver-table th,.ver-table td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line)}
+.ver-table th{font-size:.75rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+.ver-pill{font-size:.7rem;font-weight:700;padding:4px 11px;border-radius:999px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.ver-pill.soon{background:#eff6ff;color:var(--accent-ink);border-color:#bfdbfe}
+.req-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+@media(max-width:700px){.req-list{grid-template-columns:1fr}}
+.req-list div{border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:.84rem;background:#fff}
+.req-list b{display:block;font-size:.78rem;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.lb-note{font-size:.76rem;color:var(--faint);margin-top:10px}
+</style>
+</head>
+<body>
+
+<div id="site-banner" class="site-banner" hidden></div>
+
+<header class="site-header" id="navbar">
+  <div class="header-in">
+    <a href="index.html" class="brand"><img src="images/bot.svg" alt="RiseBunny" class="brand-icon">RiseBunny</a>
+    <nav class="nav-links" id="nav-links">
+      <a href="index.html#arena">Rubidium</a>
+      <a href="rubidium.html" class="on">Rubidium V4</a>
+      <a href="risebunny.html">RiseBunny Bot</a>
+      <a href="index.html#sss">FAQ</a>
+      <a href="forum.html">Forum</a>
+    </nav>
+    <div class="header-side">
+      <span data-auth-slot></span>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="tr"><span class="flag" aria-hidden="true">🇹🇷</span>TR</button>
+        <button type="button" class="lang-btn active" data-lang="en"><span class="flag" aria-hidden="true">🇬🇧</span>EN</button>
+      </div>
+      <a href="#surumler" class="btn sm solid">İndir</a>
+      <button type="button" class="burger" id="burger" aria-label="Menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="hero" id="top">
+  <div class="rb-hero">
+    <img src="images/trs.png" alt="Rubidium V4" class="rb-avatar">
+    <div style="flex:1;min-width:240px">
+      <p class="eyebrow">Minecraft Hack Client • V4 • ClickGUI</p>
+      <h1 class="hero-title" data-tr="Yakalanmadan zirveye." data-en="Top of the board, undetected.">Yakalanmadan zirveye.</h1>
+      <p class="hero-sub" data-tr="FPS modu değil, ghost client: legit görünen combat modülleri, oyun içi ClickGUI, hazır configler. Vape V4 ve Rise ayarında — ücretsiz." data-en="Not an FPS mod, a ghost client: legit-looking combat modules, in-game ClickGUI, ready configs. Vape V4 and Rise class — free.">FPS modu değil, ghost client: legit görünen combat modülleri, oyun içi ClickGUI, hazır configler. Vape V4 ve Rise ayarında — ücretsiz.</p>
+      <div class="rb-badges">
+        <span class="rb-badge ghost"><span class="dot"></span><span>Ghost Client</span></span>
+        <span class="rb-badge">ClickGUI</span>
+        <span class="rb-badge live" data-tr="Ücretsiz" data-en="Free">Ücretsiz</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-cta">
+    <a class="btn solid" href="#surumler"><i class="fa-solid fa-download"></i><span data-tr="İndir" data-en="Download">İndir</span></a>
+    <a class="btn line" href="#karsilastir"><i class="fa-solid fa-scale-balanced"></i><span data-tr="Karşılaştır" data-en="Compare">Karşılaştır</span></a>
+    <a class="btn line" href="risebunny.html"><i class="fa-solid fa-robot"></i><span>RiseBunny Bot</span></a>
+  </div>
+</section>
+
+
+<section class="section" id="istatistik">
+  <div class="section-head">
+    <span class="sec-num">01</span>
+    <div>
+      <h2 class="sec-title" data-tr="Kısaca Rubidium V4" data-en="Rubidium V4 in Brief">Kısaca Rubidium V4</h2>
+      <p class="sec-desc" data-tr="Closet oynayanlar için: küçük, fark edilmeyen avantajlar. (*Değerler hedef simülasyondur.)" data-en="For closet players: small, unnoticeable advantages. (*Target simulation values.)">Closet oynayanlar için: küçük, fark edilmeyen avantajlar. (*Değerler hedef simülasyondur.)</p>
+    </div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><b>60+</b><span data-tr="Modül (hedef)" data-en="Modules (target)">Modül (hedef)</span><small>combat • movement • visual</small></div>
+    <div class="stat-card"><b>ClickGUI</b><span data-tr="Oyun içi menü" data-en="In-game menu">Oyun içi menü</span><small>Single / Multi / Settings</small></div>
+    <div class="stat-card"><b>2</b><span>Topluluk</span><small>Discord + Telegram</small></div>
+    <div class="stat-card"><b>₺0</b><span data-tr="Fiyat" data-en="Price">Fiyat</span><small data-tr="tamamen ücretsiz" data-en="fully free">tamamen ücretsiz</small></div>
+  </div>
+</section>
+
+
+<section class="section" id="ozellikler">
+  <div class="section-head">
+    <span class="sec-num">02</span>
+    <div>
+      <h2 class="sec-title" data-tr="Modül Kategorileri" data-en="Module Categories">Modül Kategorileri</h2>
+      <p class="sec-desc" data-tr="Vape V4 ve Rise ile aynı dil: her kategori ghost ayarlarla kısılabilir." data-en="Same language as Vape V4 and Rise: every category can be toned down to ghost settings.">Vape V4 ve Rise ile aynı dil: her kategori ghost ayarlarla kısılabilir.</p>
+    </div>
+  </div>
+  <div class="feat-grid" id="feat-grid"></div>
+</section>
+
+
+<section class="section" id="vitrin">
+  <div class="section-head">
+    <span class="sec-num">03</span>
+    <div>
+      <h2 class="sec-title" data-tr="Ana Menüden Kare" data-en="From the Main Menu">Ana Menüden Kare</h2>
+      <p class="sec-desc" data-tr="Rubidium V4 ana menüsü: Singleplayer, Multiplayer, ClickGUI, Settings — alt köşede Discord + Telegram." data-en="Rubidium V4 main menu: Singleplayer, Multiplayer, ClickGUI, Settings — Discord + Telegram at the bottom.">Rubidium V4 ana menüsü: Singleplayer, Multiplayer, ClickGUI, Settings — alt köşede Discord + Telegram.</p>
+    </div>
+  </div>
+  <figure class="shot">
+    <img src="images/image.webp" alt="Rubidium V4 ana menüsü — Singleplayer, Multiplayer, ClickGUI, Settings" loading="lazy">
+    <figcaption data-tr="Rubidium V4 ana menüsü. ClickGUI oyun içinden açılır; configler Discord üzerinden paylaşılır." data-en="Rubidium V4 main menu. ClickGUI opens in-game; configs are shared via Discord.">Rubidium V4 ana menüsü. ClickGUI oyun içinden açılır; configler Discord üzerinden paylaşılır.</figcaption>
+  </figure>
+</section>
+
+
+<section class="section" id="karsilastir">
+  <div class="section-head">
+    <span class="sec-num">04</span>
+    <div>
+      <h2 class="sec-title" data-tr="Vape V4 • Rise • Rubidium" data-en="Vape V4 • Rise • Rubidium">Vape V4 • Rise • Rubidium</h2>
+      <p class="sec-desc" data-tr="Aynı arenanın üç oyuncusu. Senaryo seç, gizlilik skorlarının simülasyonunu gör." data-en="Three players of the same arena. Pick a scenario, see the simulated discretion scores.">Aynı arenanın üç oyuncusu. Senaryo seç, gizlilik skorlarının simülasyonunu gör.</p>
+    </div>
+  </div>
+  <div class="cmp-wrap">
+    <table class="cmp-table">
+      <thead><tr><th></th><th>Vape V4</th><th>Rise</th><th>Rubidium V4</th></tr></thead>
+      <tbody>
+        <tr><td data-tr="Fiyat" data-en="Price">Fiyat</td><td>$9.99/ay <span data-tr="abonelik (kalıcı seçenekli)" data-en="subscription (lifetime option)">abonelik (kalıcı seçenekli)</span></td><td>$34.99 <span data-tr="kalıcı lisans" data-en="lifetime license">kalıcı lisans</span></td><td class="hl win" data-tr="Ücretsiz" data-en="Free">Ücretsiz</td></tr>
+        <tr><td data-tr="Modül sayısı" data-en="Modules">Modül sayısı</td><td>50+</td><td>100+</td><td class="hl">60+ <span data-tr="(hedef)" data-en="(target)">(hedef)</span></td></tr>
+        <tr><td>ClickGUI</td><td class="win">✓</td><td class="win">✓</td><td class="hl win">✓</td></tr>
+        <tr><td>Ghost / Blatant</td><td data-tr="İkisi de" data-en="Both">İkisi de</td><td data-tr="İkisi de" data-en="Both">İkisi de</td><td class="hl" data-tr="Ghost odaklı" data-en="Ghost-focused">Ghost odaklı</td></tr>
+        <tr><td data-tr="Sürümler" data-en="Versions">Sürümler</td><td>1.7–1.16</td><td>1.8.9 / 1.12.2 / 1.19.4</td><td class="hl">1.20.x <span data-tr="(hedef)" data-en="(target)">(hedef)</span></td></tr>
+        <tr><td data-tr="Ekstra" data-en="Extras">Ekstra</td><td data-tr="Hazır profiller, legit mod menüsü" data-en="Public profiles, legit mod menu">Hazır profiller, legit mod menüsü</td><td data-tr="Alt Manager, Config Hub" data-en="Alt Manager, Config Hub">Alt Manager, Config Hub</td><td class="hl">Discord + Telegram</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="sim-shell" style="margin-top:14px">
+    <div class="sim-head"><span class="dots"><i></i><i></i><i></i></span><span data-tr="Senaryo Simülatörü — gizlilik skoru" data-en="Scenario Simulator — discretion score">Senaryo Simülatörü — gizlilik skoru</span></div>
+    <div class="sim-body">
+      <div class="sim-hints" id="scn-hints"></div>
+      <div id="scn-bars"></div>
+      <p class="lb-note" id="scn-note"></p>
+    </div>
+  </div>
+  <p class="lb-note" data-tr="Skorlar temsilî simülasyondur; gerçek tespit oranı ayara, sunucuya ve anticheat sürümüne göre değişir. Hiçbir client %100 güvenli değildir." data-en="Scores are illustrative simulations; real detection depends on settings, server and anticheat version. No client is 100% safe.">Skorlar temsilî simülasyondur; gerçek tespit oranı ayara, sunucuya ve anticheat sürümüne göre değişir. Hiçbir client %100 güvenli değildir.</p>
+</section>
+
+
+<section class="section" id="surumler">
+  <div class="section-head">
+    <span class="sec-num">05</span>
+    <div>
+      <h2 class="sec-title" data-tr="Sürümler + Gereksinimler" data-en="Versions + Requirements">Sürümler + Gereksinimler</h2>
+      <p class="sec-desc" data-tr="Gelişmeler Discord ve Telegram üzerinden duyurulur." data-en="Progress is announced via Discord and Telegram.">Gelişmeler Discord ve Telegram üzerinden duyurulur.</p>
+    </div>
+  </div>
+  <table class="ver-table">
+    <thead><tr><th data-tr="Sürüm" data-en="Version">Sürüm</th><th>Minecraft</th><th data-tr="Durum" data-en="Status">Durum</th></tr></thead>
+    <tbody>
+      <tr><td><b>3.1</b></td><td>1.20.x</td><td><span class="ver-pill" data-tr="Yayında" data-en="Released">Yayında</span></td></tr>
+      <tr><td><b>4.0</b></td><td>1.20.x</td><td><span class="ver-pill soon" data-tr="Yakında" data-en="Soon">Yakında</span></td></tr>
+    </tbody>
+  </table>
+  <div class="req-list">
+    <div><b>Java</b><span>Java 17+ (64-bit)</span></div>
+    <div><b>RAM</b><span>4 GB sistem • 2 GB ayrılmış</span></div>
+    <div><b>OS</b><span>Windows 10/11</span></div>
+    <div><b data-tr="Topluluk" data-en="Community">Topluluk</b><span>Discord + Telegram</span></div>
+  </div>
+  <div class="row-cta">
+    <a class="btn solid" href="index.html#iletisim"><i class="fa-solid fa-download"></i><span data-tr="İndirme İçin İletişim" data-en="Contact for Download">İndirme İçin İletişim</span></a>
+    <a class="btn line" href="index.html#iletisim"><i class="fa-brands fa-discord"></i><span>Discord</span></a>
+  </div>
+</section>
+
+
+<section class="section section-narrow" id="sss-mini">
+  <div class="section-head">
+    <span class="sec-num">06</span>
+    <div><h2 class="sec-title" data-tr="Hızlı Sorular" data-en="Quick Questions">Hızlı Sorular</h2></div>
+  </div>
+  <div class="faq" id="sss-list"></div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-in">
+    <div class="footer-brand">RiseBunny</div>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <a href="index.html#arena">Rubidium</a>
+        <a href="rubidium.html">Rubidium V4</a>
+        <a href="risebunny.html">RiseBunny Bot</a>
+        <a href="index.html#sss">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="docs.html">Docs</a>
+        <a href="forum.html">Forum</a>
+      </div>
+    </div>
+    <div class="footer-base" id="foot-base">
+      <span>© 2026 RiseBunny. All rights reserved.</span>
+      <span class="slogan">Rise Beyond Limits.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="js/firebase-config.js?v=10"></script>
+<script src="js/maintenance.js?v=7"></script>
+<script src="js/rb-env.js?v=2"></script>
+<script src="js/rb-login.js?v=3"></script>
+<script src="js/auth.js?v=6"></script>
+<script src="js/rubidium.js?v=2"></script>
+</body>
+</html>

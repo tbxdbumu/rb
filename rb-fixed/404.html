@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — RiseBunny</title>
+<link rel="icon" type="image/svg+xml" href="images/bot.svg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --bg:#0b0b12;
+    --card:#13131c;
+    --line:rgba(255,255,255,0.06);
+    --text:#e8e8f0;
+    --muted:#8a8aa6;
+    --accent:#9b6dff;
+    --accent-2:#7aa2ff;
+    --radius:18px;
+    --shadow:0 20px 50px -20px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(900px 500px at 12% 0%, rgba(155,109,255,0.10), transparent 60%),
+      radial-gradient(800px 500px at 95% 100%, rgba(122,162,255,0.08), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .container{
+    width:min(520px,100%);
+    text-align:center;
+  }
+  .code{
+    font-size:clamp(80px,18vw,160px);
+    font-weight:800;
+    letter-spacing:-0.08em;
+    line-height:1;
+    background:linear-gradient(120deg,#3f3f4b 30%,#1a1a26 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:8px;
+  }
+  h1{
+    font-size:clamp(24px,4vw,36px);
+    margin-bottom:12px;
+    letter-spacing:-0.02em;
+  }
+  p{color:var(--muted);margin-bottom:28px;line-height:1.6}
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 24px;
+    border-radius:40px;
+    font-weight:600;
+    font-size:15px;
+    text-decoration:none;
+    border:1px solid rgba(255,255,255,0.12);
+    background:#1b1b28;
+    color:#e6e6f0;
+    transition:background .15s, border-color .15s;
+  }
+  .btn:hover{
+    background:#2b2b3d;
+    border-color:rgba(255,255,255,0.25);
+  }
+  .hint{
+    margin-top:20px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .hint kbd{
+    background:rgba(255,255,255,0.06);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:2px 8px;
+    font-family:inherit;
+    font-size:12px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="code">404</div>
+  <h1>Sayfa bulunamadı</h1>
+  <p>Aradığın yol bu evrende yok. Belki de hiç yok olmadı, sadece biz henüz inşa etmedik.</p>
+  <a class="btn" href="/index.html"><i class="fa-solid fa-house"></i> Anasayfaya dön</a>
+</div>
+</body>
+</html>

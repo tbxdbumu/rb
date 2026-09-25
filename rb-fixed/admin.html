@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<title>Admin Paneli — RiseBunny</title>
+<link rel="icon" type="image/svg+xml" href="images/bot.svg">
+<link rel="alternate icon" type="image/png" href="images/bot.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/admin.css?v=12">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+
+<div id="auth-screen" hidden>
+  <div class="login-card">
+    <img src="images/bot.svg" alt="RiseBunny Bot" class="login-logo">
+    <h1>Admin Girişi</h1>
+    <p>RiseBunny Yönetim Paneli — yalnızca Discord ile giriş (2 yetkili).</p>
+    <a class="btn btn-primary" href="/api/auth/discord/start?next=/admin.html" style="width:100%;padding:12px"><i class="fa-brands fa-discord"></i> Discord ile Giriş</a>
+    <p id="bridge-state" class="login-hint" aria-live="polite"></p>
+    <p id="login-attempts" class="login-hint" aria-live="polite"></p>
+  </div>
+</div>
+
+
+<div id="panel" hidden>
+  <header class="admin-top">
+    <div class="admin-brand">
+      <img src="images/bot.svg" alt="RiseBunny" class="brand-icon"> RiseBunny <span>ADMIN</span>
+    </div>
+    <div class="admin-user">
+      <span id="user-email"></span>
+      <a class="btn btn-outline btn-sm" href="index.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Siteyi Gör</a>
+      <button type="button" id="btn-logout" class="btn btn-outline btn-sm danger"><i class="fa-solid fa-right-from-bracket"></i> Çıkış</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button type="button" class="tab active" data-tab="dashboard"><i class="fa-solid fa-gauge-high"></i> Panel</button>
+    <button type="button" class="tab" data-tab="general"><i class="fa-solid fa-sliders"></i> Genel</button>
+    <button type="button" class="tab" data-tab="maintenance"><i class="fa-solid fa-screwdriver-wrench"></i> Bakım Modu</button>
+    <button type="button" class="tab" data-tab="products"><i class="fa-solid fa-box"></i> Ürünler (Get It)</button>
+    <button type="button" class="tab" data-tab="features"><i class="fa-solid fa-star"></i> Özellikler</button>
+    <button type="button" class="tab" data-tab="faq"><i class="fa-solid fa-circle-question"></i> FAQ</button>
+    <button type="button" class="tab" data-tab="banner"><i class="fa-solid fa-bullhorn"></i> Duyuru Bannerı</button>
+    <button type="button" class="tab" data-tab="translations"><i class="fa-solid fa-language"></i> Çeviriler</button>
+    <button type="button" class="tab" data-tab="messages"><i class="fa-solid fa-envelope"></i> Mesajlar</button>
+    <button type="button" class="tab" data-tab="forum"><i class="fa-solid fa-users-gear"></i> Forum Üyeleri</button>
+    <button type="button" class="tab" data-tab="bans"><i class="fa-solid fa-user-slash"></i> Banlar</button>
+    <button type="button" class="tab" data-tab="sitelog"><i class="fa-solid fa-list-check"></i> Forum Log</button>
+    <button type="button" class="tab" data-tab="logs"><i class="fa-solid fa-clock-rotate-left"></i> Loglar</button>
+  </nav>
+
+  <main class="admin-main">
+
+    
+    <section class="tab-panel active" data-panel="dashboard">
+      <div class="stats">
+        <div class="stat"><strong id="stat-products">0</strong><span>Ürün</span></div>
+        <div class="stat"><strong id="stat-features">0</strong><span>Özellik</span></div>
+        <div class="stat"><strong id="stat-faq">0</strong><span>FAQ</span></div>
+        <div class="stat"><strong id="stat-messages">0</strong><span>Gelen Mesaj</span></div>
+      </div>
+      <div class="panel-head"><h3>Son Sistem Aktiviteleri</h3></div>
+      <div id="recent-logs"></div>
+      <div class="panel-head" style="margin-top:18px"><h3>Bağlantı Tanısı</h3></div>
+      <div id="conn-diag"><div class="log-empty">Panel açılınca test çalışır.</div></div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="general">
+      <div class="panel-head"><h3>Genel Site Ayarları</h3></div>
+      <div class="admin-row">
+        <div class="row-controls">
+          <div><label class="f-label">Varsayılan Dil</label>
+            <select id="inp-lang"><option value="tr">TR (Türkçe)</option><option value="en">EN (İngilizce)</option></select>
+          </div>
+          <div><label class="f-label">İletişim / Yedek E-posta</label><input type="email" id="inp-email" placeholder="info@risebunny.com"></div>
+        </div>
+        <label class="f-label">Logo URL</label>
+        <div class="row-controls">
+          <input type="text" id="inp-logo" placeholder="https://... veya görsel URL">
+          <label class="btn btn-glow btn-sm" style="align-self:start;justify-content:center"><i class="fa-solid fa-upload"></i> Logo Yükle<input type="file" id="logo-file" accept="image/*" hidden></label>
+        </div>
+        <label class="f-label">Sosyal Medya Bağlantıları</label>
+        <div class="row-controls">
+          <div class="soc-input"><i class="fa-brands fa-discord"></i><input type="text" id="soc-discord" placeholder="Discord URL"></div>
+          <div class="soc-input"><i class="fa-brands fa-telegram"></i><input type="text" id="soc-telegram" placeholder="Telegram URL"></div>
+          <div class="soc-input"><i class="fa-brands fa-youtube"></i><input type="text" id="soc-youtube" placeholder="YouTube URL"></div>
+          <div class="soc-input"><i class="fa-brands fa-tiktok"></i><input type="text" id="soc-tiktok" placeholder="TikTok URL"></div>
+        </div>
+        <div class="row-actions"><button type="button" id="btn-save-general" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> Ayarları Kaydet</button></div>
+      </div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="maintenance">
+      <div class="panel-head"><h3>🔧 Site Bakım Modu</h3></div>
+      <div class="admin-row">
+        <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px">
+          Bakım modu aktif edildiğinde ziyaretçiler (index, forum, vb.) doğrudan bakım ekranına yönlendirilir. Giriş yapmış admin cihazlar siteyi normal şekilde görüntülemeye devam eder.
+        </p>
+        <label style="display:flex;gap:10px;align-items:center;margin:16px 0;font-size:1rem;font-weight:700;cursor:pointer">
+          <input type="checkbox" id="mnt-enabled" style="width:20px;height:20px"> 
+          <span>Siteyi Bakım Moduna Al (Aktif Et)</span>
+        </label>
+        <div class="row-controls" style="margin-top:12px">
+          <div>
+            <label class="f-label">Bakım Mesajı (Türkçe)</label>
+            <textarea id="mnt-tr" rows="3" placeholder="Sitemiz şu anda planlı bakım çalışmasındadır. Çok yakında buradayız!"></textarea>
+          </div>
+          <div>
+            <label class="f-label">Maintenance Message (English)</label>
+            <textarea id="mnt-en" rows="3" placeholder="We are currently performing scheduled maintenance. We'll be back shortly!"></textarea>
+          </div>
+        </div>
+        <div class="row-actions" style="margin-top:16px">
+          <button type="button" class="btn btn-primary btn-sm" id="btn-save-mnt"><i class="fa-solid fa-floppy-disk"></i> Bakım Ayarlarını Kaydet</button>
+        </div>
+      </div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="products">
+      <div class="panel-head">
+        <div>
+          <h3>Ürünler & İndirme Bağlantıları</h3>
+          <p style="color:var(--muted);font-size:.84rem">"Get It" butonuna tıklandığında buradaki indirme bağlantısı doğrudan açılır.</p>
+        </div>
+        <button type="button" id="btn-add-product" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Yeni Ürün Ekle</button>
+      </div>
+      <div id="product-rows"></div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="features">
+      <div class="panel-head"><h3>Özellikler (Systems Bölümü)</h3><button type="button" id="btn-add-feature" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Yeni Özellik</button></div>
+      <div id="feature-rows"></div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="faq">
+      <div class="panel-head"><h3>Sıkça Sorulan Sorular (FAQ)</h3><button type="button" id="btn-add-faq" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Yeni Soru</button></div>
+      <div id="faq-rows"></div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="banner">
+      <div class="panel-head"><h3>Duyuru Bannerı</h3></div>
+      <div class="admin-row">
+        <label class="f-label" style="display:flex;align-items:center;gap:8px;font-size:.95rem;cursor:pointer">
+          <input type="checkbox" id="banner-enabled" style="width:18px;height:18px"> Banner aktif olsun
+        </label>
+        <div class="row-controls" style="margin-top:12px">
+          <div><label class="f-label">Banner Tipi</label>
+            <select id="banner-type"><option value="info">Bilgi (Mavi/Koyu)</option><option value="warning">Uyarı (Sarı)</option><option value="success">Başarı (Yeşil)</option></select>
+          </div>
+          <div><label class="f-label">Link (Opsiyonel)</label><input type="text" id="banner-link" placeholder="https://..."></div>
+        </div>
+        <div class="row-controls" style="margin-top:10px">
+          <textarea id="banner-tr" rows="2" placeholder="Duyuru metni (TR)"></textarea>
+          <textarea id="banner-en" rows="2" placeholder="Announcement text (EN)"></textarea>
+        </div>
+        <div class="row-actions"><button type="button" id="btn-save-banner" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> Bannerı Kaydet</button></div>
+      </div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="translations">
+      <div class="panel-head"><h3>Site Çevirileri (TR / EN)</h3><button type="button" id="btn-save-trans" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> Çevirileri Kaydet</button></div>
+      <div id="trans-grid"></div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="messages">
+      <div class="panel-head"><h3>İletişim Formu Mesajları</h3><button type="button" id="btn-refresh-messages" class="btn btn-outline btn-sm"><i class="fa-solid fa-rotate"></i> Yenile</button></div>
+      <div id="messages-list"></div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="forum">
+      <div class="panel-head"><h3>Forum Kullanıcıları</h3><button type="button" id="fu-refresh" class="btn btn-outline btn-sm"><i class="fa-solid fa-rotate"></i> Yenile</button></div>
+      <div class="admin-row">
+        <p style="color:var(--muted);font-size:.88rem">Yetki belirleme, banlama ve hesap yönetimi. (Şifreler güvenlik gereği artık saklanmaz/görüntülenmez.)</p>
+        <button type="button" id="fu-purge" class="btn btn-outline btn-sm danger" style="margin:10px 0">🧹 KALINTI TEMİZLİĞİ — kurucu hariç hesapları sil</button>
+        <input type="text" id="fu-search" placeholder="🔍 Kullanıcı adı ile ara..." style="margin-bottom:14px">
+        <div id="forum-users"><div class="msg-empty">Yükleniyor...</div></div>
+      </div>
+      <div class="admin-row" style="margin-top:14px">
+        <h4 style="margin-bottom:8px">👑 Kurucuya Yükseltilen Raporlar</h4>
+        <div id="rep-kurucu"><div class="msg-empty">Yükleniyor...</div></div>
+      </div>
+      <div class="admin-row" style="margin-top:14px">
+        <h4 style="margin-bottom:8px">⛔ Ban Onayları</h4>
+        <div id="rep-ban"><div class="msg-empty">Yükleniyor...</div></div>
+      </div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="bans">
+      <div class="panel-head"><h3>Banlı Cihazlar & Kullanıcılar</h3><button type="button" id="btn-refresh-bans" class="btn btn-outline btn-sm"><i class="fa-solid fa-rotate"></i> Yenile</button></div>
+      <div id="bans-list"></div>
+    </section>
+
+    
+    <section class="tab-panel" data-panel="sitelog">
+      <div class="panel-head"><h3>Forum Log — Sitede Yapılan Adımlar</h3><button type="button" id="btn-clear-sitelog" class="btn btn-outline btn-sm danger"><i class="fa-solid fa-trash"></i> Temizle</button></div>
+      <div id="sitelog-list"></div>
+    </section>
+
+    <section class="tab-panel" data-panel="logs">
+      <div class="panel-head"><h3>Aktivite Geçmişi</h3><button type="button" id="btn-clear-logs" class="btn btn-outline btn-sm danger"><i class="fa-solid fa-trash"></i> Geçmişi Temizle</button></div>
+      <div id="logs-list"></div>
+    </section>
+
+  </main>
+</div>
+
+
+<div class="modal" id="icon-picker">
+  <div class="modal-box">
+    <button type="button" id="icon-picker-close" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+    <h3>İkon Seç</h3>
+    <div id="icon-grid" class="icon-grid"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="js/firebase-config.js?v=10"></script>
+<script src="js/rb-login.js?v=3"></script>
+<script src="js/auth.js?v=6"></script>
+<script src="js/admin.js?v=13"></script>
+<script src="js/admin-forum.js?v=12"></script>
+<script src="js/admin-extra.js?v=12"></script>
+</body>
+</html>

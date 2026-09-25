@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" type="image/svg+xml" href="images/bot.svg">
+<title data-i18n="tr">Dökümantasyon · RiseBunny</title>
+<title data-i18n="en">Documentation · RiseBunny</title>
+<meta name="description" content="RiseBunny bot komutları ve AI özellikleri dökümantasyonu.">
+<style>
+:root{
+  --bg:#ffffff; --ink:#111827; --muted:#4b5563; --faint:#9ca3af;
+  --line:#e5e7eb; --accent:#2563eb; --accent-ink:#1d4ed8; --r:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-ink)}
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:980px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 24px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.05rem;color:var(--ink);text-decoration:none}
+.lang-toggle{position:relative;display:inline-flex;gap:2px;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#f9fafb}
+.lang-toggle button{position:relative;display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--muted);padding:6px 13px;font-weight:700;font-size:.78rem;letter-spacing:.04em;cursor:pointer;font-family:inherit}
+.lang-toggle button.active{color:#fff;background:var(--ink);border-radius:999px}
+.wrap{max-width:980px;margin:auto;padding:0 24px}
+header.hero{padding:64px 0 28px}
+h1{font-size:clamp(1.9rem,5vw,2.8rem);font-weight:800;letter-spacing:-.02em;margin:0 0 12px}
+.hero p{max-width:640px;color:var(--muted);font-size:1.02rem}
+main{padding:16px 0 40px;display:grid;gap:18px}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:26px 24px}
+.card h2{display:flex;align-items:center;gap:12px;font-size:1.15rem;margin-bottom:12px}
+.num{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:var(--ink);color:#fff;font-size:.85rem;font-weight:700}
+.card p{color:var(--muted);margin-bottom:10px}
+.card p:last-child{margin-bottom:0}
+.card ul{margin:6px 0 4px 20px;color:var(--muted)}
+.card li{margin-bottom:8px}
+.card strong{color:var(--ink)}
+.card code{background:#f3f4f6;border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:.85em}
+.card h3{margin:22px 0 10px;font-size:1.02rem;display:flex;align-items:center;gap:8px}
+.card h3:first-of-type{margin-top:6px}
+.sayi{font-size:.72rem;font-weight:700;color:var(--muted);background:#f3f4f6;border:1px solid var(--line);border-radius:999px;padding:1px 9px}
+.cmds{display:grid;gap:8px}
+.cmd{border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:.9rem;background:#fafafa}
+.cmd code{background:#fff}
+.cmd .use{display:block;margin-top:4px;font-size:.8rem;color:var(--muted)}
+.search{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:.95rem;font-family:inherit;margin-bottom:6px}
+footer{border-top:1px solid var(--line);padding:28px 0 40px;margin-top:24px;text-align:center;color:var(--muted);font-size:.86rem}
+footer .links{display:flex;gap:18px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+footer a{color:var(--accent);text-decoration:none;font-weight:600}
+[data-i18n]{display:none}
+html[lang="tr"] [data-i18n="tr"]{display:inline}
+html[lang="en"] [data-i18n="en"]{display:inline}
+html[lang="tr"] [data-i18n-block="tr"]{display:block}
+html[lang="en"] [data-i18n-block="en"]{display:block}
+[data-i18n-block]{display:none}
+</style>
+</head>
+<body>
+<nav><div class="nav-in">
+  <a class="logo" href="index.html"><img src="images/bot.svg" alt="" width="24" height="24">RiseBunny</a>
+  <div class="lang-toggle" role="group" aria-label="Language">
+    <button type="button" data-lang="tr" class="active">🇹🇷 TR</button>
+    <button type="button" data-lang="en">🇬🇧 EN</button>
+  </div>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <h1><span data-i18n="tr">Dökümantasyon</span><span data-i18n="en">Documentation</span></h1>
+  <p><span data-i18n="tr">Prefix: <code>r!</code> · Toplam <strong>165 komut</strong> · Komutlar hem Türkçe hem İngilizce adlarla çalışır. Önce <code>r!dil</code> ile dilini seçip onayı ver.</span><span data-i18n="en">Prefix: <code>r!</code> · <strong>165 commands</strong> total · Commands work with both Turkish and English names. First pick your language and accept with <code>r!dil</code>.</span></p>
+</header>
+
+<main>
+  <div class="card">
+    <h2><span class="num">🤖</span><span data-i18n="tr">AI Özellikleri (YENİ)</span><span data-i18n="en">AI Features (NEW)</span></h2>
+    <div data-i18n-block="tr">
+      <p><strong>✨ AI ile komut çalıştırma:</strong> <code>rise &lt;doğal dilde istek&gt;</code> yaz. Örn: <code>rise @Ahmet'i 10dk sustur spam</code>, <code>rise param ne kadar</code>. AI isteği anlayıp doğru komutu çalıştırır.</p>
+      <ul>
+        <li><strong>Yetki denetimi:</strong> Yetki isteyen komutlarda Discord yetkin sorgulanır; yetkin yoksa komut çalışmaz, ret sahibe loglanır.</li>
+        <li><strong>Beta + Premium:</strong> AI komutları beta testerlara ve Premium üyelere açıktır.</li>
+      </ul>
+      <p><strong>🧠 AI'ya öğret:</strong> AI cevabındaki 🧠 butonuna bas → önerin onay havuzuna gider → sahip veya mod kabul ederse AI kalıcı öğrenir (tüm sunucularda).</p>
+      <p><strong>🌍 Dil + onay:</strong> İlk kullanımda <code>r!dil</code> ile dilini seç, sonra <strong>Kaydet ve Kabul Et</strong>'e bas. Dil seçmeden kabul edilemez; reddedersen kabul edene kadar komutlar ve AI kilitli kalır.</p>
+    </div>
+    <div data-i18n-block="en">
+      <p><strong>✨ Run commands with AI:</strong> type <code>rise &lt;request in plain words&gt;</code>. Ex: <code>rise mute @Ahmet 10m spam</code>, <code>rise how much money do I have</code>. The AI understands and runs the right command.</p>
+      <ul>
+        <li><strong>Permission checks:</strong> your Discord permission is verified for privileged commands; without it the command never runs and the denial is logged to the owner.</li>
+        <li><strong>Beta + Premium:</strong> AI commands are open to beta testers and Premium members.</li>
+      </ul>
+      <p><strong>🧠 Teach the AI:</strong> press 🧠 on an AI answer → your suggestion goes to the approval pool → if the owner or a mod accepts, the AI learns it permanently (all servers).</p>
+      <p><strong>🌍 Language + consent:</strong> on first use pick your language with <code>r!dil</code>, then press <strong>Save &amp; Accept</strong>. Accepting without a language is blocked; if you decline, commands and AI stay locked until you accept.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">📋</span><span data-i18n="tr">Tüm Komutlar (165)</span><span data-i18n="en">All Commands (165)</span></h2>
+    <p><input class="search" id="ara" placeholder="Komut ara... / Search commands..."></p>
+      <h3>👤 <span data-i18n="tr">Kullanıcı</span><span data-i18n="en">User</span> <span class="sayi">9</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!afk</code><span data-i18n="tr">AFK moduna girer. <span class="use">Kullanım: <code>r!afk &lt;sebep&gt;</code></span></span><span data-i18n="en">Sets you as AFK. <span class="use">Usage: <code>r!afk &lt;reason&gt;</code></span></span></div>
+        <div class="cmd"><code>r!pp</code> / <code>r!avatar</code><span data-i18n="tr">Avatarını gösterir. <span class="use">Kullanım: <code>r!pp [@kullanıcı]</code></span></span><span data-i18n="en">Shows the avatar. <span class="use">Usage: <code>r!avatar [@user]</code></span></span></div>
+        <div class="cmd"><code>r!emojiler</code> / <code>r!emojis</code><span data-i18n="tr">Sunucudaki emojileri listeler.</span><span data-i18n="en">Lists the server emojis.</span></div>
+        <div class="cmd"><code>r!kullanıcibilgi</code> / <code>r!userinfo</code><span data-i18n="tr">Kullanıcı bilgisini gösterir. <span class="use">Kullanım: <code>r!kullanıcibilgi [@kullanıcı]</code></span></span><span data-i18n="en">Shows user info. <span class="use">Usage: <code>r!userinfo [@user]</code></span></span></div>
+        <div class="cmd"><code>r!mc-skin</code><span data-i18n="tr">Minecraft kostümünü gösterir. <span class="use">Kullanım: <code>r!mc-skin &lt;oyuncu&gt;</code></span></span><span data-i18n="en">Shows a Minecraft skin. <span class="use">Usage: <code>r!mc-skin &lt;player&gt;</code></span></span></div>
+        <div class="cmd"><code>r!randompp</code> / <code>r!random-avatar</code><span data-i18n="tr">Rastgele profil gösterir.</span><span data-i18n="en">Shows a random avatar.</span></div>
+        <div class="cmd"><code>r!snipe</code><span data-i18n="tr">Son silinen mesajı gösterir.</span><span data-i18n="en">Shows the last deleted message.</span></div>
+        <div class="cmd"><code>r!sonmesaj</code> / <code>r!last-message</code><span data-i18n="tr">Son mesajı gösterir.</span><span data-i18n="en">Shows the last message.</span></div>
+        <div class="cmd"><code>r!not</code> / <code>r!note</code><span data-i18n="tr">Kişisel not defteri. <span class="use">Kullanım: <code>r!not ekle &lt;metin&gt; | liste | sil &lt;no&gt; | temizle</code></span></span><span data-i18n="en">Personal notes. <span class="use">Usage: <code>r!note add &lt;text&gt; | list | delete &lt;no&gt; | clear</code></span></span></div>
+      </div>
+      <h3>🛡️ <span data-i18n="tr">Moderasyon</span><span data-i18n="en">Moderation</span> <span class="sayi">11</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!ban</code><span data-i18n="tr">Belirtilen kullanıcıyı yasaklar. <span class="use">Kullanım: <code>r!ban @kullanıcı [sebep]</code></span></span><span data-i18n="en">Bans the mentioned user. <span class="use">Usage: <code>r!ban @user [reason]</code></span></span></div>
+        <div class="cmd"><code>r!bansay</code> / <code>r!ban-count</code><span data-i18n="tr">Yasaklı üye sayısını gösterir.</span><span data-i18n="en">Shows the banned member count.</span></div>
+        <div class="cmd"><code>r!kick</code><span data-i18n="tr">Kullanıcıyı sunucudan atar (onaylı). <span class="use">Kullanım: <code>r!kick @kullanıcı</code></span></span><span data-i18n="en">Kicks a user (with confirm). <span class="use">Usage: <code>r!kick @user</code></span></span></div>
+        <div class="cmd"><code>r!mod-log</code><span data-i18n="tr">Mod-log kanalını ayarlar. <span class="use">Kullanım: <code>r!mod-log #kanal</code></span></span><span data-i18n="en">Sets the mod-log channel. <span class="use">Usage: <code>r!mod-log #channel</code></span></span></div>
+        <div class="cmd"><code>r!mute</code><span data-i18n="tr">Kullanıcıyı süreli susturur. <span class="use">Kullanım: <code>r!mute @kullanıcı 10m [sebep]</code></span></span><span data-i18n="en">Mutes a user for a while. <span class="use">Usage: <code>r!mute @user 10m [reason]</code></span></span></div>
+        <div class="cmd"><code>r!sil</code> / <code>r!clear</code><span data-i18n="tr">Mesajları siler. <span class="use">Kullanım: <code>r!sil &lt;1-100&gt;</code></span></span><span data-i18n="en">Deletes messages. <span class="use">Usage: <code>r!clear &lt;1-100&gt;</code></span></span></div>
+        <div class="cmd"><code>r!sunucukur</code> / <code>r!setup-server</code><span data-i18n="tr">Sunucuyu kurar.</span><span data-i18n="en">Sets up the server.</span></div>
+        <div class="cmd"><code>r!engelle</code> / <code>r!block-commands</code><span data-i18n="tr">Komutları sunucuda veya kanalda engeller. (Premium + Yönetici) <span class="use">Kullanım: <code>r!engelle | engelle aç | engelle kapat | engelle durum</code></span></span><span data-i18n="en">Blocks commands server-wide or in a channel. (Premium + Administrator) <span class="use">Usage: <code>r!block-commands | block-commands aç | block-commands kapat | block-commands durum</code></span></span></div>
+        <div class="cmd"><code>r!unbanall</code> / <code>r!unban-all</code><span data-i18n="tr">Tüm yasakları kaldırır.</span><span data-i18n="en">Unbans everyone.</span></div>
+        <div class="cmd"><code>r!uyarı</code> / <code>r!warn</code><span data-i18n="tr">Kullanıcıyı uyarır. <span class="use">Kullanım: <code>r!uyarı @kullanıcı [sebep]</code></span></span><span data-i18n="en">Warns a user. <span class="use">Usage: <code>r!warn @user [reason]</code></span></span></div>
+        <div class="cmd"><code>r!isim-log</code> / <code>r!nickname-log</code><span data-i18n="tr">İsim değişikliklerini loglar. <span class="use">Kullanım: <code>r!isim-log #kanal | kapat</code></span></span><span data-i18n="en">Logs nickname changes. <span class="use">Usage: <code>r!nickname-log #channel | off</code></span></span></div>
+      </div>
+      <h3>📝 <span data-i18n="tr">Kayıt</span><span data-i18n="en">Registration</span> <span class="sayi">8</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!alınacak-rol</code> / <code>r!unregistered-role</code><span data-i18n="tr">Kayıtta alınacak rolü ayarlar. <span class="use">Kullanım: <code>r!alınacak-rol @rol</code></span></span><span data-i18n="en">Sets the role taken on register. <span class="use">Usage: <code>r!unregistered-role @role</code></span></span></div>
+        <div class="cmd"><code>r!erkek-rol</code> / <code>r!male-role</code><span data-i18n="tr">Erkek rolünü ayarlar. <span class="use">Kullanım: <code>r!erkek-rol @rol</code></span></span><span data-i18n="en">Sets the male role. <span class="use">Usage: <code>r!male-role @role</code></span></span></div>
+        <div class="cmd"><code>r!erkek</code> / <code>r!register-male</code><span data-i18n="tr">Erkek olarak kayıt eder. <span class="use">Kullanım: <code>r!erkek @kullanıcı isim yaş</code></span></span><span data-i18n="en">Registers as male. <span class="use">Usage: <code>r!register-male @user name age</code></span></span></div>
+        <div class="cmd"><code>r!kayıt-hg</code> / <code>r!register-welcome</code><span data-i18n="tr">Kayıt hoşgeldin kanalını ayarlar. <span class="use">Kullanım: <code>r!kayıt-hg #kanal</code></span></span><span data-i18n="en">Sets the register welcome channel. <span class="use">Usage: <code>r!register-welcome #channel</code></span></span></div>
+        <div class="cmd"><code>r!kayıt-kanal</code> / <code>r!register-channel</code><span data-i18n="tr">Kayıt kanalını ayarlar. <span class="use">Kullanım: <code>r!kayıt-kanal #kanal</code></span></span><span data-i18n="en">Sets the registration channel. <span class="use">Usage: <code>r!register-channel #channel</code></span></span></div>
+        <div class="cmd"><code>r!kayıtçı-rol</code> / <code>r!registrar-role</code><span data-i18n="tr">Kayıtçı rolünü ayarlar. <span class="use">Kullanım: <code>r!kayıtçı-rol @rol</code></span></span><span data-i18n="en">Sets the registrar role. <span class="use">Usage: <code>r!registrar-role @role</code></span></span></div>
+        <div class="cmd"><code>r!kız-rol</code> / <code>r!female-role</code><span data-i18n="tr">Kız rolünü ayarlar. <span class="use">Kullanım: <code>r!kız-rol @rol</code></span></span><span data-i18n="en">Sets the female role. <span class="use">Usage: <code>r!female-role @role</code></span></span></div>
+        <div class="cmd"><code>r!kız</code> / <code>r!register-female</code><span data-i18n="tr">Kız olarak kayıt eder. <span class="use">Kullanım: <code>r!kız @kullanıcı isim yaş</code></span></span><span data-i18n="en">Registers as female. <span class="use">Usage: <code>r!register-female @user name age</code></span></span></div>
+      </div>
+      <h3>🤖 <span data-i18n="tr">Yapay Zeka</span><span data-i18n="en">AI</span> <span class="sayi">11</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!otomasyon</code> / <code>r!automation</code><span data-i18n="tr">Sunucuya özel AI eğitimi açar ve yönetir. (Premium + Yönetici) <span class="use">Kullanım: <code>r!otomasyon | aç | öğret soru | cevap | kanal #x | ayar | durum | kapat | veri sil</code></span></span><span data-i18n="en">Server-specific AI training. (Premium + Administrator) <span class="use">Usage: <code>r!automation | on | teach question | answer | channel #x | settings | status | off | veri sil</code></span></span></div>
+        <div class="cmd"><code>r!y-kayıt-erkek</code> / <code>r!ai-register-male</code><span data-i18n="tr">YZ ile erkek kaydı yapar. <span class="use">Kullanım: <code>r!y-kayıt-erkek @rol</code></span></span><span data-i18n="en">AI male registration setup. <span class="use">Usage: <code>r!ai-register-male @role</code></span></span></div>
+        <div class="cmd"><code>r!y-kayıt-kadın</code> / <code>r!ai-register-female</code><span data-i18n="tr">YZ ile kadın kaydı yapar. <span class="use">Kullanım: <code>r!y-kayıt-kadın @rol</code></span></span><span data-i18n="en">AI female registration setup. <span class="use">Usage: <code>r!ai-register-female @role</code></span></span></div>
+        <div class="cmd"><code>r!ykayıt-kanal</code> / <code>r!ai-register-channel</code><span data-i18n="tr">YZ kayıt kanalını ayarlar. <span class="use">Kullanım: <code>r!ykayıt-kanal #kanal</code></span></span><span data-i18n="en">Sets the AI register channel. <span class="use">Usage: <code>r!ai-register-channel #channel</code></span></span></div>
+        <div class="cmd"><code>r!ykayıt-kapat</code> / <code>r!ai-register-close</code><span data-i18n="tr">YZ kaydı kapatır.</span><span data-i18n="en">Closes AI registration.</span></div>
+        <div class="cmd"><code>r!ykayıt-sistem</code> / <code>r!ai-register-system</code><span data-i18n="tr">YZ kayıt menüsünü gösterir.</span><span data-i18n="en">Shows the AI register menu.</span></div>
+        <div class="cmd"><code>r!ykayıt-tag</code> / <code>r!ai-register-tag</code><span data-i18n="tr">YZ kayıt tagını ayarlar. <span class="use">Kullanım: <code>r!ykayıt-tag &lt;tag&gt;</code></span></span><span data-i18n="en">Sets the AI register tag. <span class="use">Usage: <code>r!ai-register-tag &lt;tag&gt;</code></span></span></div>
+        <div class="cmd"><code>r!ykayıt-kayıtsız</code> / <code>r!ai-register-unregistered</code><span data-i18n="tr">YZ kayıtsız rolünü ayarlar. <span class="use">Kullanım: <code>r!ykayıt-kayıtsız @rol</code></span></span><span data-i18n="en">Sets the AI unregistered role. <span class="use">Usage: <code>r!ai-register-unregistered @role</code></span></span></div>
+        <div class="cmd"><code>r!y-koruma</code> / <code>r!ai-protection</code><span data-i18n="tr">YZ korumayı açar/kapatır.</span><span data-i18n="en">Toggles AI protection.</span></div>
+        <div class="cmd"><code>r!y-otosistem</code> / <code>r!ai-autosetup</code><span data-i18n="tr">YZ kayıt sistemini otomatik kurar.</span><span data-i18n="en">Auto sets up AI registration.</span></div>
+        <div class="cmd"><code>r!çevir</code> / <code>r!translate</code><span data-i18n="tr">Metni başka dile çevirir. <span class="use">Kullanım: <code>r!çevir &lt;hedef&gt; &lt;metin&gt;</code></span></span><span data-i18n="en">Translates text to another language. <span class="use">Usage: <code>r!translate &lt;target&gt; &lt;text&gt;</code></span></span></div>
+      </div>
+      <h3>🔒 <span data-i18n="tr">Koruma</span><span data-i18n="en">Protection</span> <span class="sayi">19</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!ban-koruma-sıfırla</code> / <code>r!ban-protection-reset</code><span data-i18n="tr">Ban korumayı sıfırlar.</span><span data-i18n="en">Resets ban protection.</span></div>
+        <div class="cmd"><code>r!ban-koruma</code> / <code>r!ban-protection</code><span data-i18n="tr">Ban korumayı açar. <span class="use">Kullanım: <code>r!ban-koruma #kanal</code></span></span><span data-i18n="en">Enables ban protection. <span class="use">Usage: <code>r!ban-protection #channel</code></span></span></div>
+        <div class="cmd"><code>r!beyazliste</code> / <code>r!whitelist</code><span data-i18n="tr">Kullanıcıyı karalisteden çıkarır. <span class="use">Kullanım: <code>r!beyazliste &lt;ID&gt;</code></span></span><span data-i18n="en">Removes a user from the blacklist. <span class="use">Usage: <code>r!whitelist &lt;ID&gt;</code></span></span></div>
+        <div class="cmd"><code>r!kanal-koruma-sıfırla</code> / <code>r!channel-protection-reset</code><span data-i18n="tr">Kanal korumayı sıfırlar.</span><span data-i18n="en">Resets channel protection.</span></div>
+        <div class="cmd"><code>r!kanal-koruma</code> / <code>r!channel-protection</code><span data-i18n="tr">Kanal korumayı açar. <span class="use">Kullanım: <code>r!kanal-koruma #kanal</code></span></span><span data-i18n="en">Enables channel protection. <span class="use">Usage: <code>r!channel-protection #channel</code></span></span></div>
+        <div class="cmd"><code>r!karaliste-liste</code> / <code>r!blacklist-list</code><span data-i18n="tr">Karalisteyi gösterir.</span><span data-i18n="en">Shows the blacklist.</span></div>
+        <div class="cmd"><code>r!karaliste</code> / <code>r!blacklist</code><span data-i18n="tr">Kullanıcıyı karalisteye alır. <span class="use">Kullanım: <code>r!karaliste &lt;ID&gt; [sebep]</code></span></span><span data-i18n="en">Adds a user to the blacklist. <span class="use">Usage: <code>r!blacklist &lt;ID&gt; [reason]</code></span></span></div>
+        <div class="cmd"><code>r!koruma</code> / <code>r!protection</code><span data-i18n="tr">Premium korumayı açar/kapatır. <span class="use">Kullanım: <code>r!koruma [kapat]</code></span></span><span data-i18n="en">Toggles premium protection. <span class="use">Usage: <code>r!protection [off]</code></span></span></div>
+        <div class="cmd"><code>r!küfürengel</code> / <code>r!swear-filter</code><span data-i18n="tr">Küfür filtresini açar/kapatır.</span><span data-i18n="en">Toggles the swear filter.</span></div>
+        <div class="cmd"><code>r!küfürlog</code> / <code>r!swear-log</code><span data-i18n="tr">Küfür log kanalını ayarlar. <span class="use">Kullanım: <code>r!küfürlog #kanal</code></span></span><span data-i18n="en">Sets the swear log channel. <span class="use">Usage: <code>r!swear-log #channel</code></span></span></div>
+        <div class="cmd"><code>r!reklamengel</code> / <code>r!ad-filter</code><span data-i18n="tr">Reklam filtresini açar/kapatır.</span><span data-i18n="en">Toggles the ad filter.</span></div>
+        <div class="cmd"><code>r!reklamlog</code> / <code>r!ad-log</code><span data-i18n="tr">Reklam log kanalını ayarlar. <span class="use">Kullanım: <code>r!reklamlog #kanal</code></span></span><span data-i18n="en">Sets the ad log channel. <span class="use">Usage: <code>r!ad-log #channel</code></span></span></div>
+        <div class="cmd"><code>r!rol-koruma-sıfırla</code> / <code>r!role-protection-reset</code><span data-i18n="tr">Rol korumayı sıfırlar.</span><span data-i18n="en">Resets role protection.</span></div>
+        <div class="cmd"><code>r!rol-koruma</code> / <code>r!role-protection</code><span data-i18n="tr">Rol korumayı açar. <span class="use">Kullanım: <code>r!rol-koruma #kanal</code></span></span><span data-i18n="en">Enables role protection. <span class="use">Usage: <code>r!role-protection #channel</code></span></span></div>
+        <div class="cmd"><code>r!sa-as</code> / <code>r!greeting</code><span data-i18n="tr">SA-AS sistemini açar/kapatır. <span class="use">Kullanım: <code>r!sa-as aç/kapat</code></span></span><span data-i18n="en">Toggles the greeting system. <span class="use">Usage: <code>r!greeting on/off</code></span></span></div>
+        <div class="cmd"><code>r!spam-kapat</code> / <code>r!spam-off</code><span data-i18n="tr">Spam korumayı kapatır.</span><span data-i18n="en">Disables spam protection.</span></div>
+        <div class="cmd"><code>r!spamkoruma</code> / <code>r!spam-filter</code><span data-i18n="tr">Spam korumayı açar/kapatır.</span><span data-i18n="en">Toggles spam protection.</span></div>
+        <div class="cmd"><code>r!raid-koruma</code> / <code>r!raid-protection</code><span data-i18n="tr">Kısa sürede çok katılım olursa otomatik doğrulama ve koruma yapar. <span class="use">Kullanım: <code>r!raid aç [eşik] [@rol] | raid kapat | raid</code></span></span><span data-i18n="en">Automatic verification and protection when many accounts join quickly. <span class="use">Usage: <code>r!raid on [threshold] [@role] | raid off | raid</code></span></span></div>
+        <div class="cmd"><code>r!raid</code><span data-i18n="tr">Kısa sürede çok katılım olursa otomatik doğrulama ve koruma yapar. <span class="use">Kullanım: <code>r!raid aç [eşik] [@rol] | raid kapat | raid</code></span></span><span data-i18n="en">Automatic verification and protection when many accounts join quickly. <span class="use">Usage: <code>r!raid on [threshold] [@role] | raid off | raid</code></span></span></div>
+      </div>
+      <h3>🎨 <span data-i18n="tr">Logo</span><span data-i18n="en">Logo</span> <span class="sayi">4</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!arrow</code> / <code>r!arrow-logo</code><span data-i18n="tr">Arrow logo yapar. <span class="use">Kullanım: <code>r!arrow &lt;yazı&gt;</code></span></span><span data-i18n="en">Makes an arrow logo. <span class="use">Usage: <code>r!arrow-logo &lt;text&gt;</code></span></span></div>
+        <div class="cmd"><code>r!gold</code> / <code>r!gold-logo</code><span data-i18n="tr">Gold logo yapar. <span class="use">Kullanım: <code>r!gold &lt;yazı&gt;</code></span></span><span data-i18n="en">Makes a gold logo. <span class="use">Usage: <code>r!gold-logo &lt;text&gt;</code></span></span></div>
+        <div class="cmd"><code>r!graffiti</code> / <code>r!graffiti-logo</code><span data-i18n="tr">Graffiti logo yapar. <span class="use">Kullanım: <code>r!graffiti &lt;yazı&gt;</code></span></span><span data-i18n="en">Makes a graffiti logo. <span class="use">Usage: <code>r!graffiti-logo &lt;text&gt;</code></span></span></div>
+        <div class="cmd"><code>r!green</code> / <code>r!green-logo</code><span data-i18n="tr">Green logo yapar. <span class="use">Kullanım: <code>r!green &lt;yazı&gt;</code></span></span><span data-i18n="en">Makes a green logo. <span class="use">Usage: <code>r!green-logo &lt;text&gt;</code></span></span></div>
+      </div>
+      <h3>🎉 <span data-i18n="tr">Çekiliş</span><span data-i18n="en">Giveaway</span> <span class="sayi">4</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!başlat</code> / <code>r!giveaway-start</code><span data-i18n="tr">Çekiliş başlatır. <span class="use">Kullanım: <code>r!başlat #kanal &lt;süre&gt; &lt;sayı&gt; &lt;ödül&gt;</code></span></span><span data-i18n="en">Starts a giveaway. <span class="use">Usage: <code>r!giveaway-start #channel &lt;time&gt; &lt;winners&gt; &lt;prize&gt;</code></span></span></div>
+        <div class="cmd"><code>r!sonlandır</code> / <code>r!giveaway-end</code><span data-i18n="tr">Çekilişi bitirir. <span class="use">Kullanım: <code>r!sonlandır &lt;mesajID&gt;</code></span></span><span data-i18n="en">Ends a giveaway. <span class="use">Usage: <code>r!giveaway-end &lt;messageID&gt;</code></span></span></div>
+        <div class="cmd"><code>r!reroll</code> / <code>r!giveaway-reroll</code><span data-i18n="tr">Çekilişi yeniden çeker. <span class="use">Kullanım: <code>r!reroll &lt;mesajID&gt;</code></span></span><span data-i18n="en">Rerolls a giveaway. <span class="use">Usage: <code>r!giveaway-reroll &lt;messageID&gt;</code></span></span></div>
+        <div class="cmd"><code>r!çekiliş-şart</code> / <code>r!giveaway-requirement</code><span data-i18n="tr">Davet sayısı veya rol şartlı çekiliş. <span class="use">Kullanım: <code>r!çekiliş-şart #kanal &lt;süre&gt; &lt;kazanan&gt; &lt;ödül&gt; --davet &lt;sayı&gt; / --rol @rol</code></span></span><span data-i18n="en">Giveaway with invite/role requirement. <span class="use">Usage: <code>r!giveaway-requirement #channel &lt;time&gt; &lt;winners&gt; &lt;prize&gt; --davet &lt;count&gt; / --rol @role</code></span></span></div>
+      </div>
+      <h3>🎫 <span data-i18n="tr">Ticket</span><span data-i18n="en">Ticket</span> <span class="sayi">2</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!ticket</code><span data-i18n="tr">Destek bileti açar. <span class="use">Kullanım: <code>r!ticket &lt;sebep&gt; / ticket panel</code></span></span><span data-i18n="en">Opens a support ticket. <span class="use">Usage: <code>r!ticket &lt;reason&gt; / ticket panel</code></span></span></div>
+        <div class="cmd"><code>r!ticketayarla</code> / <code>r!ticket-setup</code><span data-i18n="tr">Ticket kanalını ayarlar. <span class="use">Kullanım: <code>r!ticketayarla #kanal</code></span></span><span data-i18n="en">Sets the ticket channel. <span class="use">Usage: <code>r!ticket-setup #channel</code></span></span></div>
+      </div>
+      <h3>💰 <span data-i18n="tr">Ekonomi</span><span data-i18n="en">Economy</span> <span class="sayi">31</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!banka</code> / <code>r!bank</code><span data-i18n="tr">Banka bakiyeni gösterir.</span><span data-i18n="en">Shows your bank balance.</span></div>
+        <div class="cmd"><code>r!çal</code> / <code>r!steal</code><span data-i18n="tr">Başka kullanıcıdan para çalar. <span class="use">Kullanım: <code>r!çal @kullanıcı</code></span></span><span data-i18n="en">Steals money from a user. <span class="use">Usage: <code>r!steal @user</code></span></span></div>
+        <div class="cmd"><code>r!çalış</code> / <code>r!work</code><span data-i18n="tr">Çalışıp para kazanırsın.</span><span data-i18n="en">Work and earn money.</span></div>
+        <div class="cmd"><code>r!çek</code> / <code>r!withdraw</code><span data-i18n="tr">Bankadan para çeker. <span class="use">Kullanım: <code>r!çek &lt;miktar&gt;</code></span></span><span data-i18n="en">Withdraws money from the bank. <span class="use">Usage: <code>r!withdraw &lt;amount&gt;</code></span></span></div>
+        <div class="cmd"><code>r!cf</code> / <code>r!coinflip</code><span data-i18n="tr">Yazı-tura oyunu. <span class="use">Kullanım: <code>r!cf &lt;miktar|all&gt;</code></span></span><span data-i18n="en">Coin flip game. <span class="use">Usage: <code>r!coinflip &lt;amount|all&gt;</code></span></span></div>
+        <div class="cmd"><code>r!kasa-aç</code> / <code>r!open-case</code><span data-i18n="tr">CS kasa açma simülasyonu.</span><span data-i18n="en">CS case opening simulation.</span></div>
+        <div class="cmd"><code>r!günlük</code> / <code>r!daily</code><span data-i18n="tr">Günlük ödülünü alırsın.</span><span data-i18n="en">Claims your daily reward.</span></div>
+        <div class="cmd"><code>r!gönder</code> / <code>r!send-money</code><span data-i18n="tr">Kullanıcıya para gönderir. <span class="use">Kullanım: <code>r!gönder @kullanıcı &lt;miktar&gt;</code></span></span><span data-i18n="en">Sends money to a user. <span class="use">Usage: <code>r!send-money @user &lt;amount&gt;</code></span></span></div>
+        <div class="cmd"><code>r!haftalık</code> / <code>r!weekly</code><span data-i18n="tr">Haftalık ödülünü alırsın.</span><span data-i18n="en">Claims your weekly reward.</span></div>
+        <div class="cmd"><code>r!iban</code><span data-i18n="tr">IBAN oluşturur veya gösterir. <span class="use">Kullanım: <code>r!iban [@kullanıcı]</code></span></span><span data-i18n="en">Creates or shows the IBAN. <span class="use">Usage: <code>r!iban [@user]</code></span></span></div>
+        <div class="cmd"><code>r!para</code> / <code>r!wallet</code><span data-i18n="tr">Cüzdan ve banka bilgini gösterir. <span class="use">Kullanım: <code>r!para [@kullanıcı]</code></span></span><span data-i18n="en">Shows wallet and bank info. <span class="use">Usage: <code>r!wallet [@user]</code></span></span></div>
+        <div class="cmd"><code>r!para-sıralama</code> / <code>r!money-top</code><span data-i18n="tr">Para sıralamasını gösterir.</span><span data-i18n="en">Shows the money leaderboard.</span></div>
+        <div class="cmd"><code>r!para-ekle</code> / <code>r!add-money</code><span data-i18n="tr">Kullanıcıya para ekler. (Yetkili) <span class="use">Kullanım: <code>r!para-ekle @kullanıcı &lt;miktar&gt;</code></span></span><span data-i18n="en">Adds money to a user. (Staff) <span class="use">Usage: <code>r!add-money @user &lt;amount&gt;</code></span></span></div>
+        <div class="cmd"><code>r!transfer</code><span data-i18n="tr">IBAN&#39;a para transfer eder. <span class="use">Kullanım: <code>r!transfer &lt;iban&gt; &lt;miktar&gt;</code></span></span><span data-i18n="en">Transfers money to an IBAN. <span class="use">Usage: <code>r!transfer &lt;iban&gt; &lt;amount&gt;</code></span></span></div>
+        <div class="cmd"><code>r!param</code> / <code>r!balance</code><span data-i18n="tr">Para bakiyeni gösterir.</span><span data-i18n="en">Shows your balance.</span></div>
+        <div class="cmd"><code>r!para-sil</code> / <code>r!remove-money</code><span data-i18n="tr">Kullanıcıdan para siler. (Yetkili) <span class="use">Kullanım: <code>r!para-sil @kullanıcı &lt;miktar&gt;</code></span></span><span data-i18n="en">Removes money from a user. (Staff) <span class="use">Usage: <code>r!remove-money @user &lt;amount&gt;</code></span></span></div>
+        <div class="cmd"><code>r!pet</code><span data-i18n="tr">Pet alır veya satar. <span class="use">Kullanım: <code>r!pet al &lt;tür&gt; / pet sat &lt;no&gt;</code></span></span><span data-i18n="en">Buys or sells a pet. <span class="use">Usage: <code>r!pet buy &lt;type&gt; / pet sell &lt;no&gt;</code></span></span></div>
+        <div class="cmd"><code>r!petlerim</code> / <code>r!my-pets</code><span data-i18n="tr">Petlerini gösterir. <span class="use">Kullanım: <code>r!petlerim [@kullanıcı]</code></span></span><span data-i18n="en">Shows your pets. <span class="use">Usage: <code>r!my-pets [@user]</code></span></span></div>
+        <div class="cmd"><code>r!soygun</code> / <code>r!heist</code><span data-i18n="tr">Soygun yapar. <span class="use">Kullanım: <code>r!soygun @kullanıcı</code></span></span><span data-i18n="en">Robs a user. <span class="use">Usage: <code>r!heist @user</code></span></span></div>
+        <div class="cmd"><code>r!sürem</code> / <code>r!my-time</code><span data-i18n="tr">VIP süreni gösterir.</span><span data-i18n="en">Shows your VIP time left.</span></div>
+        <div class="cmd"><code>r!yatır</code> / <code>r!deposit</code><span data-i18n="tr">Bankaya para yatırır. <span class="use">Kullanım: <code>r!yatır &lt;miktar&gt;</code></span></span><span data-i18n="en">Deposits money to the bank. <span class="use">Usage: <code>r!deposit &lt;amount&gt;</code></span></span></div>
+        <div class="cmd"><code>r!günlük-ödül</code> / <code>r!daily-streak</code><span data-i18n="tr">Art arda gün sayısına göre büyüyen günlük ödül.</span><span data-i18n="en">Daily reward that grows with your streak.</span></div>
+        <div class="cmd"><code>r!market</code><span data-i18n="tr">Kullanıcıların pet alıp sattığı pazar. <span class="use">Kullanım: <code>r!market liste | sat &lt;petNo&gt; &lt;fiyat&gt; | al &lt;id&gt; | iptal &lt;id&gt;</code></span></span><span data-i18n="en">Marketplace to buy/sell pets. <span class="use">Usage: <code>r!market list | sell &lt;petNo&gt; &lt;price&gt; | buy &lt;id&gt; | cancel &lt;id&gt;</code></span></span></div>
+        <div class="cmd"><code>r!slot</code><span data-i18n="tr">Slot makinesi oyunu. <span class="use">Kullanım: <code>r!slot &lt;miktar|all&gt;</code></span></span><span data-i18n="en">Slot machine game. <span class="use">Usage: <code>r!slot &lt;amount|all&gt;</code></span></span></div>
+        <div class="cmd"><code>r!blackjack</code><span data-i18n="tr">Blackjack (21) oyunu. <span class="use">Kullanım: <code>r!blackjack &lt;miktar|all&gt;</code></span></span><span data-i18n="en">Blackjack (21) game. <span class="use">Usage: <code>r!blackjack &lt;amount|all&gt;</code></span></span></div>
+        <div class="cmd"><code>r!rulet</code> / <code>r!roulette</code><span data-i18n="tr">Rulet oyunu. <span class="use">Kullanım: <code>r!rulet &lt;miktar&gt; &lt;kırmızı/siyah/yeşil/sayı&gt;</code></span></span><span data-i18n="en">Roulette game. <span class="use">Usage: <code>r!roulette &lt;amount&gt; &lt;red/black/green/number&gt;</code></span></span></div>
+        <div class="cmd"><code>r!faiz</code> / <code>r!interest</code><span data-i18n="tr">Bankadaki parana günlük faiz.</span><span data-i18n="en">Daily interest on your bank balance.</span></div>
+        <div class="cmd"><code>r!piyango</code> / <code>r!lottery</code><span data-i18n="tr">Piyango bileti al ve havuzu kazan. <span class="use">Kullanım: <code>r!piyango [al | çek]</code></span></span><span data-i18n="en">Buy a lottery ticket and win the pool. <span class="use">Usage: <code>r!lottery [buy | draw]</code></span></span></div>
+        <div class="cmd"><code>r!meslek</code> / <code>r!job</code><span data-i18n="tr">Meslek seç ve çalışarak para kazan. <span class="use">Kullanım: <code>r!meslek [seç &lt;meslek&gt; | çalış]</code></span></span><span data-i18n="en">Choose a job and earn money. <span class="use">Usage: <code>r!job [select &lt;job&gt; | work]</code></span></span></div>
+        <div class="cmd"><code>r!envanter</code> / <code>r!inventory</code><span data-i18n="tr">Tüm eşyalarını ve istatistiklerini gösterir.</span><span data-i18n="en">Shows all your items and stats.</span></div>
+        <div class="cmd"><code>r!kasa</code> / <code>r!vault</code><span data-i18n="tr">Çalınamayan kişisel kasa. <span class="use">Kullanım: <code>r!kasa [yatır &lt;miktar&gt; | çek &lt;miktar&gt;]</code></span></span><span data-i18n="en">Personal vault that can&#39;t be stolen. <span class="use">Usage: <code>r!vault [deposit &lt;amount&gt; | withdraw &lt;amount&gt;]</code></span></span></div>
+      </div>
+      <h3>⭐ <span data-i18n="tr">Abone</span><span data-i18n="en">Subscriber</span> <span class="sayi">5</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!abone</code> / <code>r!subscribe</code><span data-i18n="tr">Abone rolü verir. <span class="use">Kullanım: <code>r!abone @kullanıcı</code></span></span><span data-i18n="en">Gives the subscriber role. <span class="use">Usage: <code>r!subscribe @user</code></span></span></div>
+        <div class="cmd"><code>r!abonelog</code> / <code>r!subscribe-log</code><span data-i18n="tr">Abone log kanalını ayarlar. <span class="use">Kullanım: <code>r!abonelog #kanal</code></span></span><span data-i18n="en">Sets the subscriber log channel. <span class="use">Usage: <code>r!subscribe-log #channel</code></span></span></div>
+        <div class="cmd"><code>r!abonerol</code> / <code>r!subscribe-role</code><span data-i18n="tr">Abone rolünü ayarlar. <span class="use">Kullanım: <code>r!abonerol @rol</code></span></span><span data-i18n="en">Sets the subscriber role. <span class="use">Usage: <code>r!subscribe-role @role</code></span></span></div>
+        <div class="cmd"><code>r!abonerol-sistem</code> / <code>r!subscribe-system</code><span data-i18n="tr">Abone rol sistemi menüsünü gösterir.</span><span data-i18n="en">Shows the subscriber system menu.</span></div>
+        <div class="cmd"><code>r!abone-yetkili</code> / <code>r!subscribe-staff</code><span data-i18n="tr">Abone yetkilisi rolünü ayarlar. <span class="use">Kullanım: <code>r!abone-yetkili @rol</code></span></span><span data-i18n="en">Sets the subscriber staff role. <span class="use">Usage: <code>r!subscribe-staff @role</code></span></span></div>
+      </div>
+      <h3>💎 <span data-i18n="tr">Premium</span><span data-i18n="en">Premium</span> <span class="sayi">8</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!premium-al</code> / <code>r!buy-premium</code><span data-i18n="tr">Oyun parasıyla premium alır.</span><span data-i18n="en">Buys premium with game coins.</span></div>
+        <div class="cmd"><code>r!premium</code><span data-i18n="tr">Premium durumunu gösterir.</span><span data-i18n="en">Shows premium status.</span></div>
+        <div class="cmd"><code>r!premium-sil</code> / <code>r!remove-premium</code><span data-i18n="tr">Premiumu siler. (Sahip) <span class="use">Kullanım: <code>r!premium-sil @kullanıcı</code></span></span><span data-i18n="en">Removes premium. (Owner) <span class="use">Usage: <code>r!remove-premium @user</code></span></span></div>
+        <div class="cmd"><code>r!premium-ver</code> / <code>r!give-premium</code><span data-i18n="tr">Premium verir. (Sahip) <span class="use">Kullanım: <code>r!premium-ver @kullanıcı [gün]</code></span></span><span data-i18n="en">Gives premium. (Owner) <span class="use">Usage: <code>r!give-premium @user [days]</code></span></span></div>
+        <div class="cmd"><code>r!vip</code><span data-i18n="tr">VIP süreni gösterir.</span><span data-i18n="en">Shows your VIP time.</span></div>
+        <div class="cmd"><code>r!vipsistemler</code> / <code>r!vip-system</code><span data-i18n="tr">VIP sistemlerini listeler.</span><span data-i18n="en">Lists VIP systems.</span></div>
+        <div class="cmd"><code>r!premium-panel</code><span data-i18n="tr">Premium ayrıcalıklarını gösterir.</span><span data-i18n="en">Shows premium perks.</span></div>
+        <div class="cmd"><code>r!günlük-bonus</code> / <code>r!daily-bonus</code><span data-i18n="tr">Premium üyelere özel günlük bonus.</span><span data-i18n="en">Premium-only daily bonus.</span></div>
+      </div>
+      <h3>🎮 <span data-i18n="tr">Eğlence</span><span data-i18n="en">Fun</span> <span class="sayi">8</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!atatürk</code> / <code>r!atatuerk</code><span data-i18n="tr">Atatürk resmi gönderir.</span><span data-i18n="en">Sends an Atatürk picture.</span></div>
+        <div class="cmd"><code>r!espri</code> / <code>r!joke</code><span data-i18n="tr">Rastgele espri yapar.</span><span data-i18n="en">Tells a random joke.</span></div>
+        <div class="cmd"><code>r!gif-animal</code> / <code>r!animal-gif</code><span data-i18n="tr">Rastgele hayvan gifi gönderir.</span><span data-i18n="en">Sends a random animal gif.</span></div>
+        <div class="cmd"><code>r!lafat</code> / <code>r!comeback</code><span data-i18n="tr">Etiketlediğin kişiye kapak yapar. <span class="use">Kullanım: <code>r!lafat @kullanıcı</code></span></span><span data-i18n="en">Roasts the mentioned user. <span class="use">Usage: <code>r!comeback @user</code></span></span></div>
+        <div class="cmd"><code>r!oylama</code> / <code>r!poll</code><span data-i18n="tr">Oylama başlatır. <span class="use">Kullanım: <code>r!oylama &lt;metin&gt;</code></span></span><span data-i18n="en">Starts a poll. <span class="use">Usage: <code>r!poll &lt;text&gt;</code></span></span></div>
+        <div class="cmd"><code>r!tkm</code> / <code>r!rps</code><span data-i18n="tr">Taş-kağıt-makas oynar. <span class="use">Kullanım: <code>r!tkm &lt;taş/kağıt/makas&gt;</code></span></span><span data-i18n="en">Plays rock-paper-scissors. <span class="use">Usage: <code>r!rps &lt;rock/paper/scissors&gt;</code></span></span></div>
+        <div class="cmd"><code>r!zarat</code> / <code>r!dice</code><span data-i18n="tr">Zar atar.</span><span data-i18n="en">Rolls a dice.</span></div>
+        <div class="cmd"><code>r!anket-gelişmiş</code> / <code>r!advanced-poll</code><span data-i18n="tr">Butonlu/tepkili, süreli anket başlatır. <span class="use">Kullanım: <code>r!anket-gelişmiş &lt;süre&gt; &lt;soru&gt; | &lt;seçenek1&gt; | &lt;seçenek2&gt;</code></span></span><span data-i18n="en">Starts a timed button/reaction poll. <span class="use">Usage: <code>r!advanced-poll &lt;time&gt; &lt;question&gt; | &lt;option1&gt; | &lt;option2&gt;</code></span></span></div>
+      </div>
+      <h3>📨 <span data-i18n="tr">Davet</span><span data-i18n="en">Invite</span> <span class="sayi">9</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!bonus-ekle</code> / <code>r!add-bonus</code><span data-i18n="tr">Davet bonusu ekler. <span class="use">Kullanım: <code>r!bonus-ekle @kullanıcı &lt;sayı&gt;</code></span></span><span data-i18n="en">Adds invite bonus. <span class="use">Usage: <code>r!add-bonus @user &lt;count&gt;</code></span></span></div>
+        <div class="cmd"><code>r!davet-kanal</code> / <code>r!invite-channel</code><span data-i18n="tr">Davet kanalını ayarlar. <span class="use">Kullanım: <code>r!davet-kanal #kanal</code></span></span><span data-i18n="en">Sets the invite channel. <span class="use">Usage: <code>r!invite-channel #channel</code></span></span></div>
+        <div class="cmd"><code>r!davet-kanal-sıfırla</code> / <code>r!invite-channel-reset</code><span data-i18n="tr">Davet kanalını sıfırlar.</span><span data-i18n="en">Resets the invite channel.</span></div>
+        <div class="cmd"><code>r!davetleri-sıfırla</code> / <code>r!reset-invites</code><span data-i18n="tr">Davetleri sıfırlar. <span class="use">Kullanım: <code>r!davetleri-sıfırla @kullanıcı</code></span></span><span data-i18n="en">Resets invites. <span class="use">Usage: <code>r!reset-invites @user</code></span></span></div>
+        <div class="cmd"><code>r!davetlerim</code> / <code>r!my-invites</code><span data-i18n="tr">Davetlerini gösterir.</span><span data-i18n="en">Shows your invites.</span></div>
+        <div class="cmd"><code>r!davet-rol</code> / <code>r!invite-role</code><span data-i18n="tr">Davet rol ödülü ekler. <span class="use">Kullanım: <code>r!davet-rol @rol &lt;sayı&gt;</code></span></span><span data-i18n="en">Adds an invite role reward. <span class="use">Usage: <code>r!invite-role @role &lt;count&gt;</code></span></span></div>
+        <div class="cmd"><code>r!davet-sıfırla</code> / <code>r!reset-invite</code><span data-i18n="tr">Davet rütbesini sıfırlar.</span><span data-i18n="en">Resets the invite rank.</span></div>
+        <div class="cmd"><code>r!rütbeler</code> / <code>r!ranks</code><span data-i18n="tr">Davet rütbelerini listeler.</span><span data-i18n="en">Lists invite ranks.</span></div>
+        <div class="cmd"><code>r!davettop</code> / <code>r!invite-top</code><span data-i18n="tr">Davet sıralamasını gösterir.</span><span data-i18n="en">Shows the invite leaderboard.</span></div>
+      </div>
+      <h3>🌐 <span data-i18n="tr">Genel</span><span data-i18n="en">General</span> <span class="sayi">22</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!bug</code><span data-i18n="tr">Bug bildirir; sahip kabul ederse 250.000 💸 kazanırsın. <span class="use">Kullanım: <code>r!bug &lt;açıklama&gt;</code></span></span><span data-i18n="en">Reports a bug; get 250,000 💸 if the owner accepts it. <span class="use">Usage: <code>r!bug &lt;description&gt;</code></span></span></div>
+        <div class="cmd"><code>r!bilgisistemi</code> / <code>r!datasystem</code><span data-i18n="tr">Toplanan veriler, komutlar ve silme bilgisi.</span><span data-i18n="en">Collected data, commands and deletion info.</span></div>
+        <div class="cmd"><code>r!davet</code> / <code>r!invite</code><span data-i18n="tr">Bot davet ve destek linkleri.</span><span data-i18n="en">Bot invite and support links.</span></div>
+        <div class="cmd"><code>r!dil</code> / <code>r!language</code><span data-i18n="tr">Bot dilini ayarlar. <span class="use">Kullanım: <code>r!dil &lt;tr/en&gt; | dil sunucu &lt;tr/en&gt;</code></span></span><span data-i18n="en">Sets the bot language. <span class="use">Usage: <code>r!language &lt;tr/en&gt; | language server &lt;tr/en&gt;</code></span></span></div>
+        <div class="cmd"><code>r!hatırlat</code> / <code>r!remind</code><span data-i18n="tr">Premium hatırlatıcı: süre dolunca DM ile embed hatırlatır. <span class="use">Kullanım: <code>r!hatırlat &lt;süre&gt; &lt;metin&gt; | liste | sil &lt;no&gt;</code></span></span><span data-i18n="en">Premium reminder: DMs you an embed when time is up. <span class="use">Usage: <code>r!remind &lt;duration&gt; &lt;text&gt; | list | delete &lt;no&gt;</code></span></span></div>
+        <div class="cmd"><code>r!giriş-çıkış-ayarla</code> / <code>r!welcome-set</code><span data-i18n="tr">Giriş-çıkış kanalını ayarlar. <span class="use">Kullanım: <code>r!giriş-çıkış-ayarla #kanal</code></span></span><span data-i18n="en">Sets the welcome channel. <span class="use">Usage: <code>r!welcome-set #channel</code></span></span></div>
+        <div class="cmd"><code>r!giriş-çıkış-kapat</code> / <code>r!welcome-reset</code><span data-i18n="tr">Giriş-çıkışı kapatır.</span><span data-i18n="en">Disables welcome messages.</span></div>
+        <div class="cmd"><code>r!istatistik</code> / <code>r!stats</code><span data-i18n="tr">Bot istatistiklerini gösterir.</span><span data-i18n="en">Shows bot statistics.</span></div>
+        <div class="cmd"><code>r!istek</code> / <code>r!request</code><span data-i18n="tr">Kod isteği gönderir. <span class="use">Kullanım: <code>r!istek &lt;metin&gt;</code></span></span><span data-i18n="en">Sends a code request. <span class="use">Usage: <code>r!request &lt;text&gt;</code></span></span></div>
+        <div class="cmd"><code>r!otorol-ayarla</code> / <code>r!autorole-set</code><span data-i18n="tr">Otorolü ayarlar. <span class="use">Kullanım: <code>r!otorol-ayarla @rol #kanal</code></span></span><span data-i18n="en">Sets the auto role. <span class="use">Usage: <code>r!autorole-set @role #channel</code></span></span></div>
+        <div class="cmd"><code>r!otorol-mesaj</code> / <code>r!autorole-message</code><span data-i18n="tr">Otorol mesajını ayarlar. <span class="use">Kullanım: <code>r!otorol-mesaj &lt;metin&gt;</code></span></span><span data-i18n="en">Sets the auto role message. <span class="use">Usage: <code>r!autorole-message &lt;text&gt;</code></span></span></div>
+        <div class="cmd"><code>r!otorol-mesaj-sıfırla</code> / <code>r!autorole-message-reset</code><span data-i18n="tr">Otorol mesajını sıfırlar.</span><span data-i18n="en">Resets the auto role message.</span></div>
+        <div class="cmd"><code>r!otorol-kapat</code> / <code>r!autorole-reset</code><span data-i18n="tr">Otorolü kapatır.</span><span data-i18n="en">Disables auto role.</span></div>
+        <div class="cmd"><code>r!ping</code><span data-i18n="tr">Bot gecikmesini gösterir.</span><span data-i18n="en">Shows the bot latency.</span></div>
+        <div class="cmd"><code>r!say</code> / <code>r!server-info</code><span data-i18n="tr">Sunucu bilgilerini gösterir.</span><span data-i18n="en">Shows server info.</span></div>
+        <div class="cmd"><code>r!shard</code><span data-i18n="tr">Shard bilgisini gösterir.</span><span data-i18n="en">Shows shard info.</span></div>
+        <div class="cmd"><code>r!sunuculara</code> / <code>r!invite-bot</code><span data-i18n="tr">Bot davet linkini gösterir.</span><span data-i18n="en">Shows the bot invite link.</span></div>
+        <div class="cmd"><code>r!sürelirol</code> / <code>r!temp-role</code><span data-i18n="tr">Süreli rol verir. <span class="use">Kullanım: <code>r!sürelirol @kullanıcı @rol &lt;süre&gt;</code></span></span><span data-i18n="en">Gives a temporary role. <span class="use">Usage: <code>r!temp-role @user @role &lt;time&gt;</code></span></span></div>
+        <div class="cmd"><code>r!komutlar</code> / <code>r!command-count</code><span data-i18n="tr">Toplam komut sayısını gösterir.</span><span data-i18n="en">Shows the total command count.</span></div>
+        <div class="cmd"><code>r!yardım</code> / <code>r!help</code><span data-i18n="tr">Yardım menüsünü gösterir. <span class="use">Kullanım: <code>r!yardım [kategori]</code></span></span><span data-i18n="en">Shows the help menu. <span class="use">Usage: <code>r!help [category]</code></span></span></div>
+        <div class="cmd"><code>r!öneri</code> / <code>r!suggest</code><span data-i18n="tr">Öneri gönderir. <span class="use">Kullanım: <code>r!öneri &lt;metin&gt;</code></span></span><span data-i18n="en">Sends a suggestion. <span class="use">Usage: <code>r!suggest &lt;text&gt;</code></span></span></div>
+        <div class="cmd"><code>r!üyedurum</code> / <code>r!member-count</code><span data-i18n="tr">Üye sayısını gösterir.</span><span data-i18n="en">Shows the member count.</span></div>
+      </div>
+      <h3>💬 <span data-i18n="tr">Sohbet</span><span data-i18n="en">Chat</span> <span class="sayi">2</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!sohbet-aç</code> / <code>r!chat-open</code><span data-i18n="tr">Sohbeti açar.</span><span data-i18n="en">Opens the chat.</span></div>
+        <div class="cmd"><code>r!sohbet-kapat</code> / <code>r!chat-close</code><span data-i18n="tr">Sohbeti kapatır.</span><span data-i18n="en">Closes the chat.</span></div>
+      </div>
+      <h3>🔗 <span data-i18n="tr">Site</span><span data-i18n="en">Website</span> <span class="sayi">3</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!kuponkullan</code> / <code>r!redeem-coupon</code><span data-i18n="tr">Kupon kodunu kullanır. <span class="use">Kullanım: <code>r!kuponkullan &lt;kod&gt;</code></span></span><span data-i18n="en">Redeems a coupon code. <span class="use">Usage: <code>r!redeem-coupon &lt;code&gt;</code></span></span></div>
+      </div>
+       <span data-i18n="tr">Seviye</span><span data-i18n="en">Level</span> <span class="sayi">4</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!rolal</code> / <code>r!claim-role</code><span data-i18n="tr">Seviye 25+ ise hedef sunucuda VIP rolünü alır.</span><span data-i18n="en">Claims the VIP role on the target server (level 25+).</span></div>
+        <div class="cmd"><code>r!seviye</code> / <code>r!level</code><span data-i18n="tr">Seviyeni ve XP kartını gösterir. <span class="use">Kullanım: <code>r!seviye [@kullanıcı]</code></span></span><span data-i18n="en">Shows your level and XP card. <span class="use">Usage: <code>r!level [@user]</code></span></span></div>
+        <div class="cmd"><code>r!seviye-ödül</code> / <code>r!level-reward</code><span data-i18n="tr">Seviye ödüllerini listeler ve rol ödülü tanımlar. <span class="use">Kullanım: <code>r!seviye-ödül [liste|rol &lt;seviye&gt; @rol|sil &lt;seviye&gt;]</code></span></span><span data-i18n="en">Lists level rewards and sets role rewards. <span class="use">Usage: <code>r!level-reward [list|role &lt;level&gt; @role|delete &lt;level&gt;]</code></span></span></div>
+        <div class="cmd"><code>r!seviye-sıralama</code> / <code>r!level-top</code><span data-i18n="tr">En yüksek levelli 10 kullanıcıyı resimli gösterir.</span><span data-i18n="en">Shows the top 10 users by level (image).</span></div>
+      </div>
+      <h3>❓ <span data-i18n="tr">Yardım</span><span data-i18n="en">Help</span> <span class="sayi">7</span></h3>
+      <div class="cmds">
+        <div class="cmd"><code>r!ekonomi</code> / <code>r!economy-help</code><span data-i18n="tr">Ekonomi yardım menüsü.</span><span data-i18n="en">Economy help menu.</span></div>
+        <div class="cmd"><code>r!kayıtsistemi</code> / <code>r!register-help</code><span data-i18n="tr">Kayıt yardım menüsü.</span><span data-i18n="en">Registration help menu.</span></div>
+        <div class="cmd"><code>r!korumasistemi</code> / <code>r!protection-help</code><span data-i18n="tr">Koruma yardım menüsü.</span><span data-i18n="en">Protection help menu.</span></div>
+        <div class="cmd"><code>r!kullanıcı</code> / <code>r!user-help</code><span data-i18n="tr">Kullanıcı yardım menüsü.</span><span data-i18n="en">User help menu.</span></div>
+        <div class="cmd"><code>r!logosistemi</code> / <code>r!logo-help</code><span data-i18n="tr">Logo yardım menüsü.</span><span data-i18n="en">Logo help menu.</span></div>
+        <div class="cmd"><code>r!moderasyon</code> / <code>r!moderation-help</code><span data-i18n="tr">Moderasyon yardım menüsü.</span><span data-i18n="en">Moderation help menu.</span></div>
+        <div class="cmd"><code>r!çekilişsistemi</code> / <code>r!giveaway-help</code><span data-i18n="tr">Çekiliş yardım menüsü.</span><span data-i18n="en">Giveaway help menu.</span></div>
+      </div>
+  </div>
+</main>
+
+<footer>
+  <div class="links"><a href="index.html">RiseBunny</a><a href="risebunny.html">Bot</a><a href="forum.html">Forum</a><a href="changelog.html">Changelog</a></div>
+  <span data-i18n="tr">© 2026 RiseBunny. Tüm hakları saklıdır.</span>
+  <span data-i18n="en">© 2026 RiseBunny. All rights reserved.</span>
+</footer>
+</div>
+
+<script>
+const titles={tr:"Dökümantasyon · RiseBunny",en:"Documentation · RiseBunny"};
+function setLang(lang){
+  document.documentElement.lang=lang;
+  document.title=titles[lang];
+  document.querySelectorAll('.lang-toggle button').forEach(b=>{
+    const active=b.dataset.lang===lang;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',active);
+  });
+  try{localStorage.setItem('rb_lang',lang)}catch(e){}
+}
+document.querySelectorAll('.lang-toggle button').forEach(b=>{
+  b.addEventListener('click',()=>setLang(b.dataset.lang));
+});
+try{
+  const s=localStorage.getItem('rb_lang')||localStorage.getItem('rb-lang')||'tr';
+  setLang(s==='en'?'en':'tr');
+}catch(e){}
+document.getElementById('ara').addEventListener('input',function(){
+  const q=this.value.toLocaleLowerCase('tr');
+  document.querySelectorAll('.cmd').forEach(function(el){
+    el.style.display=el.textContent.toLocaleLowerCase('tr').includes(q)?'':'none';
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" type="image/svg+xml" href="images/bot.svg">
+<title data-i18n="tr">Güncelleme Notları · RiseBunny</title>
+<title data-i18n="en">Changelog · RiseBunny</title>
+<meta name="description" content="RiseBunny bot ve site güncelleme notları.">
+<style>
+:root{
+  --bg:#ffffff; --ink:#111827; --muted:#4b5563; --faint:#9ca3af;
+  --line:#e5e7eb; --accent:#2563eb; --accent-ink:#1d4ed8; --r:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-ink)}
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:980px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 24px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.05rem;color:var(--ink);text-decoration:none}
+.lang-toggle{position:relative;display:inline-flex;gap:2px;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#f9fafb}
+.lang-toggle button{position:relative;display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--muted);padding:6px 13px;font-weight:700;font-size:.78rem;letter-spacing:.04em;cursor:pointer;font-family:inherit}
+.lang-toggle button.active{color:#fff;background:var(--ink);border-radius:999px}
+.wrap{max-width:980px;margin:auto;padding:0 24px}
+header.hero{padding:64px 0 28px}
+h1{font-size:clamp(1.9rem,5vw,2.8rem);font-weight:800;letter-spacing:-.02em;margin:0 0 12px}
+.hero p{max-width:640px;color:var(--muted);font-size:1.02rem}
+main{padding:16px 0 40px;display:grid;gap:18px}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:26px 24px}
+.card h2{display:flex;align-items:center;gap:12px;font-size:1.15rem;margin-bottom:12px}
+.num{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:var(--ink);color:#fff;font-size:.85rem;font-weight:700}
+.card p{color:var(--muted);margin-bottom:10px}
+.card p:last-child{margin-bottom:0}
+.card ul{margin:6px 0 4px 20px;color:var(--muted)}
+.card li{margin-bottom:8px}
+.card strong{color:var(--ink)}
+.card code{background:#f3f4f6;border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-size:.85em}
+.version{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.version:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.version-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.version-tag{background:var(--accent);color:#fff;padding:4px 10px;border-radius:999px;font-size:.78rem;font-weight:700}
+.version-date{color:var(--muted);font-size:.85rem}
+.changes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.change-type{padding:10px 12px;border-radius:8px;border-left:4px solid;background:#f9fafb;font-size:.9rem}
+.change-type.added{border-color:#10b981;background:#ecfdf5}
+.change-type.changed{border-color:#2563eb;background:#eff6ff}
+.change-type.fixed{border-color:#ef4444;background:#fef2f2}
+.change-type.removed{border-color:#f59e0b;background:#fffbeb}
+.change-type label{font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:block;margin-bottom:4px}
+footer{border-top:1px solid var(--line);padding:28px 0 40px;margin-top:24px;text-align:center;color:var(--muted);font-size:.86rem}
+footer .links{display:flex;gap:18px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+footer a{color:var(--accent);text-decoration:none;font-weight:600}
+[data-i18n]{display:none}
+html[lang="tr"] [data-i18n="tr"]{display:inline}
+html[lang="en"] [data-i18n="en"]{display:inline}
+html[lang="tr"] [data-i18n-block="tr"]{display:block}
+html[lang="en"] [data-i18n-block="en"]{display:block}
+[data-i18n-block]{display:none}
+</style>
+</head>
+<body>
+<nav><div class="nav-in">
+  <a class="logo" href="index.html"><img src="images/bot.svg" alt="" width="24" height="24">RiseBunny</a>
+  <div class="lang-toggle" role="group" aria-label="Language">
+    <button type="button" data-lang="tr" class="active">🇹🇷 TR</button>
+    <button type="button" data-lang="en">🇬🇧 EN</button>
+  </div>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <h1><span data-i18n="tr">Güncelleme Notları</span><span data-i18n="en">Changelog</span></h1>
+  <p><span data-i18n="tr">RiseBunny bot ve site güncellemelerinin tam listesi.</span><span data-i18n="en">Complete list of RiseBunny bot and site updates.</span></p>
+</header>
+
+<main>
+  <div class="card">
+    <h2><span class="num">1</span><span data-i18n="tr">Sürümler</span><span data-i18n="en">Versions</span></h2>
+
+    
+    <div id="versions"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="links"><a href="index.html">RiseBunny</a><a href="risebunny.html">Bot</a><a href="forum.html">Forum</a><a href="docs.html">Docs</a></div>
+  <span data-i18n="tr">© 2026 RiseBunny. Tüm hakları saklıdır.</span>
+  <span data-i18n="en">© 2026 RiseBunny. All rights reserved.</span>
+</footer>
+</div>
+
+<script>
+const titles={tr:"Güncelleme Notları · RiseBunny",en:"Changelog · RiseBunny"};
+function setLang(lang){
+  document.documentElement.lang=lang;
+  document.title=titles[lang];
+  document.querySelectorAll('.lang-toggle button').forEach(b=>{
+    const active=b.dataset.lang===lang;
+    b.classList.toggle('active',active);
+    b.setAttribute('aria-pressed',active);
+  });
+  try{localStorage.setItem('rb_lang',lang)}catch(e){}
+}
+document.querySelectorAll('.lang-toggle button').forEach(b=>{
+  b.addEventListener('click',()=>setLang(b.dataset.lang));
+});
+const params=new URLSearchParams(location.search);
+const saved=typeof localStorage!=='undefined'&&localStorage.getItem('rb_lang');
+setLang(params.get('lang')||(saved||'tr'));
+
+// Version data
+const versions = [
+  {
+    version: "v2.1.1",
+    date: "2026-09-15",
+    changes: {
+      added: [
+        "Kupon silme select menüsü düzeltildi (yerel collector ile)",
+        "İlk kullanım dil seçimi + veri işleme onayı akışı eklendi",
+        "Onay veren kullanıcıya docs linkli karşılama DM'i",
+        "r!dil komutu artık onay panelini gösteriyor",
+        "Docs sayfası: 169 komut 18 kategoride, TR/EN detaylı tablolar",
+        "Changelog sayfası eklendi (changelog.html)",
+        "Veri silme talebi sistemi (site+bot, modlog, onay/ret, DM)"
+      ],
+      changed: [
+        "Kupon sistemi: bitis onarımı + migrateKuponFlags() eklendi",
+        "Seviye sistemi: sadece komutla XP, kolay level-up formülü",
+        "Forum: tasarım iyileştirmeleri, staff panel gelişmeleri"
+      ],
+      fixed: [
+        "Eski kuponların bitis alanı bozukluğu (süre-miktarı yazıyordu)",
+        "Global usedCoupons bayrağı kişiye özel sisteme çevrildi",
+        "Select menü çakışmaları collector guard ile engellendi"
+      ]
+    }
+  },
+  {
+    version: "v2.1.0",
+    date: "2026-09-10",
+    changes: {
+      added: [
+        "Pet sistemi 2.0: butonlu al/sat paneli, ±%10 kar/zarar",
+        "r!petlerim embed listesi",
+        "r!yedek / r!yedek-yükle tam yedek sistemi",
+        "r!bakım butonlu panel (bot + site bakımı)",
+        "r!mağaza-yönet: fiyat değiştir / göster-gizle",
+        "r!kupon butonlu panel (para/pet/premium, süreli/süresiz, bot/site/ikisi)",
+        "r!kodoluştur v2: RISE-V2 kalıcı kupon (250K, tek seferlik)",
+        "r!hatırlat: premium hatırlatıcı, restart-safe",
+        "r!siterol: yetkili çoklu rol verme + DM + log",
+        "r!dil: doküman + gizlilik + şartlar + onay butonları",
+        "r!yardım V2.0 duyurusu + kupon/davet/destek butonları",
+        "Sahip kategorisi (sadece sahibine görünür)",
+        "Forum güncellemeleri: loglar, moderasyon butonları, yedekleme"
+      ],
+      changed: [
+        "Seviye ödülleri büyütüldü",
+        "XP kazanımı sadece komutla"
+      ]
+    }
+  },
+  {
+    version: "v2.0.0",
+    date: "2026-09-01",
+    changes: {
+      added: [
+        "RiseBunny V2.0 tamamen yeniden yazıldı",
+        "Discord.js v14 + croxydb modern yapı",
+        "Site: Firebase Auth + Firestore entegrasyonu",
+        "Forum: Discord ile giriş, rol hiyerarşisi, moderasyon",
+        "Admin paneli: 12 sekme, tam yönetim",
+        "Ekonomi: banka, IBAN, meslek, piyango, faiz, envanter",
+        "Pet sistemi: 6 pet türü, pazar, satış simülasyonu",
+        "Premium: 5 sistem, günlük bonus, koruma, petler",
+        "Koruma: raid, spam, reklam, küfür, kanal/rol/ban koruma",
+        "Kayıt: AI destekli + manuel, hoşgeldin, isim log",
+        "Davet: rütbeler, bonus, rol ödülleri, sıralama",
+        "Ticket, çekiliş, anket, logo, sohbet, Minecraft skin",
+        "Çok dilli: TR/EN, sunucu dili, dil paneli"
+      ]
+    }
+  }
+];
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, m => ({"&":"&","<":"<",">":">","\"":""","'":"'"}[m]));
+}
+
+function render() {
+  const container = document.getElementById('versions');
+  const isEn = document.documentElement.lang === 'en';
+  const labels = {
+    added: isEn ? 'Added' : 'Eklendi',
+    changed: isEn ? 'Changed' : 'Değiştirildi',
+    fixed: isEn ? 'Fixed' : 'Düzeltildi',
+    removed: isEn ? 'Removed' : 'Kaldırıldı'
+  };
+  container.innerHTML = versions.map(v => `
+    <div class="version">
+      <div class="version-header">
+        <span class="version-tag">${esc(v.version)}</span>
+        <span class="version-date">${esc(v.date)}</span>
+      </div>
+      <div class="changes">
+        ${Object.entries(v.changes).map(([type, items]) => `
+          <div class="change-type ${type}">
+            <label>${labels[type] || type}</label>
+            <ul>${items.map(item => `<li>${esc(item)}</li>`).join('')}</ul>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+render();
+window.addEventListener('languagechange', render);
+document.querySelectorAll('.lang-toggle button').forEach(b=>{
+  b.addEventListener('click',()=>setTimeout(render, 0));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+/*! RiseBunny Forum — Clean Editorial Design (Index Match) */
+:root {
+  --bg: #ffffff;
+  --ink: #111827;
+  --muted: #4b5563;
+  --faint: #9ca3af;
+  --line: #e5e7eb;
+  --accent: #2563eb;
+  --accent-ink: #1d4ed8;
+  --err: #dc2626;
+  --ok: #16a34a;
+  --warn: #d97706;
+  --r: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-ink); }
+button, input, textarea, select { font-family: inherit; font-size: 1rem; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Navigation ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255, 255, 255, .94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.header-in {
+  max-width: 1050px; margin: 0 auto; padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-weight: 700; font-size: 1.05rem; color: var(--ink); letter-spacing: -.01em;
+}
+.brand:hover { color: var(--ink); }
+.brand-icon { width: 26px; height: 26px; border-radius: 50%; object-fit: contain; flex: none; }
+.nav-subtag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 6px;
+  background: #f3f4f6; color: var(--ink); font-size: .84rem; font-weight: 600;
+  border: 1px solid var(--line);
+}
+.nav-subtag:hover { background: #e5e7eb; color: var(--ink); }
+
+.header-side { display: flex; align-items: center; gap: 10px; }
+/* ---------- Language Toggle (bayrak + animasyon) ---------- */
+.lang-toggle {
+  position: relative; display: inline-flex; gap: 2px;
+  border: 1px solid var(--line); border-radius: 999px; overflow: hidden;
+  background: #f9fafb; isolation: isolate;
+  transition: box-shadow .3s ease, border-color .3s ease;
+}
+.lang-toggle:hover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+.lang-btn {
+  position: relative; display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; border: none; color: var(--muted);
+  font-size: .78rem; font-weight: 700; letter-spacing: .04em;
+  padding: 6px 13px; cursor: pointer; overflow: hidden;
+  transition: color .3s ease, transform .25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.lang-btn::before {
+  content: ''; position: absolute; inset: 0; background: var(--ink);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform .35s cubic-bezier(.65, 0, .35, 1); z-index: -1;
+}
+.lang-btn:hover { color: var(--ink); transform: translateY(-1px); }
+.lang-btn.active { color: #fff; animation: rbBtnPop .45s ease; }
+.lang-btn.active::before { transform: scaleX(1); }
+.lang-btn .flag {
+  display: inline-block; font-size: .95rem; line-height: 1;
+  opacity: .4; filter: grayscale(.75);
+  transform: scale(.75) rotate(-12deg);
+  transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), opacity .3s ease, filter .3s ease;
+}
+.lang-btn:hover .flag { opacity: .75; filter: grayscale(.25); transform: scale(.9) rotate(-6deg); }
+.lang-btn.active .flag {
+  opacity: 1; filter: grayscale(0);
+  transform: scale(1) rotate(0);
+  animation: rbFlagWave .8s .12s ease;
+}
+@keyframes rbFlagWave {
+  0%, 100% { transform: scale(1) rotate(0); }
+  20% { transform: scale(1.18) rotate(-9deg); }
+  40% { transform: scale(1.06) rotate(7deg); }
+  60% { transform: scale(1.14) rotate(-5deg); }
+  80% { transform: scale(1.04) rotate(3deg); }
+}
+@keyframes rbBtnPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(.93); }
+  70% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lang-btn, .lang-btn::before, .lang-btn .flag { transition: none !important; animation: none !important; }
+}
+
+#rb-nav-user { display: flex; align-items: center; gap: 8px; }
+.rb-userchip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 999px;
+  background: #f9fafb; border: 1px solid var(--line);
+  color: var(--ink); font-size: .86rem; font-weight: 600;
+  transition: .15s;
+}
+.rb-userchip:hover { border-color: var(--ink); }
+.rb-userchip b { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.rb-navvip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #fefce8; border: 1px solid #fde047; color: #ca8a04;
+  font-size: .95rem; text-decoration: none;
+}
+.rb-navadmin {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #f3f4f6; border: 1px solid var(--line); color: var(--ink);
+  font-size: .9rem; text-decoration: none;
+}
+.rb-navexit {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  font-size: .85rem; cursor: pointer; transition: .15s;
+}
+.rb-navexit:hover { color: var(--err); border-color: var(--err); }
+
+/* ---------- Forum Container (Spacious Top) ---------- */
+main#view { flex: 1 0 auto; }
+.forum-wrap {
+  max-width: 1050px; margin: 0 auto;
+  padding: 44px 24px 100px;
+}
+
+.rb-h2 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 800; letter-spacing: -.03em;
+  color: var(--ink); margin-bottom: 24px;
+}
+
+/* Category & Thread Cards */
+.rb-card {
+  display: flex; align-items: center; gap: 18px;
+  padding: 20px 22px; margin-bottom: 12px;
+  background: #ffffff; border: 1px solid var(--line);
+  border-radius: var(--r); text-decoration: none; color: var(--ink);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.rb-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .05);
+}
+.rb-icon {
+  width: 48px; height: 48px; flex: none;
+  display: grid; place-items: center; font-size: 22px;
+  border-radius: 10px; background: #f9fafb;
+  border: 1px solid var(--line); color: var(--ink);
+}
+.rb-info { flex: 1; min-width: 0; }
+.rb-info h3 {
+  margin: 0 0 5px; font-size: 1.05rem; font-weight: 700;
+  color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rb-info p {
+  margin: 0; color: var(--muted); font-size: .88rem;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.rb-stats { display: flex; gap: 20px; flex: none; text-align: right; }
+.rb-stat b { display: block; font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+.rb-stat span { font-size: .75rem; color: var(--faint); text-transform: uppercase; font-weight: 600; }
+
+.rb-pin { color: var(--warn); font-style: normal; font-size: .85rem; }
+.rb-lock { color: var(--err); font-style: normal; font-size: .85rem; }
+
+/* Buttons */
+.rb-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--r);
+  background: var(--ink); color: #fff; font-weight: 600; font-size: .9rem;
+  border: 1px solid transparent; cursor: pointer; text-decoration: none;
+  transition: background .15s;
+}
+.rb-btn:hover { background: #000; color: #fff; }
+.rb-ghost {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--r);
+  background: #ffffff; border: 1px solid var(--line);
+  color: var(--ink); font-size: .85rem; font-weight: 600;
+  cursor: pointer; transition: .15s; text-decoration: none;
+}
+.rb-ghost:hover { border-color: var(--ink); }
+.rb-danger { color: var(--err) !important; border-color: #fecaca !important; background: #fef2f2 !important; }
+.rb-danger:hover { background: #fee2e2 !important; }
+
+.rb-fab {
+  position: fixed; right: 28px; bottom: 32px; z-index: 40;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: var(--ink); color: #fff; font-size: 22px;
+  display: grid; place-items: center; text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+  transition: transform .15s, background .15s;
+}
+.rb-fab:hover { background: #000; transform: scale(1.05); color: #fff; }
+
+/* Badges */
+.rb-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; flex: none;
+}
+.rb-badge i { font-style: normal; }
+.rb-badge[data-role="kurucu"] { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.rb-badge[data-role="developer"] { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.rb-badge[data-role="moderator"] { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.rb-badge[data-role="vip"] { background: #fefce8; color: #b45309; border: 1px solid #fde68a; }
+.rb-badge[data-role="member"] { background: #f3f4f6; color: var(--muted); border: 1px solid var(--line); }
+
+/* Navigation Back button & Category Head */
+.rb-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 14px; border-radius: var(--r);
+  background: #f9fafb; border: 1px solid var(--line);
+  color: var(--muted); text-decoration: none; font-size: .85rem; font-weight: 600;
+  transition: .15s;
+}
+.rb-back:hover { color: var(--ink); border-color: var(--ink); }
+.rb-cathead { display: flex; align-items: center; gap: 16px; margin: 8px 0 20px; }
+.rb-cathead h2 { flex: 1; margin: 0; font-size: 1.4rem; font-weight: 700; }
+
+/* Forms & Modals */
+.rb-form {
+  max-width: 520px; margin: 30px auto;
+  display: flex; flex-direction: column; gap: 14px;
+  background: #ffffff; padding: 32px; border-radius: 14px;
+  border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.06);
+}
+.rb-form h2 { margin: 0 0 6px; font-size: 1.3rem; font-weight: 700; }
+.rb-form input, .rb-form textarea, .rb-replybox textarea {
+  background: #ffffff; border: 1px solid var(--line); border-radius: var(--r);
+  color: var(--ink); padding: 11px 14px; font-size: .95rem; outline: none;
+  width: 100%; box-sizing: border-box; transition: border-color .15s;
+}
+.rb-form input:focus, .rb-replybox textarea:focus, .rb-form textarea:focus {
+  border-color: var(--accent); outline: none;
+}
+.rb-msg { color: var(--err); font-size: .85rem; min-height: 20px; margin: 0; }
+
+/* Thread & Posts */
+.rb-threadhead { margin: 10px 0 20px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+.rb-threadhead h2 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; }
+.rb-threadhead p { margin: 0; color: var(--muted); font-size: .9rem; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.rb-post {
+  background: #ffffff; border: 1px solid var(--line);
+  border-radius: var(--r); padding: 20px; margin: 14px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.02);
+}
+.rb-op { border-left: 3px solid var(--ink); }
+.rb-posthead { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.rb-posthead b { font-size: .95rem; font-weight: 700; color: var(--ink); }
+.rb-time { margin-left: auto; color: var(--faint); font-size: .8rem; }
+.rb-postbody { line-height: 1.7; word-wrap: break-word; font-size: .96rem; color: var(--ink); }
+.rb-replybox { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+.rb-replybox .rb-btn { align-self: flex-end; }
+.rb-modbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.rb-modbar select { background: #ffffff; color: var(--ink); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 12px; }
+
+/* Profile */
+.rb-profile {
+  text-align: center; padding: 40px 24px; background: #ffffff;
+  border-radius: var(--r); border: 1px solid var(--line);
+  max-width: 600px; margin: 20px auto;
+}
+.rb-avatar {
+  width: 80px; height: 80px; margin: 0 auto 16px;
+  display: grid; place-items: center; font-size: 32px; font-weight: 800;
+  border-radius: 50%; background: #f3f4f6; color: var(--ink);
+  border: 2px solid var(--line);
+}
+.rb-profile .rb-stats { justify-content: center; margin: 20px 0; }
+.rb-row {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  background: #f9fafb; border: 1px solid var(--line); border-radius: var(--r);
+  padding: 14px 18px; margin-bottom: 10px;
+}
+.rb-row b { flex: 1; min-width: 120px; font-size: .95rem; }
+
+/* Empty & Footer */
+.rb-empty { text-align: center; color: var(--muted); padding: 56px 0; font-size: 1rem; }
+.rb-footer {
+  margin-top: auto; padding: 28px 24px; text-align: center;
+  color: var(--faint); font-size: .84rem; border-top: 1px solid var(--line);
+  background: #fafafa;
+}
+
+@media(max-width:640px){
+  .forum-wrap { padding: 28px 16px 80px; }
+  .rb-stats { display: none; }
+  .rb-badge i { display: none; }
+  .rb-card { padding: 14px; gap: 12px; }
+  .rb-userchip b { max-width: 70px; }
+}
+.flag-t{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:20px;padding:0 7px;border-radius:5px;font-size:.68rem;font-weight:800;letter-spacing:.06em;color:#fff;line-height:1}
+.flag-tr{background:linear-gradient(180deg,#E30A17,#b00712)}
+.flag-gb{background:linear-gradient(180deg,#012169,#3C3B6E)}
+.lang-btn .flag-t{filter:saturate(.55);opacity:.7}
+.lang-btn.active .flag-t,.lang-btn:hover .flag-t{filter:none;opacity:1}
