@@ -37,10 +37,8 @@ export default function handler(req, res) {
     u.searchParams.set('scope', 'identify email');
     u.searchParams.set('state', Buffer.from(next).toString('base64url'));
 
-    console.log('[start] → Discord redirect_uri:', redirect, '| device:', device || '(yok)', '| next:', next);
     res.redirect(302, u.toString());
   } catch (e) {
-    console.error('[start] FATAL:', e.message);
     res.status(500).send('OAuth start error');
   }
 }

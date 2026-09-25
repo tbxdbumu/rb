@@ -1,4 +1,3 @@
-/*! RiseBunny app v12 — Lusion-minimal UI (secure render, original copy) — OFFLINE/STATIC */
 (function () {
 'use strict';
 var $ = function (s, c) { return (c || document).querySelector(s); };
@@ -95,7 +94,6 @@ function t(k) {
   return (I18N_DICT[LANG] && I18N_DICT[LANG][k]) || I18N_DICT.en[k] || k;
 }
 
-/* Systems rows (admin Features) */
 function renderSystems() {
   var grid = $('#sys-grid'); if (!grid) return;
   grid.innerHTML = '';
@@ -223,73 +221,6 @@ function setLang(l) {
 window.RB = { setLang: setLang };
 $$('.lang-btn').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
 
-/* secret footer entry (ANASAYFA) → rol duyarlı yönlendirme, 5 tık
-   - 2 yetkiliden biri (Discord cookie) veya kurucu rolü → admin.html (jetonlu)
-   - moderator+ site rolü → forum.html#/mod
-   - girişsiz/yetkisiz → SESSİZ, hiçbir şey olmaz (görsel ipucu YOK) */
-(function secretEntry() {
-  var foot = document.getElementById('foot-base') || document.querySelector('.site-footer .footer-base') || document.querySelector('.site-footer') || document.querySelector('footer.site-footer');
-  if (!foot || foot.__rbTap) return;
-  foot.__rbTap = true;
-  var taps = 0, timer = null;
-  foot.addEventListener('click', function () {
-    taps++;
-    clearTimeout(timer);
-    timer = setTimeout(function () { taps = 0; }, 2500);
-    if (taps < 5) return;
-    taps = 0;
-    cozVeGit();
-  });
-  function jeton() {
-    try {
-      sessionStorage.setItem('rb_admin_token', '1');
-      sessionStorage.setItem('rb_admin_time', String(Date.now()));
-    } catch (e) {}
-  }
-  function bekle(p, ms) {
-    return Promise.race([p, new Promise(function (res) { setTimeout(function () { res(null); }, ms || 4000); })]);
-  }
-  async function cozVeGit() {
-    try {
-      // 1) Discord cookie oturumu: 2 yetkiliden biri mi?
-      var s = await bekle(fetch('/api/me', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).catch(function () { return null; }), 4000);
-      if (s && s.ok && s.user && ['985126554306773063', '1310366324731547798'].indexOf(String(s.user.id)) > -1) {
-        jeton();
-        window.location.href = 'admin.html';
-        return;
-      }
-      // 2) Firebase oturumu + site rolü
-      if (window.firebase && firebase.auth && firebase.apps && firebase.apps.length) {
-        var u = null;
-        try { u = firebase.auth().currentUser; } catch (e) {}
-        if (u) {
-          if ((window.ADMIN_UIDS || []).indexOf(u.uid) > -1) {
-            jeton();
-            window.location.href = 'admin.html';
-            return;
-          }
-          try {
-            var doc = await bekle(firebase.firestore().collection('users').doc(u.uid).get(), 4000);
-            var rol = (doc && doc.exists && doc.data().role) || 'member';
-            if (rol === 'kurucu') {
-              jeton();
-              window.location.href = 'admin.html';
-              return;
-            }
-            var W = { member: 1, vip: 2, developer: 2, moderator: 3, kurucu: 5 };
-            if ((W[rol] || 1) >= 3) {
-              window.location.href = 'forum.html#/mod';
-              return;
-            }
-          } catch (e) {}
-        }
-      }
-      // 3) yetkisiz/girişsiz → SESSİZ
-    } catch (e) {}
-  }
-})();
-
-/* slim mod replay (visual only) */
 function replayMod() {
   var toxic = document.querySelector('#mod-demo .feed-line.toxic');
   var badge = $('#ban-badge');
@@ -311,7 +242,6 @@ var replayBtn = $('#btn-replay-mod');
 if (replayBtn) replayBtn.addEventListener('click', replayMod);
 setTimeout(replayMod, 1400);
 
-/* nav */
 var burger = $('#burger'), navLinks = $('#nav-links');
 if (burger && navLinks) burger.addEventListener('click', function () {
   var open = navLinks.classList.toggle('open');
@@ -326,7 +256,6 @@ window.addEventListener('scroll', function () {
   $$('#nav-links a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + cur); });
 }, { passive: true });
 
-/* contact (Discord-only: konu + mesaj, kimlik cookie'den) */
 function cooldown() {
   try { return Date.now() - parseInt(localStorage.getItem('rb_con_last') || '0', 10) < 60000; }
   catch (e) { return false; }
@@ -344,7 +273,7 @@ function conLoginDurumu() {
 try { window.addEventListener('rb-session', conLoginDurumu); } catch (e) {}
 try { window.addEventListener('rb-login', conLoginDurumu); } catch (e) {}
 try { document.addEventListener('visibilitychange', function () { if (!document.hidden && window.RBLogin) window.RBLogin.yenile().catch(function () {}); }); } catch (e) {}
-/* rb-login.js async olduğu için, sayfa tamamen yüklenince tekrar kontrol et */
+
 try { window.addEventListener('load', conLoginDurumu); } catch (e) {}
 conLoginDurumu();
 if (form) form.addEventListener('submit', function (e) {

@@ -1,10 +1,7 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /admin.html
 Disallow: /yonetim
 Disallow: /panel
-Disallow: /dashboard
 Disallow: /login
 Disallow: /404.html
 

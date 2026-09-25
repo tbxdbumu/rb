@@ -1,14 +1,3 @@
-/*! RiseBunny — Birleşik Discord SSO (v1)
-   TEK giriş noktası: her sayfa bunu yükler, başka köprü kodu çalışmaz.
-   - Cookie oturumu (/api/me) + Firebase Auth birlikte yönetilir
-   - Herhangi bir sayfada Discord girişi → tüm sayfalarda tanınır
-   - Çıkış ikisini birden kapatır
-   Kullanım:
-     <script src="js/rb-login.js?v=1"></script>
-     RBLogin.init().then(state => { ... });
-     // state: { cookie: null|{id,username,avatar,fb}, firebase: null|user, hazir: true }
-     // Olay: window 'rb-login' (detail = state)
-*/
 (function () {
 'use strict';
 
@@ -30,7 +19,12 @@ function firebaseHazirla() {
   try {
     if (!window.firebase || !firebase.auth) return false;
     if (!firebase.apps.length) {
-      if (!window.firebaseConfig || !window.firebaseConfig.projectId) return false;
+      if (!window.firebaseConfig || !window.firebaseConfig.projectId) {
+        fetch('/api/firebase-config', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+          if (j && j.projectId) { window.firebaseConfig = j; try { if (!firebase.apps.length) firebase.initializeApp(j); } catch (e) {} }
+        }).catch(function () {});
+        return false;
+      }
       firebase.initializeApp(window.firebaseConfig);
     }
     return true;
@@ -90,7 +84,7 @@ async function firebaseKopru() {
 }
 
 async function cookieOnar() {
-  // Firebase var ama cookie yok → cookie'yi Firebase'den geri yükle
+
   try {
     if (!firebaseHazirla()) return false;
     var u = firebase.auth().currentUser;
@@ -115,12 +109,12 @@ async function init() {
     if (DURUM.cookie) {
       await firebaseKopru();
     } else {
-      // Cookie yok ama Firebase oturumu olabilir → cookie'yi onar
+
       try {
         if (window.firebase && firebase.auth && firebase.apps.length && firebase.auth().currentUser)
           await cookieOnar();
         else {
-          // Firebase geç gelebilir; kısa bekle, bir şans daha ver
+
           await bekle(2500);
           if (firebaseHazirla()) {
             try { if (firebase.auth().currentUser) await cookieOnar(); } catch (e) {}
@@ -128,7 +122,7 @@ async function init() {
         }
       } catch (e) {}
     }
-    // Firebase Auth değişikliklerini dinle (başka sekmede giriş/çıkış)
+
     try {
       if (firebaseHazirla()) {
         firebase.auth().onAuthStateChanged(function (u) {
@@ -148,6 +142,7 @@ async function cikis() {
   try { if (firebaseHazirla()) await firebase.auth().signOut().catch(() => {}); } catch (e) {}
   try { localStorage.removeItem('rb_discord'); } catch (e) {}
   try { sessionStorage.removeItem('rb_fadmin'); sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time'); } catch (e) {}
+  try { localStorage.removeItem('rb_admin_grant'); localStorage.removeItem('rb_admin_time'); } catch (e2) {}
   DURUM.cookie = null; DURUM.firebase = null;
   olay();
   location.reload();
@@ -164,7 +159,7 @@ window.RBLogin = {
   cikis: cikis,
   girisUrl: girisUrl,
   kopru: firebaseKopru,
-  /* Başka sekmede giriş/çıkış olduysa veya sayfa odağa döndüyse yeniden tara */
+
   yenile: function () { BASLADI = false; DURUM.bridgeHata = ''; return init(); }
 };
 
@@ -187,8 +182,6 @@ try {
   });
 } catch (e) {}
 
-/* OAuth dönüşü doğrulama: ?login=ok varsa cookie gerçekten yazılmış mı bak.
-   Yazılmamışsa (nadir) sebebi göster, sessizce "girişli gibi" davranma. */
 async function girisDogrula() {
   try {
     if (!/[?&]login=ok/.test(location.search)) return;
@@ -199,7 +192,7 @@ async function girisDogrula() {
       } catch (e) {}
       await bekle(1200);
     }
-    // Hâlâ yok → kullanıcıya söyle
+
     try {
       const msg = document.createElement('div');
       msg.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99999;background:#7f1d1d;color:#fff;font:13px/1.5 system-ui;padding:10px 16px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.3)';

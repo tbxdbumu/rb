@@ -1,4 +1,3 @@
-/*! RiseBunny Bot page — tanıtım + simülasyon + top.gg entegrasyonu (v1) */
 (function () {
 'use strict';
 var $ = function (s, c) { return (c || document).querySelector(s); };
@@ -28,34 +27,12 @@ function setLang(l) {
 }
 $$('.lang-btn').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
 
-/* footer 5-tık → gizli admin (tüm sayfalarda aynı davranış) */
-(function secretEntry() {
-  var foot = document.getElementById('foot-base');
-  if (!foot) return;
-  var taps = 0, timer = null;
-  foot.addEventListener('click', function () {
-    taps++;
-    clearTimeout(timer);
-    timer = setTimeout(function () { taps = 0; }, 2500);
-    if (taps >= 5) {
-      taps = 0;
-      try {
-        sessionStorage.setItem('rb_admin_token', '1');
-        sessionStorage.setItem('rb_admin_time', String(Date.now()));
-      } catch (e) {}
-      window.location.href = 'admin.html';
-    }
-  });
-})();
-
-/* burger */
 var burger = $('#burger'), navLinks = $('#nav-links');
 if (burger && navLinks) burger.addEventListener('click', function () {
   var open = navLinks.classList.toggle('open');
   burger.setAttribute('aria-expanded', open ? 'true' : 'false');
 });
 
-/* ── 1) İstatistik simülasyonu (gerçek veri varsa onunla değişir) ── */
 var sim = { servers: 128, users: 18400, votes: 342 };
 function fmt(n) { return Number(n || 0).toLocaleString(LANG === 'tr' ? 'tr-TR' : 'en-US'); }
 function paintStats(src) {
@@ -72,7 +49,7 @@ setInterval(function () {
   sim.votes += Math.random() < 0.4 ? 1 : 0;
   paintStats(document.body.getAttribute('data-live') === '1' ? 'live' : 'sim');
 }, 18000);
-/* gerçek istatistik: /api/stats (top.gg token + bot, sunucuda — tokensız 401 yemez) */
+
 fetch('/api/stats').then(function (r) {
   if (!r.ok) throw 0;
   return r.json();
@@ -84,9 +61,9 @@ fetch('/api/stats').then(function (r) {
     document.body.setAttribute('data-live', '1');
     paintStats('live');
   }
-}).catch(function () { /* simülasyonda kal */ });
+}).catch(function () {
+ });
 
-/* ── 2) Özellik kartları (botun gerçek kategorileri) ── */
 var FEATS = [
   { i: '🛡️', t: { tr: 'Moderasyon', en: 'Moderation' }, d: { tr: 'ban, kick, mute, uyarı, sil — modlog destekli 10 komut.', en: 'ban, kick, mute, warn, purge — 10 commands with modlog.' }, c: 'r!ban @kullanıcı spam' },
   { i: '📝', t: { tr: 'Yapay Zeka Kayıt', en: 'AI Registration' }, d: { tr: 'İsim + yaş sorar, rolü otomatik verir, tag ekler.', en: 'Asks name + age, assigns roles automatically with tag.' }, c: 'r!k-kayıt-kanal #kayıt' },
@@ -102,7 +79,6 @@ $('#feat-grid').innerHTML = FEATS.map(function (f) {
     (LANG === 'tr' ? f.d.tr : f.d.en) + '</p><code>' + f.c + '</code></div>';
 }).join('');
 
-/* ── 3) Komut simülatörü ── */
 var SIM = [
   { k: ['r!yardım', 'r!help', 'r!yardim'], t: '📚 **RiseBunny Yardım** — 17 kategori, 162 komut.\n🛡️ moderasyon • 📝 kayıt • 💰 ekonomi • 🔒 koruma • 🎉 çekiliş\nÖrn: `r!param` bakiyeni gösterir.' },
   { k: ['r!param', 'r!para', 'r!balance'], t: '💸 Bakiyen: **12.450** para • 🏦 Banka: **30.000**\nİpucu: `r!günlük-ödül` ile her gün bonus al.\n_(simülasyon — Discord botundaki gerçek bakiyen bot veritabanındadır)_' },
@@ -157,8 +133,7 @@ function addMsg(who, text, isBot, scroll) {
   body.appendChild(nm); body.appendChild(tx);
   wrap.appendChild(av); wrap.appendChild(body);
   simLog.appendChild(wrap);
-  /* Açılıştaki karşılama mesajı sayfayı aşağı KAYDIRMAZ — hero'da başlanır.
-     Yalnızca kullanıcı yazdıktan sonra ve simülatör ekrandaysa yaklaşılır. */
+
   if (scroll) wrap.scrollIntoView({ block: 'nearest' });
 }
 addMsg('RiseBunny', LANG === 'tr' ? 'Selam! 👋 `r!yardım` yazarak başla.' : 'Hey! 👋 Start with `r!help`.', true);
@@ -183,7 +158,6 @@ $('#sim-form').addEventListener('submit', function (e) {
   }, 450);
 });
 
-/* ── 4) Moderasyon replay ── */
 function replayMod() {
   var toxic = document.querySelector('#mod-demo .feed-line.toxic');
   var badge = $('#ban-badge');
@@ -205,7 +179,6 @@ var rb1 = $('#btn-replay-mod');
 if (rb1) rb1.addEventListener('click', replayMod);
 setTimeout(replayMod, 1400);
 
-/* ── 5) Leaderboard: bot API → Firestore → simülasyon (Zengin 10 + Level 10) ── */
 var SIM_NAMES = ['Nova', 'BunnyQueen', 'Kaya', 'Mira', 'Efe', 'Luna', 'Aras', 'Zeyno', 'Pofuduk', 'Rüzgar'];
 function simBoard(kind) {
   return SIM_NAMES.map(function (n, i) {
@@ -267,7 +240,6 @@ function loadBoard(kind, elId) {
 loadBoard('rich', 'lb-rich');
 loadBoard('level', 'lb-level');
 
-/* ── 6) Oy simülasyonu ── */
 var sv = $('#btn-sim-vote');
 if (sv) sv.addEventListener('click', function () {
   var box = $('#vote-sim');
@@ -278,7 +250,6 @@ if (sv) sv.addEventListener('click', function () {
   box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 });
 
-/* ── 7) Mini FAQ ── */
 var FAQ = [
   { q: { tr: 'Bot ücretsiz mi?', en: 'Is the bot free?' }, a: { tr: 'Evet, tüm komutlar ücretsiz. Premium sadece ekstra kotalar açar.', en: 'Yes, all commands are free. Premium only unlocks extra quotas.' } },
   { q: { tr: 'Nasıl davet ederim?', en: 'How do I invite it?' }, a: { tr: 'Yukarıdaki "Botu Davet Et" butonu yeterli — yönetici yetkisi gerekir.', en: '"Invite the Bot" button above is enough — admin permission required.' } },
@@ -301,7 +272,6 @@ if (fl) {
   });
 }
 
-/* ── 8) Hesabım & Mağaza (Discord oturumu) ── */
 function fmtN(n) { return Number(n || 0).toLocaleString(LANG === 'tr' ? 'tr-TR' : 'en-US'); }
 function paintAccount(s) {
   var box = $('#acc-box');
@@ -374,7 +344,6 @@ function paintAccount(s) {
   paintDeletion(s);
 }
 
-/* ── Veri silme talebi: kapsam seç → çift onay → Firestore + bot bildirimi ── */
 var __delState = { kapsam: null, armed: false, docId: null, timer: null };
 function paintDeletion(s) {
   var box = $('#del-box'), area = $('#del-area');
@@ -408,8 +377,7 @@ function delSec(kapsam) {
   }
   delGonder(kapsam);
 }
-/* Firebase oturumunu bekler: kullanıcı giriş yapmış olsa bile auth durumu
-   birkaç saniye gecikebilir; eskiden bu yüzden "sayfayı yenile" deniyordu. */
+
 function delAuthBekle() {
   return new Promise(function (resolve) {
     var au = null;
@@ -421,8 +389,6 @@ function delAuthBekle() {
     var durdur = au.onAuthStateChanged(function (u) { if (u) { durdur(); bitir(u); } });
     var kapandi = function () { try { durdur(); } catch (e) {} bitir(au.currentUser); };
 
-    /* 1) Köprü (/api/me) henüz gelmediyse bekle — eskiden bu yüzden hemen
-       "sayfayı yenile" deniyordu. */
     var deneme = 0;
     var bekle = function () {
       var s = window.RBSession || {};
@@ -433,7 +399,7 @@ function delAuthBekle() {
       }
       deneme += 1;
       if (deneme < 24) { setTimeout(bekle, 500); return; }
-      /* 2) Hâlâ yoksa oturumu bir kez daha tazele. */
+
       fetch('/api/me', { credentials: 'same-origin' })
         .then(function (r) { return r.json(); })
         .then(function (j) {
@@ -451,7 +417,6 @@ function delAuthBekle() {
   });
 }
 
-/* Sahip logunda listelenecek "hangi platformda hangi veri var" özeti. */
 async function siteVeriOzet(db, uid) {
   var satirlar = [];
   var say = async function (col, alan, etiket) {
@@ -460,14 +425,12 @@ async function siteVeriOzet(db, uid) {
       if (s.size) satirlar.push(etiket + ': ' + s.size + ' kayıt');
     } catch (e) {}
   };
-  await say('threads', 'authorId', 'Forum konusu');
-  await say('posts', 'authorId', 'Forum yanıtı');
   await say('notifications', 'userId', 'Bildirim');
   try {
     var u = await db.collection('users').doc(uid).get();
     if (u.exists) {
       var d = u.data() || {};
-      satirlar.push('Forum hesabı' + (d.username ? ' (@' + String(d.username).slice(0, 30) + ')' : ''));
+      satirlar.push('Site hesabı' + (d.username ? ' (@' + String(d.username).slice(0, 30) + ')' : ''));
       if (d.email) satirlar.push('Kayıtlı e-posta: ' + String(d.email).slice(0, 60));
     }
   } catch (e) {}
@@ -503,8 +466,7 @@ function delGonder(kapsam) {
       var kayitP = (fbUser && db)
         ? db.collection('silme_talepleri').add(payload)
         : Promise.resolve({ id: 'web-' + discordId + '-' + Date.now().toString(36) });
-      // Firebase oturumu yoksa bile bot'a talep iletilir; site verisi onaysız silinmez,
-      // sahip kabul edince bot tarafı silinir ve kullanıcıya DM gider.
+
       if (!fbUser && msg) msg.textContent = L('Site oturumu bulunamadı — talep Discord kimliğinle sahibe iletiliyor…', 'No site session — sending the request with your Discord id…');
       return kayitP.then(function (ref) {
         return fetch('/api/deletion/request', {
@@ -513,7 +475,7 @@ function delGonder(kapsam) {
         }).then(function (r) {
           return r.json().catch(function () { return {}; }).then(function (j) {
             if (!r.ok || j.ok !== true) {
-              /* Sahip hiç haberdar olmadıysa kaydı bırakma. */
+
               if (fbUser && db) db.collection('silme_talepleri').doc(ref.id).delete().catch(function () {});
               throw new Error((j && j.error) || L('Talep iletilemedi (bot çevrimdışı olabilir).', 'Request could not be delivered (bot may be offline).'));
             }
@@ -554,7 +516,7 @@ function delDurumIzle(docId, kapsam) {
         } else if (!String(docId || '').startsWith('web-')) {
           siteVeriSil(msg, L);
         } else {
-          // Firebase'siz gönderilen talep: bot tarafı silindi, site için giriş gerekli.
+
           if (msg) msg.textContent = L('✅ Onaylandı — bot verilerin silindi (DM de geldi). Site verilerin için Discord ile giriş yapıp talebi tekrar gönder.', '✅ Approved — bot data deleted (DM sent). Sign in with Discord and re-request for site data.');
           __delState = { kapsam: null, armed: false, docId: null, timer: null };
         }
@@ -566,7 +528,7 @@ async function siteVeriSil(msg, L) {
   try {
     var au = firebase.auth().currentUser;
     if (!au) throw new Error(L('Oturum bulunamadı.', 'No session.'));
-    if (!confirm(L('EMİN MİSİN? Forum konuların, yanıtların, bildirimlerin ve hesabın SİLİNECEK. (Son onay)', 'ARE YOU SURE? Your threads, replies, notifications and account will be DELETED. (Final)'))) {
+    if (!confirm(L('EMİN MİSİN? Site hesabın ve bildirimlerin SİLİNECEK. (Son onay)', 'ARE YOU SURE? Your site account and notifications will be DELETED. (Final)'))) {
       if (msg) msg.textContent = L('İptal edildi.', 'Cancelled.');
       return;
     }
@@ -577,15 +539,13 @@ async function siteVeriSil(msg, L) {
       var ids = []; s.forEach(function (d) { ids.push(d.ref); }); return ids;
     };
     var refs = [];
-    refs = refs.concat(await getIds('threads', 'authorId'));
-    refs = refs.concat(await getIds('posts', 'authorId'));
     refs = refs.concat(await getIds('notifications', 'userId'));
     var batch = db.batch();
     var say = 0;
     refs.forEach(function (r) { batch.delete(r); say++; if (say % 400 === 0) {} });
     await batch.commit().catch(function () {});
     await db.collection('users').doc(uid).delete().catch(function () {});
-    // Kendi silme taleplerini de temizle
+
     try {
       var mine = await db.collection('silme_talepleri').where('uid', '==', uid).get();
       var b2 = db.batch(); mine.forEach(function (d) { b2.delete(d.ref); }); await b2.commit().catch(function () {});
@@ -638,7 +598,7 @@ function loadShop(botOnline) {
   }).catch(function () { grid.innerHTML = ''; });
 }
 function buyItem(it, btn) {
-  /* 1. tık = onay sorusu ("Emin misiniz?"), 2. tık = satın al */
+
   if (!btn.dataset.armed) {
     btn.dataset.armed = '1';
     var buyLbl = LANG === 'tr' ? 'Satın Al' : 'Buy';

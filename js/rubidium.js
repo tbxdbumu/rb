@@ -1,4 +1,3 @@
-/*! Rubidium V4 page — tanıtım + karşılaştırma simülasyonu (v2) */
 (function () {
 'use strict';
 var $ = function (s, c) { return (c || document).querySelector(s); };
@@ -23,34 +22,12 @@ function setLang(l) {
 }
 $$('.lang-btn').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
 
-/* footer 5-tık → gizli admin (tüm sayfalarda aynı davranış) */
-(function secretEntry() {
-  var foot = document.getElementById('foot-base');
-  if (!foot) return;
-  var taps = 0, timer = null;
-  foot.addEventListener('click', function () {
-    taps++;
-    clearTimeout(timer);
-    timer = setTimeout(function () { taps = 0; }, 2500);
-    if (taps >= 5) {
-      taps = 0;
-      try {
-        sessionStorage.setItem('rb_admin_token', '1');
-        sessionStorage.setItem('rb_admin_time', String(Date.now()));
-      } catch (e) {}
-      window.location.href = 'admin.html';
-    }
-  });
-})();
-
-/* burger */
 var burger = $('#burger'), navLinks = $('#nav-links');
 if (burger && navLinks) burger.addEventListener('click', function () {
   var open = navLinks.classList.toggle('open');
   burger.setAttribute('aria-expanded', open ? 'true' : 'false');
 });
 
-/* ── 1) Modül kategorileri ── */
 var FEATS = [
   { i: '⚔️', t: { tr: 'Combat', en: 'Combat' }, d: { tr: 'Reach, AimAssist, AutoClicker, Velocity — legit görünen vuruş aralığı.', en: 'Reach, AimAssist, AutoClicker, Velocity — legit-looking hit range.' }, c: 'reach: 3.0–3.4 (ghost)' },
   { i: '💨', t: { tr: 'Movement', en: 'Movement' }, d: { tr: 'Speed, Fly, Scaffold, NoFall — köprü ve strafe senaryoları için.', en: 'Speed, Fly, Scaffold, NoFall — for bridging and strafe scenarios.' }, c: 'scaffold: legit-delay' },
@@ -66,9 +43,6 @@ function paintFeatures() {
   }).join('');
 }
 
-/* ── 2) Senaryo simülatörü (Vape V4 • Rise • Rubidium) ──
-   Skorlar temsilîdir: ghost profilde üçünün de gizliliği yüksektir;
-   fark ücret, modül sayısı ve hedef kitlede açılır. */
 var SCENARIOS = [
   { id: 'bedwars', n: { tr: 'Hypixel BedWars', en: 'Hypixel BedWars' },
     note: { tr: 'Ghost Reach + Scaffold senaryosu. Rubidium ghost profiliyle öne geçiyor.', en: 'Ghost Reach + Scaffold scenario. Rubidium pulls ahead with its ghost profile.' },
@@ -117,7 +91,6 @@ function paintScenario(i) {
   $('#scn-note').textContent = (LANG === 'tr' ? s.note.tr : s.note.en) + (LANG === 'tr' ? ' (Temsilî simülasyon.)' : ' (Illustrative simulation.)');
 }
 
-/* ── 3) Mini FAQ ── */
 var FAQ = [
   { q: { tr: 'Rubidium V4 ücretsiz mi?', en: 'Is Rubidium V4 free?' }, a: { tr: 'Evet, tamamen ücretsiz. Vape V4 ($9.99/ay) ve Rise 6 ($34.99) ücretliyken Rubidium ücret istemez.', en: 'Yes, fully free — while Vape V4 ($9.99/mo) and Rise 6 ($34.99) are paid.' } },
   { q: { tr: 'Ban riski var mı?', en: 'Is there a ban risk?' }, a: { tr: 'Her hile clientında risk vardır. Ghost profiller + düşük ayarlar riski azaltır ama sıfırlamaz; ana hesabında dikkatli ol.', en: 'Every cheat client carries risk. Ghost profiles + low settings reduce but never remove it; be careful on your main.' } },

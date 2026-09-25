@@ -96,21 +96,27 @@ export default async function handler(req, res) {
     const title = String(body.title || '🔔 Bildirim').slice(0, 100);
     const text = String(body.text || '').slice(0, 500);
     const link = String(body.url || '').slice(0, 200);
+    const kind = String(body.kind || 'notify').slice(0, 30);
+    const from = String(body.from || (s.username || s.id || '')).slice(0, 120);
     if (!userIds.length || !text) return res.status(400).json({ error: 'eksik alan' });
     if (bBase && bSec) {
       try {
-        await fetch(`${bBase}/api/notify`, {
+        const nr = await fetch(`${bBase}/api/notify`, {
           method: 'POST',
           headers: { ...botHeaders(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userIds, title, text, url: link })
+          body: JSON.stringify({ userIds, title, text, url: link, kind, from })
         });
-      } catch {}
+        if (nr.ok) return res.json({ ok: true, mirror: true, delivered: true });
+        return res.json({ ok: true, mirror: true, delivered: false });
+      } catch { return res.json({ ok: true, mirror: true, delivered: false }); }
     }
-    return res.json({ ok: true, mirror: true });
+    return res.json({ ok: true, mirror: true, delivered: false });
   }
 
   if (op.endsWith('/contact') && req.method === 'POST') {
-    /* Discord-only iletişim: isim/e-posta YOK, kimlik cookie oturumundan gelir. */
+    /* Discord-only iletişim: isim/e-posta YOK, kimlik cookie oturumundan gelir.
+       Mesaj bot API'ye iletilir; bot da sahip log kanalına düşürür ve
+       yetkili cevap verirse kullanıcıya DM gider. */
     const s = getSession(req);
     if (!s) return res.status(401).json({ error: 'Önce Discord ile giriş yapmalısın.' });
     const body = await readJson(req);
@@ -119,16 +125,31 @@ export default async function handler(req, res) {
     const lang = body.lang === 'en' ? 'en' : 'tr';
     if (!subject || message.length < 3)
       return res.status(400).json({ error: 'eksik alan' });
-    if (bBase && bSec) {
-      try {
-        await fetch(`${bBase}/api/contact`, {
-          method: 'POST',
-          headers: { ...botHeaders(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ discordId: s.id, username: s.username || '', subject, message, lang })
+    if (!bBase || !bSec) return res.status(503).json({ error: 'Bot çevrimdışı.' });
+    try {
+      const r = await fetch(`${bBase}/api/contact`, {
+        method: 'POST',
+        headers: { ...botHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          discordId: s.id,
+          username: s.username || '',
+          subject,
+          message,
+          lang,
+        }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        return res.status(r.status).json({
+          error: j.error === 'missing-fields'
+            ? 'eksik alan'
+            : 'Mesajınız iletilemedi, lütfen tekrar dene.',
         });
-      } catch {}
+      }
+      return res.json({ ok: true, id: j.id });
+    } catch {
+      return res.status(503).json({ error: 'Bot çevrimdışı.' });
     }
-    return res.json({ ok: true });
   }
 
   return res.status(404).json({ error: 'not found', path: op });

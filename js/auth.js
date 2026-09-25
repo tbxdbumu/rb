@@ -1,11 +1,3 @@
-/*! RiseBunny — Discord oturumu (Cookie-based, API v2)
-   Sorumlulukları:
-   1) /api/me okur → RBSession (kullanıcı, fb köprüsü, bot verisi)
-   2) [data-auth-slot] header butonlarını boyar (risebunny/rubidium/forum)
-   3) Forum: #rb-nav-user yanına Discord rozeti; oturum varsa eski login butonunu gizler
-   4) Forum→site SSO geri yükleme: Firebase oturumu varsa çerezi basar
-   5) Çıkış: çerez temizliği + reload
-   NOT: ES module DEĞİL (script type=module olmadan yüklenebilir). */
 (function () {
 'use strict';
 function $(s, c) { return (c || document).querySelector(s); }
@@ -24,7 +16,6 @@ function chipHTML(u) {
     + '</span>';
 }
 
-/* Çıkış: cookie + Firebase birlikte kapatılır (RBLogin), sonra yenile */
 document.addEventListener('click', function (e) {
   var a = e.target.closest ? e.target.closest('a.rb-logout, #btn-logout2, a[href*="/api/me?logout=1"]') : null;
   if (!a) return;
@@ -33,17 +24,8 @@ document.addEventListener('click', function (e) {
   fetch('/api/me?logout=1').then(function () { location.reload(); }).catch(function () { location.reload(); });
 });
 
-/* ESKİ köprü/restore kodları RBLogin modülüne taşındı (js/rb-login.js).
-   Aşağıdaki sarmalayıcılar geriye uyumluluk için durur, işi RBLogin yapar. */
 var __restoring = false;
 function restoreFromFirebase() { try { if (window.RBLogin) window.RBLogin.init(); } catch (e) {} }
-
-/* Site→forum yönü RBLogin içindedir (cookie ⇄ Firebase çift yönlü).
-   Bu fonksiyon geriye uyumluluk sarmalayıcısıdır. */
-var __bridgeRun = false;
-function forumBridge(s) {
-  try { if (window.RBLogin) window.RBLogin.init(); } catch (e) {}
-}
 
 function paint() {
   var s = window.RBSession;
@@ -51,7 +33,7 @@ function paint() {
   $all('[data-auth-slot]').forEach(function (el) {
     el.innerHTML = s.ok ? chipHTML(s.user) : loginBtnHTML(next);
   });
-  // Forum: Discord rozeti (forum.js'in kendi nav'ının KARDEŞİ olarak)
+
   var nav = document.getElementById('rb-nav-user');
   if (nav && !document.getElementById('rb-discord-slot')) {
     var sp = document.createElement('span');
@@ -63,7 +45,7 @@ function paint() {
   if (fs) fs.innerHTML = s.ok
     ? '<a href="/risebunny#hesabim" class="rb-dbtn" title="Hesabım"><img src="' + s.user.avatar + '" alt=""><span>' + s.user.username.replace(/[<>&"]/g, '') + (s.user.premium ? ' <span class="rb-premium-badge-inline">Premium</span>' : '') + '</span></a>'
     : '<a href="/api/auth/discord/start?next=' + encodeURIComponent(next) + '" class="rb-dbtn" title="Discord ile giriş"><i class="fa-brands fa-discord"></i><span data-i18n="tr">Discord</span><span data-i18n="en">Discord</span></a>';
-  // Forumda eski giriş butonu: oturum varsa gizle, yoksa Discord OAuth'a yönlendir
+
   if (document.getElementById('rb-nav-user')) {
     $all('a.rb-loginbtn').forEach(function (b) {
       if (s.ok) { b.style.display = 'none'; }
@@ -73,7 +55,7 @@ function paint() {
       }
     });
   }
-  // Dil butonlarını senkronize et
+
   syncLangBtns();
   try { window.dispatchEvent(new CustomEvent('rb-session', { detail: s })); } catch (e) {}
 }
@@ -87,7 +69,7 @@ function syncLangBtns() {
     if (isTr) b.classList.toggle('active', cur === 'tr');
     if (isEn) b.classList.toggle('active', cur === 'en');
   });
-  // Sadece iki dilli çift metinler (data-i18n="tr" ve data-i18n="en") için görünürlük ayarla
+
   $all('[data-i18n="tr"], [data-i18n="en"]').forEach(function (el) {
     if (el.dataset.i18n === cur) el.style.display = 'inline';
     else el.style.display = 'none';
@@ -96,35 +78,31 @@ function syncLangBtns() {
     if (el.dataset.i18nBlock === cur) el.style.display = 'block';
     else el.style.display = 'none';
   });
-  // data-tr ve data-en attribute kullanan sayfalar (risebunny.html, rubidium.html)
+
   $all('[data-tr]').forEach(function (el) {
     var val = el.getAttribute(cur === 'tr' ? 'data-tr' : 'data-en');
     if (val !== null) el.textContent = val;
   });
 }
 
-// Global dil değiştirici
 window.rbSetLang = function(l) {
   var cur = (l === 'en') ? 'en' : 'tr';
   try { localStorage.setItem('rb-lang', cur); } catch (e) {}
   syncLangBtns();
-  // app.js yüklüyse onun dil fonksiyonunu da çalıştır
+
   try { if (window.RB && typeof window.RB.setLang === 'function') window.RB.setLang(cur); } catch (e) {}
-  // Dil değişikliği event'i yayınla
+
   try { window.dispatchEvent(new CustomEvent('rb-lang-change', { detail: cur })); } catch (e) {}
   try { if (typeof route === 'function') route(); } catch (e) {}
-  var hero = document.getElementById('forum-hero');
-  if (hero) hero.style.display = (window.RBSession && window.RBSession.ok) ? 'none' : 'block';
 };
 
-/* Oturum: TEK kaynak RBLogin. Yüklenince boya + köprüyü ona bırak. */
 function __rbPaintFromSession() {
   try { paint(); } catch (e) {}
   try {
     var el = document.getElementById('bridge-state');
     if (el && window.RBLogin) {
       var d = window.RBLogin.durum();
-      if (d.cookie && !d.firebase) el.textContent = 'Discord hesabın bağlanıyor…';
+      if (d.cookie && !d.firebase) el.textContent = d.bridgeHata ? ('Bağlantı hatası (' + d.bridgeHata + ') — sayfayı yenile.') : 'Discord hesabın bağlanıyor…';
       else if (!d.cookie && !d.firebase) el.textContent = '';
     }
   } catch (e) {}

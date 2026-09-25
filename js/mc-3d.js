@@ -1,4 +1,3 @@
-/*! RiseBunny — 3D Minecraft Character Viewer (Three.js WebGL) */
 (function () {
   'use strict';
 
@@ -25,16 +24,14 @@
   }
 
   function createSteveSkinCanvas() {
-    // 64x64 canonical Minecraft player skin canvas
+
     var c = document.createElement('canvas');
     c.width = 64; c.height = 64;
     var ctx = c.getContext('2d');
 
-    // Fill with base skin tone
     ctx.fillStyle = '#c48a5c';
     ctx.fillRect(0, 0, 64, 64);
 
-    // Color definitions
     var HAIR = '#442d17';
     var HAIR_LIGHT = '#5c3e21';
     var SKIN = '#c48a5c';
@@ -49,95 +46,85 @@
     var PANTS_DARK = '#1f2b68';
     var SHOE = '#4a4a4a';
 
-    // 1. HEAD (0..31, 0..15)
-    // Head Top (8,0, 8x8)
     ctx.fillStyle = HAIR;
     ctx.fillRect(8, 0, 8, 8);
-    // Head Bottom (16,0, 8x8)
+
     ctx.fillStyle = SKIN;
     ctx.fillRect(16, 0, 8, 8);
-    // Head Right (0,8, 8x8)
+
     ctx.fillStyle = HAIR;
     ctx.fillRect(0, 8, 8, 8);
     ctx.fillStyle = SKIN;
     ctx.fillRect(0, 12, 8, 4);
-    // Head Front (8,8, 8x8)
+
     ctx.fillStyle = SKIN;
     ctx.fillRect(8, 8, 8, 8);
     ctx.fillStyle = HAIR;
-    ctx.fillRect(8, 8, 8, 3); // Hair fringe
+    ctx.fillRect(8, 8, 8, 3);
     ctx.fillRect(8, 11, 1, 1);
     ctx.fillRect(15, 11, 1, 1);
-    // Eyes
+
     ctx.fillStyle = EYE_WHITE;
     ctx.fillRect(9, 12, 2, 1);
     ctx.fillRect(13, 12, 2, 1);
     ctx.fillStyle = EYE_PUPIL;
     ctx.fillRect(10, 12, 1, 1);
     ctx.fillRect(13, 12, 1, 1);
-    // Nose
+
     ctx.fillStyle = NOSE;
     ctx.fillRect(11, 13, 2, 1);
-    // Mouth
+
     ctx.fillStyle = MOUTH;
     ctx.fillRect(10, 14, 4, 1);
 
-    // Head Left (16,8, 8x8)
     ctx.fillStyle = HAIR;
     ctx.fillRect(16, 8, 8, 8);
     ctx.fillStyle = SKIN;
     ctx.fillRect(16, 12, 8, 4);
-    // Head Back (24,8, 8x8)
+
     ctx.fillStyle = HAIR;
     ctx.fillRect(24, 8, 8, 8);
 
-    // 2. BODY / TORSO (16..39, 16..31)
-    // Torso Top (20,16, 8x4)
     ctx.fillStyle = SHIRT;
     ctx.fillRect(20, 16, 8, 4);
-    // Torso Bottom (28,16, 8x4)
+
     ctx.fillStyle = SHIRT;
     ctx.fillRect(28, 16, 8, 4);
-    // Torso Front (20,20, 8x12)
+
     ctx.fillStyle = SHIRT;
     ctx.fillRect(20, 20, 8, 12);
-    // Neck skin opening
+
     ctx.fillStyle = SKIN;
     ctx.fillRect(23, 20, 2, 3);
-    // Torso Back (32,20, 8x12)
+
     ctx.fillStyle = SHIRT_DARK;
     ctx.fillRect(32, 20, 8, 12);
-    // Torso Sides (16,20, 4x12) & (28,20, 4x12)
+
     ctx.fillStyle = SHIRT;
     ctx.fillRect(16, 20, 4, 12);
     ctx.fillRect(28, 20, 4, 12);
 
-    // 3. RIGHT ARM (40..55, 16..31)
-    // Shoulder Top (44,16, 4x4)
     ctx.fillStyle = SHIRT;
     ctx.fillRect(44, 16, 4, 4);
-    // Arm sleeve & skin
+
     ctx.fillStyle = SHIRT;
-    ctx.fillRect(40, 20, 16, 4); // Sleeve
+    ctx.fillRect(40, 20, 16, 4);
     ctx.fillStyle = SKIN;
-    ctx.fillRect(40, 24, 16, 8); // Arm / hand
+    ctx.fillRect(40, 24, 16, 8);
     ctx.fillStyle = SKIN_SHADOW;
     ctx.fillRect(44, 28, 4, 4);
 
-    // 4. LEFT ARM (32..47, 48..63)
     ctx.fillStyle = SHIRT;
     ctx.fillRect(36, 48, 4, 4);
     ctx.fillRect(32, 52, 16, 4);
     ctx.fillStyle = SKIN;
     ctx.fillRect(32, 56, 16, 8);
 
-    // 5. RIGHT LEG (0..15, 16..31)
     ctx.fillStyle = PANTS;
     ctx.fillRect(0, 16, 16, 12);
     ctx.fillStyle = SHOE;
     ctx.fillRect(0, 28, 16, 4);
 
-    // 6. LEFT LEG (16..31, 48..63)
     ctx.fillStyle = PANTS_DARK;
     ctx.fillRect(16, 48, 16, 12);
     ctx.fillStyle = SHOE;
@@ -147,11 +134,10 @@
   }
 
   function makeCube(tex, u, v, w, h, d) {
-    // Builds a box geometry with correct Minecraft UV texture mapping
+
     var geom = new THREE.BoxGeometry(w, h, d);
     var uvs = geom.attributes.uv;
 
-    // Canvas size 64x64
     var cw = 64, ch = 64;
 
     function setFaceUV(faceIdx, x, y, fw, fh) {
@@ -167,13 +153,12 @@
       uvs.setXY(base + 3, u1, v0);
     }
 
-    // Box faces: Right(0), Left(1), Top(2), Bottom(3), Front(4), Back(5)
-    setFaceUV(0, u, v + d, d, h);              // Right
-    setFaceUV(1, u + d + w, v + d, d, h);      // Left
-    setFaceUV(2, u + d, v, w, d);              // Top
-    setFaceUV(3, u + d + w, v, w, d);          // Bottom
-    setFaceUV(4, u + d, v + d, w, h);          // Front
-    setFaceUV(5, u + d * 2 + w, v + d, w, h);  // Back
+    setFaceUV(0, u, v + d, d, h);
+    setFaceUV(1, u + d + w, v + d, d, h);
+    setFaceUV(2, u + d, v, w, d);
+    setFaceUV(3, u + d + w, v, w, d);
+    setFaceUV(4, u + d, v + d, w, h);
+    setFaceUV(5, u + d * 2 + w, v + d, w, h);
 
     geom.attributes.uv.needsUpdate = true;
 
@@ -199,7 +184,6 @@
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
-    // Lighting for 3D depth
     var ambLight = new THREE.AmbientLight(0xffffff, 0.75);
     scene.add(ambLight);
 
@@ -211,67 +195,57 @@
     dirLight2.position.set(-15, -10, -10);
     scene.add(dirLight2);
 
-    // Create Skin Texture
     var skinCanvas = createSteveSkinCanvas();
     var skinTexture = new THREE.CanvasTexture(skinCanvas);
     skinTexture.magFilter = THREE.NearestFilter;
     skinTexture.minFilter = THREE.NearestFilter;
     skinTexture.generateMipmaps = false;
 
-    // Character Group
     var charGroup = new THREE.Group();
     scene.add(charGroup);
 
-    // 1. Head (8x8x8)
     var headMesh = makeCube(skinTexture, 0, 0, 8, 8, 8);
-    headMesh.position.set(0, 4, 0); // local to headGroup
+    headMesh.position.set(0, 4, 0);
     var headGroup = new THREE.Group();
-    headGroup.position.set(0, 10, 0); // pivot at neck
+    headGroup.position.set(0, 10, 0);
     headGroup.add(headMesh);
     charGroup.add(headGroup);
 
-    // 2. Torso (8x12x4)
     var torsoMesh = makeCube(skinTexture, 16, 16, 8, 12, 4);
     torsoMesh.position.set(0, 4, 0);
     charGroup.add(torsoMesh);
 
-    // 3. Right Arm (4x12x4)
     var rArmMesh = makeCube(skinTexture, 40, 16, 4, 12, 4);
     rArmMesh.position.set(0, -4, 0);
     var rArmGroup = new THREE.Group();
-    rArmGroup.position.set(-6, 8, 0); // pivot at shoulder
+    rArmGroup.position.set(-6, 8, 0);
     rArmGroup.add(rArmMesh);
     charGroup.add(rArmGroup);
 
-    // 4. Left Arm (4x12x4)
     var lArmMesh = makeCube(skinTexture, 32, 48, 4, 12, 4);
     lArmMesh.position.set(0, -4, 0);
     var lArmGroup = new THREE.Group();
-    lArmGroup.position.set(6, 8, 0); // pivot at shoulder
+    lArmGroup.position.set(6, 8, 0);
     lArmGroup.add(lArmMesh);
     charGroup.add(lArmGroup);
 
-    // 5. Right Leg (4x12x4)
     var rLegMesh = makeCube(skinTexture, 0, 16, 4, 12, 4);
     rLegMesh.position.set(0, -6, 0);
     var rLegGroup = new THREE.Group();
-    rLegGroup.position.set(-2, -2, 0); // pivot at hip
+    rLegGroup.position.set(-2, -2, 0);
     rLegGroup.add(rLegMesh);
     charGroup.add(rLegGroup);
 
-    // 6. Left Leg (4x12x4)
     var lLegMesh = makeCube(skinTexture, 16, 48, 4, 12, 4);
     lLegMesh.position.set(0, -6, 0);
     var lLegGroup = new THREE.Group();
-    lLegGroup.position.set(2, -2, 0); // pivot at hip
+    lLegGroup.position.set(2, -2, 0);
     lLegGroup.add(lLegMesh);
     charGroup.add(lLegGroup);
 
-    // Initial pose (isometric angle)
     charGroup.rotation.y = 0.42;
     charGroup.position.y = -2;
 
-    // Mouse Tracking for dynamic 3D reaction
     var mouseX = 0, mouseY = 0;
     var targetRotY = 0.42, targetRotX = 0;
     var isHovered = false;
@@ -298,7 +272,6 @@
       }
     }, { passive: true });
 
-    // Fun click interaction: 360 spin
     canvas.addEventListener('click', function () {
       var start = performance.now();
       var initY = charGroup.rotation.y;
@@ -314,24 +287,20 @@
       requestAnimationFrame(spin);
     });
 
-    // Animation loop
     var clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
       var t = clock.getElapsedTime();
 
-      // Smooth camera / body rotation towards mouse
       charGroup.rotation.y += (targetRotY - charGroup.rotation.y) * 0.08;
       charGroup.rotation.x += (targetRotX - charGroup.rotation.x) * 0.08;
 
-      // Natural idle breathing & arm swing
       var swing = Math.sin(t * 2.4) * 0.22;
       rArmGroup.rotation.x = swing;
       lArmGroup.rotation.x = -swing;
       rLegGroup.rotation.x = -swing * 0.7;
       lLegGroup.rotation.x = swing * 0.7;
 
-      // Gentle floating / breathing
       charGroup.position.y = -2 + Math.sin(t * 1.8) * 0.4;
       headGroup.rotation.y = Math.sin(t * 1.4) * 0.08;
 
@@ -339,7 +308,6 @@
     }
     animate();
 
-    // Resize handling
     window.addEventListener('resize', function () {
       var w = canvas.clientWidth || 140;
       var h = canvas.clientHeight || 180;

@@ -1,4 +1,3 @@
-/*! RiseBunny 3D v6 — ONLY Steve + Discord badge. Scroll drives the animation. (classic build) */
 (function () {
 'use strict';
 var canvas = document.getElementById('bg3d');
@@ -35,7 +34,6 @@ var key = new THREE.DirectionalLight(0xffffff, 1.35); key.position.set(6, 10, 6)
 var rim = new THREE.DirectionalLight(0x8b5cf6, 0.9); rim.position.set(-7, 4, -20); scene.add(rim);
 var warm = new THREE.PointLight(0xffb02e, 1.1, 60); warm.position.set(0, 4, -30); scene.add(warm);
 
-/* ── helpers ── */
 function setLive(txt, ok) {
   var el = document.getElementById('live-dot');
   if (el) { el.textContent = txt; el.classList.toggle('off', !ok); }
@@ -54,14 +52,12 @@ function pts(n, fn, size, op) {
   return new THREE.Points(g, new THREE.PointsMaterial({ size: size, vertexColors: true, transparent: true, opacity: op, blending: THREE.AdditiveBlending, depthWrite: false }));
 }
 
-/* ── subtle dust ── */
 var dust = pts(700, function (i, c) {
   c.set(i % 3 ? 0x8b5cf6 : 0xffffff).multiplyScalar(0.35 + Math.random() * 0.5);
   return [(Math.random()-0.5)*70, (Math.random()-0.5)*36, 14 - Math.random()*90];
 }, 0.13, 0.8);
 scene.add(dust);
 
-/* ═══ STEVE ISLAND (z = -30) ═══ */
 var island = new THREE.Group();
 island.position.set(0, 0, -30);
 var ground = new THREE.Mesh(new THREE.CylinderGeometry(7.5, 6.2, 1.6, 9),
@@ -84,7 +80,6 @@ for (var fi = 0; fi < 7; fi++) {
 scene.add(island);
 var floaters = island.children.filter(function (o) { return o.userData && o.userData.y0 !== undefined; });
 
-/* ── Steve ── */
 var steve = new THREE.Group();
 steve.position.set(0, -0.9, 0);
 island.add(steve);
@@ -124,7 +119,6 @@ function buildFallbackSteve() {
   g.add(head, torso);
   return g;
 }
-/* kılıç yok — saldırı animasyonu kaldırıldı */
 
 function loadGLB(urls, done) {
   if (!window.THREE || !THREE.GLTFLoader) { done(new Error('no loader')); return; }
@@ -165,7 +159,6 @@ loadGLB(STEVE_URLS, function (err, gltf) {
   }
 });
 
-/* ═══ DISCORD BADGE 3D (z = -52) ═══ */
 function discordTexture() {
   var cv = document.createElement('canvas'); cv.width = 512; cv.height = 512;
   var x = cv.getContext('2d');
@@ -184,7 +177,7 @@ function discordTexture() {
   x.textAlign = 'center'; x.textBaseline = 'middle';
   x.font = '400px "Font Awesome 6 Brands", "FontAwesome", sans-serif';
   x.fillText('', 256, 276);
-  /* fallback: glyph yoksa basit yüz çiz */
+
   try {
     var w = x.measureText('').width;
     if (!w || w < 10) throw 0;
@@ -216,7 +209,6 @@ var badgeHalo = new THREE.Mesh(new THREE.PlaneGeometry(9, 9),
 badgeHalo.position.copy(badge.position); badgeHalo.position.z -= 0.6;
 scene.add(badgeHalo);
 
-/* ── scroll ── */
 var progressBar = document.getElementById('progress-bar');
 var fxCA = document.getElementById('fx-ca');
 function scrollP() {
@@ -250,7 +242,7 @@ function journey(p) {
   camera.position.z = lerp(A.z, B.z, k);
   camera.position.y = lerp(A.y, B.y, k);
   camera.position.x = Math.sin(p * Math.PI * 2) * 0.5;
-  /* bot bölgesinde bakış rozete kayar */
+
   var bp = zoneProg('botcore', 0.9);
   var lookX = lerp(0, 3.4, bp);
   var lookY = lerp(0.6, 1.2, bp);
@@ -275,16 +267,16 @@ function animate() {
   vel = vel * 0.9 + Math.abs(dy) * 0.1;
   lastY = y;
 
-  var ap = zoneProg('arena', 0.85);   /* Steve'e yakınlık */
-  var bp = zoneProg('botcore', 0.9);  /* rozete yakınlık */
+  var ap = zoneProg('arena', 0.85);
+
+  var bp = zoneProg('botcore', 0.9);
 
   if (fxCA) fxCA.style.opacity = Math.min(1, vel / 46).toFixed(2);
   journey(p);
 
-  /* ── STEVE: faz kaydırdıkça ilerler ── */
   walkPhase += (dt * (0.25 + ap * 2.4) + Math.abs(dy) * 0.012) * spd;
   var w = Math.sin(walkPhase * 4.2);
-  /* site aşağı kaydıkça Steve tam 360° döner */
+
   steve.position.y = -0.9 + Math.abs(Math.sin(walkPhase * 2.1)) * 0.3 * (0.25 + ap);
   steve.rotation.y = p * Math.PI * 2 + Math.sin(walkPhase * 0.7) * 0.08;
   if (steveModel) {
@@ -303,8 +295,6 @@ function animate() {
     f.position.y = f.userData.y0 + Math.sin(time * 0.9 + f.userData.ph) * 0.5;
   }
 
-  /* ── DISCORD ROZETİ ── */
-  /* rozet: scroll boyunca toplam 3600° (10 tur) + hafif zaman dönüşü */
   badge.rotation.y = p * Math.PI * 20 + time * 0.25 * spd;
   badge.rotation.x = Math.sin(time * 0.6) * 0.12;
   badge.position.y = 1.6 + Math.sin(time * 1.1) * 0.45;
