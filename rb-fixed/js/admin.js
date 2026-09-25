@@ -16,23 +16,20 @@
     if (u.uid && __adminCache[u.uid] === true) return true;
     return false;
   }
-  function verifyAdmin(u) {
-    var id = u && (u.uid || u.id);
-    if (!id) return Promise.resolve(false);
-    if (__adminCache[id] === true) return Promise.resolve(true);
-    return fetch('/api/check-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uid: u.uid || '', discordId: u.uid || '' }) })
+  function verifyAdmin(fbUid, discordId) {
+    var key = fbUid || discordId || '';
+    if (!key) return Promise.resolve(false);
+    if (__adminCache[key] === true) return Promise.resolve(true);
+    return fetch('/api/check-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uid: fbUid || '', discordId: discordId || '' }) })
       .then(function (r) { return r.json(); }).then(function (j) {
         var ok = !!(j && j.isAdmin);
-        __adminCache[id] = ok;
+        __adminCache[key] = ok;
         if (ok) window.__RB_ADMIN = true;
         return ok;
       }).catch(function () { return window.__RB_ADMIN === true; });
   }
   window.__rbAdminCheck = isAdminUser;
-  var db = null, auth = null, fconf = window.firebaseConfig || null;
-  if (window.firebase && fconf && fconf.projectId) { try { if (!firebase.apps.length) firebase.initializeApp(fconf); auth = firebase.auth(); db = firebase.firestore(); } catch (e) { db = null; } }
-  if (!db || !auth) { show404(); return; }
-
+  var db = null, auth = null;
   var MAX_ATTEMPTS = 3;
   var TOKEN_TTL = 5 * 60 * 1000;
   var viaDiscord = /[?&]login=ok/.test(location.search);
@@ -41,67 +38,70 @@
     hasToken = sessionStorage.getItem('rb_admin_token') === '1' &&
       (Date.now() - (parseInt(sessionStorage.getItem('rb_admin_time') || '0', 10) || 0)) < TOKEN_TTL;
   } catch (e) { hasToken = false; }
-  if (!hasToken && !viaDiscord) { show404(); return; }
-  sessionStorage.removeItem('rb_admin_token');
-  sessionStorage.removeItem('rb_admin_time');
-  var DEVICE_ID = getDeviceId();
-  var config = {}, products = [], faqs = [], features = [], translations = { en: {}, tr: {} }, banner = {}, messages = [], logs = [], currentIconInput = null;
-  function logAction(a, d) { db.collection('activity').add({ action: a, detail: d || '', createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function () {}); }
-  function failAttempt(email) {
-    var s = getSec(); s.attempts = (s.attempts || 0) + 1;
-    if (s.attempts >= MAX_ATTEMPTS) {
-      s.banned = true; setSec(s);
-      sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time');
-      db.collection('bans').doc(DEVICE_ID).set({ email: email || 'bilinmiyor', deviceId: DEVICE_ID, attempts: s.attempts, banned: true, createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(function () {});
-      showLogin(); toast('Çok fazla başarısız deneme! Cihaz kısıtlandı.', 'error'); updateAttemptsHint(); return;
-    }
-    setSec(s); toast('Hatalı giriş! Kalan deneme: ' + (MAX_ATTEMPTS - s.attempts), 'error'); updateAttemptsHint();
+  function durum(m) {
+    try {
+      var el = document.getElementById('bridge-state');
+      if (el) el.textContent = m;
+    } catch (e) {}
   }
   function updateAttemptsHint() {
     var h = document.getElementById('login-attempts');
     if (!h) return;
     var s = getSec();
     var left = Math.max(0, MAX_ATTEMPTS - (s.attempts || 0));
-    h.textContent = s.banned ? 'Bu cihaz kısıtlandı.' : ('Kalan deneme hakkı: ' + left + ' / ' + MAX_ATTEMPTS);
+    h.textContent = s.banned ? 'Bu cihaz kisitlandi.' : ('Kalan deneme hakki: ' + left + ' / ' + MAX_ATTEMPTS);
   }
-  function showLogin() { var a = $('#auth-screen'); if (a) a.hidden = false; var p = $('#panel'); if (p) p.hidden = true; updateAttemptsHint(); }
-  function showPanel() { var a = $('#auth-screen'); if (a) a.hidden = true; var p = $('#panel'); if (p) p.hidden = false; loadAll(); }
-  function boot() {
-    auth.onAuthStateChanged(function (user) {
-      if (user) {
-        verifyAdmin(user).then(function (ok) {
-          if (!ok) {
-            try { auth.signOut(); } catch (e) {}
-            try { history.replaceState(null, '', 'admin.html'); } catch (e2) {}
-            show404();
-          }
-        });
-      }
-      if (user && window.__RB_ADMIN !== true && !isAdminUser(user)) {
-        auth.signOut();
-        try { history.replaceState(null, '', 'admin.html'); } catch (e) {}
-        show404();
-        return;
-      }
-      if (!user) { showLogin(); return; }
-      try { history.replaceState(null, '', 'admin.html'); } catch (e2) {}
-      sessionStorage.setItem('rb_admin_token', '1');
-      sessionStorage.setItem('rb_admin_time', String(Date.now()));
-      var e = $('#user-email'); if (e) e.textContent = user.email || '';
-      showPanel();
+  function showLogin(msg) {
+    var a = $('#auth-screen'); if (a) a.hidden = false;
+    var p = $('#panel'); if (p) p.hidden = true;
+    if (msg) durum(msg);
+    updateAttemptsHint();
+  }
+  function showPanel() {
+    var a = $('#auth-screen'); if (a) a.hidden = true;
+    var p = $('#panel'); if (p) p.hidden = false;
+    loadAll();
+  }
+  function ensureFirebase() {
+    function ready() {
+      try {
+        if (!window.firebase || !window.firebase.auth) return false;
+        var cfg = window.firebaseConfig;
+        if (!cfg || !cfg.projectId) return false;
+        if (!firebase.apps.length) firebase.initializeApp(cfg);
+        auth = firebase.auth();
+        db = firebase.firestore();
+        return !!(auth && db);
+      } catch (e) { return false; }
+    }
+    if (ready()) return Promise.resolve(true);
+    return fetch('/api/firebase-config', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.projectId) window.firebaseConfig = j;
+      if (!ready()) throw 0;
+      return true;
     });
-    var lf = $('#login-form');
-    if (lf) lf.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var email = $('#login-email').value.trim().toLowerCase();
-      auth.signInWithEmailAndPassword(email, $('#login-pass').value).then(function (r) {
-        if (!isAdminUser(r.user)) { auth.signOut(); failAttempt(email); return; }
-        setSec({ attempts: 0, banned: false });
-        toast('Giriş başarılı', 'success'); logAction('login', 'Admin giriş yaptı');
-      }).catch(function () { failAttempt(email); });
+  }
+  function bekleAuth(ms) {
+    return new Promise(function (res) {
+      var done = false;
+      function bitir(u) { if (!done) { done = true; res(u || null); } }
+      try {
+        var u0 = null;
+        try { u0 = auth.currentUser; } catch (e) {}
+        if (u0) { bitir(u0); return; }
+        var un = auth.onAuthStateChanged(function (u) { try { un(); } catch (e) {} bitir(u); });
+      } catch (e) { bitir(null); return; }
+      setTimeout(function () { bitir(null); }, ms || 20000);
     });
+  }
+  function bindChrome() {
+    if (bindChrome.done) return;
+    bindChrome.done = true;
     var lo = $('#btn-logout');
-    if (lo) lo.addEventListener('click', function () { sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time'); auth.signOut().then(function () { window.location.replace('index.html'); }); });
+    if (lo) lo.addEventListener('click', function () {
+      try { sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time'); } catch (e) {}
+      try { auth.signOut().then(function () { window.location.replace('index.html'); }); } catch (e2) { window.location.replace('index.html'); }
+    });
     $$('.tab').forEach(function (btn) {
       btn.addEventListener('click', function () {
         $$('.tab').forEach(function (x) { x.classList.remove('active'); });
@@ -121,14 +121,74 @@
     });
     var rb = $('#btn-refresh-bans'); if (rb) rb.addEventListener('click', loadBans);
     var rm = $('#btn-refresh-messages'); if (rm) rm.addEventListener('click', loadMessages);
+    try {
+      auth.onAuthStateChanged(function (u) {
+        if (!u && !$('#panel').hidden) showLogin('Oturum kapandi. Devam etmek icin Discord ile giris yap.');
+      });
+    } catch (e) {}
   }
-
-  var hasEntryPass = hasToken || viaDiscord;
-  db.collection('bans').doc(DEVICE_ID).get().then(function (snap) {
-    if (snap.exists && !hasEntryPass) { show404(); return; }
-    if (getSec().banned) setSec({ attempts: 0, banned: false });
-    boot();
-  }).catch(function () { if (getSec().banned && !hasEntryPass) { show404(); return; } boot(); });
+  async function start() {
+    bindChrome();
+    if (!hasToken && !viaDiscord) { show404(); return; }
+    try { sessionStorage.removeItem('rb_admin_token'); sessionStorage.removeItem('rb_admin_time'); } catch (e) {}
+    durum('Altyapi hazirlaniyor...');
+    try { await ensureFirebase(); }
+    catch (e) { showLogin('Firebase baglanamadi. Sayfayi yenile.'); return; }
+    var DEVICE_ID = getDeviceId();
+    try {
+      var banSnap = await db.collection('bans').doc(DEVICE_ID).get().catch(function () { return null; });
+      if (banSnap && banSnap.exists && !hasToken && !viaDiscord) { show404(); return; }
+    } catch (e) {}
+    durum('Discord oturumu kontrol ediliyor...');
+    var cookie = null;
+    try {
+      if (window.RBLogin) await window.RBLogin.init().catch(function () {});
+      var mm = await fetch('/api/me', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).catch(function () { return null; });
+      if (mm && mm.ok) cookie = mm;
+    } catch (e) {}
+    if (viaDiscord && !cookie) {
+      showLogin('Giris kaydedilemedi: oturum cerezi yazilmamis. Gizli sekme veya reklam engelleyiciyi kapatip tekrar dene.');
+      return;
+    }
+    if (!cookie) { showLogin('Devam etmek icin Discord ile giris yap.'); return; }
+    durum('Firebase koprusu kuruluyor, bekle...');
+    var user = null;
+    try {
+      if (window.RBLogin) {
+        for (var i = 0; i < 8 && !user; i++) {
+          try { await window.RBLogin.kopru().catch(function () {}); } catch (e) {}
+          try { user = auth.currentUser; } catch (e) {}
+          if (!user) await new Promise(function (r) { setTimeout(r, 1500); });
+        }
+      }
+      if (!user) user = await bekleAuth(8000);
+    } catch (e) {}
+    if (!user) {
+      var hata = '';
+      try { hata = window.RBLogin ? (window.RBLogin.durum().bridgeHata || '') : ''; } catch (e) {}
+      showLogin('Firebase koprusu kurulamadi' + (hata ? ' (' + hata + ')' : '') + '. Sayfayi yenile ya da cikis yapip Discord ile tekrar gir.');
+      return;
+    }
+    durum('Yetki dogrulaniyor...');
+    var discId = (cookie && cookie.user && cookie.user.id) || '';
+    var ok = await verifyAdmin(user.uid, discId);
+    if (!ok) {
+      try { await auth.signOut().catch(function () {}); } catch (e) {}
+      try { history.replaceState(null, '', 'admin.html'); } catch (e2) {}
+      show404();
+      return;
+    }
+    try { history.replaceState(null, '', 'admin.html'); } catch (e2) {}
+    try {
+      sessionStorage.setItem('rb_admin_token', '1');
+      sessionStorage.setItem('rb_admin_time', String(Date.now()));
+    } catch (e) {}
+    var em = document.getElementById('user-email');
+    if (em) em.textContent = user.email || '';
+    showPanel();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
   function loadAll() {
     Promise.all([
       db.collection('config').doc('site').get().catch(function () { return null; }),
@@ -352,36 +412,52 @@
     db.collection('translations').doc('site').set(translations).then(function () { toast('Çeviriler kaydedildi', 'success'); logAction('update_translations', 'Çeviriler güncellendi'); }).catch(function (e) { toast('Hata: ' + e.message, 'error'); });
   });
 
-  window.yanitVer = async function (mid) {
+      window.yanitVer = async function (mid) {
     try {
       const doc = await db.collection('messages').doc(mid).get();
-      if (!doc.exists) return toast('Mesaj bulunamadı.', 'error');
+      if (!doc.exists) return toast('Mesaj bulunamadi.', 'error');
       const m = doc.data() || {};
-      const metin = prompt('Yanıtın (' + (m.discordName || m.name || '?') + '):', m.yanit || '');
-      if (!metin || !metin.trim()) return;
+      var hedef = m.discordId ? String(m.discordId) : '';
+      if (!hedef) {
+        try {
+          var ada = m.discordName || m.name || '';
+          if (ada) {
+            var qs = await db.collection('users').where('username', '==', String(ada)).limit(1).get().catch(function () { return null; });
+            if (qs) qs.forEach(function (d) {
+              var dd = d.data() || {};
+              if (dd.discordId) hedef = String(dd.discordId);
+            });
+          }
+        } catch (e) {}
+      }
       const kim = (function () { try { return (auth.currentUser && auth.currentUser.email) || '?'; } catch (e) { return '?'; } })();
+      const metin = prompt('Bot DM ile yanit -> ' + (m.discordName || m.name || '?') + (hedef ? ' (' + hedef + ')' : ' (ID YOK)'), m.yanit || '');
+      if (!metin || !metin.trim()) return;
       await db.collection('messages').doc(mid).update({
         yanit: metin.trim().slice(0, 1000),
         yanitAt: Date.now(),
         yanitlayan: String(kim).slice(0, 120)
       });
-      toast('Yanıt kaydedildi, DM gönderiliyor…', 'info');
-
-      const dil = m.lang === 'en' ? 'en' : 'tr';
-      const baslik = dil === 'en' ? '💬 You have a reply to your message' : '💬 Mesajınıza yanıt geldi';
-      const govde = (dil === 'en' ? 'Subject: ' : 'Konu: ') + (m.subject || '-') + '\n\n' + metin.trim().slice(0, 400);
-      if (m.discordId) {
+      toast('Yanit kaydedildi, bot DM gonderiyor...', 'info');
+      var dil = m.lang === 'en' ? 'en' : 'tr';
+      var baslik = dil === 'en' ? 'You have a reply to your message' : 'Mesajiniza yanit geldi';
+      var govde = (dil === 'en' ? 'Subject: ' : 'Konu: ') + (m.subject || '-') + '  ' + metin.trim().slice(0, 400);
+      if (!hedef) {
+        toast('Yanit kaydedildi. DM gonderilemedi: kullanici Discord ID bulunamadi.', 'error');
+      } else {
         try {
-          await fetch('/api/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userIds: [String(m.discordId)], title: baslik, text: govde, url: 'index.html#iletisim' }) });
-        } catch (e) {}
+          var nr = await fetch('/api/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userIds: [hedef], title: baslik, text: govde, url: 'index.html#iletisim', kind: 'admin-reply', from: String(kim).slice(0, 120) }) }).then(function (r) { return r.json(); }).catch(function () { return null; });
+          if (nr && nr.ok && nr.delivered !== false) toast('Bot DM gonderdi: ' + hedef, 'success');
+          else toast('Yanit kaydedildi. Bot DM ulastiramadi: bot cevrimdisi olabilir.', 'error');
+        } catch (e) { toast('Yanit kaydedildi. DM gonderilemedi.', 'error'); }
       }
-      toast('✅ Yanıt verildi + DM gönderildi.', 'success');
       logAction('mesaj-yanit', mid);
       loadMessages();
     } catch (e) { toast('Hata: ' + (e.message || e), 'error'); }
   };
-  function loadMessages() {
+
+function loadMessages() {
     var l = $('#messages-list'); if (!l) return;
     l.innerHTML = '<div class="msg-empty">Yükleniyor...</div>';
     db.collection('messages').orderBy('createdAt', 'desc').limit(100).get().then(function (snap) {
@@ -654,7 +730,13 @@
     }
 
     function forumDelete(uid, username) {
-      if (window.__RB_ADMIN === true && false) { toast('Admin hesapları silinemez.', 'error'); return; }
+      db.collection('users').doc(uid).get().then(function (s) {
+        if (s && s.exists && (s.data() || {}).role === 'kurucu') { toast('Kurucu hesaplari silinemez.', 'error'); return; }
+        forumDeleteOnay(uid, username);
+      }).catch(function () { forumDeleteOnay(uid, username); });
+      return;
+    }
+    function forumDeleteOnay(uid, username) {
       if (!confirm('"' + username + '" hesabının TÜM forum verileri silinecek. Emin misiniz?')) return;
       if (!confirm('SON UYARI: Geri alınamaz! Devam edilsin mi?')) return;
 
