@@ -1,8 +1,6 @@
 import { botBase, botHeaders } from '../../../lib/_session.js';
 import { readJson, originalPath, FB_KEY, PROJECT } from '../../../lib/_helpers.js';
 
-const FB_PROJECT = PROJECT || "gen-lang-client-0590499912";
-
 function randCode(len = 8) {
   const abc = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   let s = "";
@@ -11,7 +9,7 @@ function randCode(len = 8) {
 }
 
 const configDocUrl = (id) =>
-  `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents/launcher_configs/${id}?key=${FB_KEY}`;
+  `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/launcher_configs/${id}?key=${FB_KEY}`;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,7 +24,7 @@ export default async function handler(req, res) {
   if (op.endsWith('/configs') && req.method === 'GET') {
     try {
       const r = await fetch(
-        `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents/launcher_configs?key=${FB_KEY}&orderBy=createdAt desc&pageSize=50`,
+        `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/launcher_configs?key=${FB_KEY}&orderBy=createdAt desc&pageSize=50`,
         { headers: { Referer: process.env.SITE_URL ? `${process.env.SITE_URL.replace(/\/+$/, '')}/` : 'https://risebunny.vercel.app/' } }
       );
       if (!r.ok) return res.status(500).json({ ok: false, error: 'configler alınamadı' });
@@ -153,7 +151,7 @@ export default async function handler(req, res) {
 
     try {
       const r = await fetch(
-        `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents/messages?key=${FB_KEY}`,
+        `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/messages?key=${FB_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -172,7 +170,9 @@ export default async function handler(req, res) {
         });
 
       if (!r.ok) {
-        return res.status(500).json({ ok: false, error: 'mesaj kaydedilemedi' });
+        const errText = await r.text().catch(() => '');
+        console.error('[contact] firestore error:', r.status, errText);
+        return res.status(500).json({ ok: false, error: 'mesaj kaydedilemedi: ' + errText });
       }
 
       if (bBase && process.env.BOT_API_SECRET) {
@@ -187,8 +187,8 @@ export default async function handler(req, res) {
 
       return res.json({ ok: true });
     } catch (e) {
-      console.error('[contact] hata:', e.message);
-      return res.status(500).json({ ok: false, error: 'exception' });
+      console.error('[contact] hata:', e.message, e.stack);
+      return res.status(500).json({ ok: false, error: 'exception: ' + e.message });
     }
   }
 
