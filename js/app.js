@@ -300,13 +300,14 @@ if (form) form.addEventListener('submit', function (e) {
     body: JSON.stringify(payload)
   }).then(function (r) {
     if (r.status === 401) { toast(t('form_login'), 'error'); conLoginDurumu(); throw new Error('login'); }
-    if (!r.ok) throw new Error('contact failed');
+    if (!r.ok) return r.json().catch(function () { return null; }).then(function (j) { throw new Error((j && j.error) || ('HTTP ' + r.status)); });
     try { localStorage.setItem('rb_con_last', String(Date.now())); } catch (e2) {}
     toast(t('form_success'), 'success');
     form.reset();
   }).catch(function (err) {
     if (err && err.message === 'login') return;
-    toast(LANG === 'tr' ? 'Mesaj gönderilemedi.' : 'Message could not be sent.', 'error');
+    var detay = (err && err.message) ? (': ' + err.message) : '';
+    toast((LANG === 'tr' ? 'Mesaj gönderilemedi.' : 'Message could not be sent.') + detay, 'error');
   }).finally(function () {
     btn.disabled = !(window.RBSession && window.RBSession.ok);
     btn.innerHTML = esc(t('btn_send')) + ' <i class="fa-solid fa-arrow-right"></i>';
