@@ -1,4 +1,4 @@
-import { botBase, botHeaders } from '../../../lib/_session.js';
+import { botBase, botHeaders, getSession } from '../../../lib/_session.js';
 import { readJson, originalPath, FB_KEY, PROJECT } from '../../../lib/_helpers.js';
 
 function randCode(len = 8) {
@@ -135,9 +135,13 @@ export default async function handler(req, res) {
   }
 
   if (op.endsWith('/contact') && req.method === 'POST') {
+    /* Discord-only iletişim: kimlik cookie oturumundan gelir;
+       gövdeden gelen discordId/username YOK SAYILIR (sahteciliğe kapalı). */
+    const s = getSession(req);
+    if (!s) return res.status(401).json({ ok: false, error: 'Önce Discord ile giriş yapmalısın.' });
     const body = await readJson(req);
-    const discordId = String(body.discordId || '').replace(/\D/g, '').slice(0, 20);
-    const username = String(body.username || '').slice(0, 60);
+    const discordId = String(s.id || '').replace(/\D/g, '').slice(0, 20);
+    const username = String(s.username || body.username || '').slice(0, 60);
     const subject = String(body.subject || '').slice(0, 120);
     const message = String(body.message || '').slice(0, 2000);
     const lang = body.lang === 'en' ? 'en' : 'tr';
@@ -176,17 +180,30 @@ export default async function handler(req, res) {
         return res.status(500).json({ ok: false, error: 'mesaj kaydedilemedi: ' + errText });
       }
 
+      /* Bot'a iletim: sahip log + kullanıcıya DM. Bot cevabı LOG'LANIR;
+         hata olsa bile mesaj Firestore'a kaydedildiği için ok dönüyoruz,
+         ancak botLog sonucunu yanıta ekliyoruz (diagnostik için). */
+      let botLog = 'skipped';
       if (bBase && process.env.BOT_API_SECRET) {
         try {
-          await fetch(`${bBase}/api/contact`, {
+          const br = await fetch(`${bBase}/api/contact`, {
             method: 'POST',
             headers: { ...botHeaders(), 'Content-Type': 'application/json' },
             body: JSON.stringify({ discordId, username, subject, message, lang })
           });
-        } catch {}
+          const bt = await br.text().catch(() => '');
+          botLog = br.ok ? 'sent' : `http-${br.status}: ${bt.slice(0, 200)}`;
+          console.log('[contact] bot relay:', botLog);
+        } catch (e) {
+          botLog = 'error: ' + (e && e.message);
+          console.error('[contact] bot relay error:', botLog);
+        }
+      } else {
+        botLog = 'no-bot-config';
+        console.warn('[contact] bot relay skipped: BOT_API_URL/SECRET tanımsız');
       }
 
-      return res.json({ ok: true });
+      return res.json({ ok: true, botLog });
     } catch (e) {
       console.error('[contact] hata:', e.message, e.stack);
       return res.status(500).json({ ok: false, error: 'exception: ' + e.message });

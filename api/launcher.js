@@ -139,11 +139,127 @@ export default async function handler(req, res) {
       } catch (e) { console.error('[launcher] login notify err:', e.message); }
     }
 
+    /* Loader bileti için kısa ömürlü erişim jetonu: HMAC(userId:expires).
+       SESSION_SECRET ile imzalanır; loader /api/launcher/ticket'a gönderir. */
+    const SESSION_SECRET = process.env.SESSION_SECRET || '';
+    let accessToken = '';
+    if (SESSION_SECRET) {
+      const { createHmac } = await import('node:crypto');
+      const expires = Date.now() + 12 * 60 * 60 * 1000; // 12 saat
+      const payload = `${id}.${expires}`;
+      const sig = createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
+      accessToken = `${payload}.${sig}`;
+    }
+
     return res.json({
       ok: true, premium: true, discordId: id,
       username, role, daysLeft,
+      accessToken,
       verifiedAt: Date.now(),
       server: 'RiseBunny Auth Gateway'
+    });
+  }
+
+  // ═══════════════ TICKET (loader bilet doğrulama) ═══════════════
+  /* Launcher, loader'ı base64 bilet (userId:token:timestamp) ile başlatır.
+     Loader (DLL) bu ucu çağırıp biletin geçerliliğini ve premium durumunu
+     sorgular. Bilet 10 dakika geçerli; ayrıca bilet iade edilemez (tek kullanım
+     değil ama timestamp penceresi sınırlar). */
+  if (op.endsWith('/ticket') && req.method === 'POST') {
+    const body = await readJson(req);
+    let raw = String(body.ticket || '');
+    try { raw = Buffer.from(raw, 'base64').toString('utf8'); } catch {}
+    /* İki bilet formatı:
+       1) Yeni: "userId.accessToken" — accessToken verify'dan gelen 12s HMAC jetonu.
+       2) Eski: "userId:token:timestamp" — 10 dk pencere. */
+    let id = '';
+    if (raw.includes('.')) {
+      const dot = raw.lastIndexOf('.');
+      id = String(raw.slice(0, dot)).replace(/\D/g, '').slice(0, 20);
+      const token = raw.slice(dot + 1);
+      const SESSION_SECRET = process.env.SESSION_SECRET || '';
+      const segs = token.split('.');
+      if (!SESSION_SECRET || segs.length !== 3) {
+        return res.status(403).json({ ok: false, active: false, error: 'geçersiz bilet' });
+      }
+      const [tokId, expires, sig] = segs;
+      const { createHmac, timingSafeEqual } = await import('node:crypto');
+      const expect = createHmac('sha256', SESSION_SECRET).update(`${tokId}.${expires}`).digest('hex');
+      const a = Buffer.from(expect), b = Buffer.from(sig);
+      if (a.length !== b.length || !timingSafeEqual(a, b) || tokId !== id) {
+        return res.status(403).json({ ok: false, active: false, error: 'geçersiz bilet' });
+      }
+      if (Date.now() > Number(expires)) {
+        return res.status(403).json({ ok: false, active: false, error: 'oturum süresi doldu, launcherdan tekrar giriş yap' });
+      }
+    } else {
+      const parts = raw.split(':');
+      id = String(parts[0] || '').replace(/\D/g, '').slice(0, 20);
+      const ts = Number(parts[2] || 0);
+      if (!id || id.length < 15) {
+        return res.status(400).json({ ok: false, active: false, error: 'geçersiz bilet' });
+      }
+      if (!ts || Date.now() - ts > 10 * 60 * 1000 || ts - Date.now() > 60 * 1000) {
+        return res.status(403).json({ ok: false, active: false, error: 'bilet süresi doldu, launcherdan tekrar başlat' });
+      }
+    }
+    if (!id || id.length < 15) {
+      return res.status(400).json({ ok: false, active: false, error: 'geçersiz bilet' });
+    }
+    /* Premium durumu: bot API + Firestore (verify ile aynı mantık). */
+    let isPremium = HARDCODED_PREMIUM_IDS.includes(id);
+    let username = `Kullanıcı_${id.slice(-4)}`;
+    let role = isPremium ? 'vip' : 'member';
+    let daysLeft = isPremium ? 365 : 0;
+    let paidUntil = null;
+    if (bBase && process.env.BOT_API_SECRET) {
+      try {
+        const r = await fetch(`${bBase}/api/user/${encodeURIComponent(id)}`, { headers: botHeaders() });
+        if (r.ok) {
+          const u = await r.json();
+          if (u.username) username = u.username;
+          if (u.premium && u.premium.active) {
+            isPremium = true;
+            daysLeft = u.premium.daysLeft || 30;
+            if (u.premium.paidUntil) paidUntil = u.premium.paidUntil;
+            role = 'vip';
+          }
+        }
+      } catch {}
+    }
+    if (PROJECT && FB_KEY) {
+      try {
+        const fr = await fetch(
+          `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/users?key=${FB_KEY}`,
+          { headers: { Referer: process.env.SITE_URL ? `${process.env.SITE_URL.replace(/\/+$/, '')}/` : 'https://risebunny.vercel.app/' } }
+        );
+        if (fr.ok) {
+          const data = await fr.json();
+          for (const d of (data.documents || [])) {
+            const f = d.fields || {};
+            if (f.discordId?.stringValue === id) {
+              if (f.username?.stringValue) username = f.username.stringValue;
+              const roleVal = f.role?.stringValue;
+              if (['kurucu', 'moderator', 'developer', 'vip'].includes(roleVal) || f.premium?.booleanValue) {
+                isPremium = true;
+                role = roleVal || 'vip';
+              }
+              break;
+            }
+          }
+        }
+      } catch {}
+    }
+    const staff = ['kurucu', 'moderator', 'developer'].includes(role);
+    return res.json({
+      ok: true,
+      active: isPremium && (staff || daysLeft > 0),
+      premium: isPremium,
+      role,
+      username,
+      daysLeft,
+      paidUntil,
+      staff
     });
   }
 

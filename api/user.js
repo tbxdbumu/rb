@@ -138,16 +138,22 @@ export default async function handler(req, res) {
           lang,
         }),
       });
-      const j = await r.json().catch(() => ({}));
+      const bt = await r.text().catch(() => '');
+      console.log('[user/contact] bot relay:', r.status, bt.slice(0, 200));
       if (!r.ok) {
+        let j = {};
+        try { j = JSON.parse(bt); } catch {}
         return res.status(r.status).json({
           error: j.error === 'missing-fields'
             ? 'eksik alan'
             : 'Mesajınız iletilemedi, lütfen tekrar dene.',
         });
       }
+      let j = {};
+      try { j = JSON.parse(bt); } catch {}
       return res.json({ ok: true, id: j.id });
-    } catch {
+    } catch (e) {
+      console.error('[user/contact] relay error:', e && e.message);
       return res.status(503).json({ error: 'Bot çevrimdışı.' });
     }
   }
