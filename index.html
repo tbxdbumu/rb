@@ -150,14 +150,17 @@
     </div>
   </div>
   <div class="con-grid">
-    <form class="con-form" id="con-form" novalidate>
-      <p class="form-note" id="con-login-note" hidden><a href="/api/auth/discord/start?next=/index.html%23iletisim"><i class="fa-brands fa-discord"></i> <span data-i18n="form_login">Mesaj göndermek için Discord ile giriş yap</span></a></p>
+    <div>
+    <div id="acc-box"><p class="form-note">…</p></div>
+    <form class="con-form" id="con-form" novalidate style="margin-top:14px">
+      <p class="form-note" id="con-login-note" hidden><a id="con-login-link" href="/api/auth/discord/start?next=%2F%23iletisim"><i class="fa-brands fa-discord"></i> <span data-i18n="form_login">Mesaj göndermek için Discord ile giriş yap</span></a></p>
       <label><span data-i18n="lbl_subject">Subject</span><input type="text" id="n-subj" name="subject" required maxlength="120" data-i18n-ph="ph_subject" placeholder="Subject"></label>
       <label><span data-i18n="lbl_message">Message</span><textarea id="n-msg" name="message" required maxlength="2000" data-i18n-ph="ph_message" placeholder="Your message..."></textarea></label>
       <input type="text" name="website" id="n-hp" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
       <button type="submit" class="btn solid" id="send-btn"><span data-i18n="btn_send">Send It</span><i class="fa-solid fa-arrow-right"></i></button>
       <p class="form-note" data-i18n="form_note">No spam, ever.</p>
     </form>
+    </div>
     <aside class="con-side">
       <a class="discord-card" data-open-product="risebunny-bot" tabindex="0" role="button"><i class="fa-brands fa-discord"></i><div><b data-i18n="discord_title">Join the Discord</b><small data-i18n="discord_desc">New builds drop on our Discord first. The invite link lands here very soon.</small></div></a>
       <div class="social-links" id="social-links"></div>
@@ -209,7 +212,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="js/mc-3d.js?v=4"></script>
 <script src="js/rb-login.js?v=3"></script>
-<script src="js/auth.js?v=6"></script>
-<script src="js/app.js?v=12"></script>
+<script src="js/auth.js?v=7"></script>
+<script src="js/app.js?v=13"></script>
 </body>
 </html>

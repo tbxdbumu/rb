@@ -217,6 +217,16 @@ button{cursor:pointer}
 .con-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .con-form .btn{margin-top:4px}
 .form-note{margin-top:16px;color:var(--faint);font-size:.8rem}
+#con-login-note a{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#5865F2;border:1px solid var(--line);border-radius:999px;padding:9px 16px;background:#fff}
+#con-login-note a:hover{border-color:#5865F2}
+/* Index hesap kartı (risebunny #hesabim ile aynı dil) */
+.acc-card{display:flex;gap:16px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:18px;background:#fff;flex-wrap:wrap}
+.acc-card img{width:56px;height:56px;border-radius:50%;border:2px solid #5865F2;object-fit:cover}
+.acc-card .an{font-weight:800;font-size:1.02rem}
+.acc-card .lb-note{font-size:.78rem;color:var(--faint);margin-top:4px}
+.acc-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.acc-stat{border:1px solid var(--line);border-radius:8px;padding:8px 14px;font-size:.8rem;background:#fafafa}
+.acc-stat b{display:block;font-size:1rem}
 .con-side{display:flex;flex-direction:column;gap:14px}
 .discord-card{
   display:flex;gap:14px;align-items:center;

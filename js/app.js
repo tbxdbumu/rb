@@ -217,6 +217,7 @@ function setLang(l) {
   $$('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
   $$('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-lang') === LANG); });
   renderSystems(); renderSSS(); renderBanner();
+  try { conLoginDurumu(); } catch (e) {}
 }
 window.RB = { setLang: setLang };
 $$('.lang-btn').forEach(function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); }); });
@@ -261,16 +262,64 @@ function cooldown() {
   catch (e) { return false; }
 }
 var form = $('#con-form');
+function conLoginLink() {
+  /* Girişten sonra AYNI sayfaya (#iletisim'e) dön: risebunny'deki
+     /risebunny#hesabim akışıyla aynı mantık. */
+  try {
+    var link = $('#con-login-link');
+    if (link) {
+      var next = location.pathname + location.search;
+      var hash = '#iletisim';
+      /* next içinde zaten # varsa temizle, login=ok bayrağı callback'de eklenir */
+      next = String(next).split('#')[0] + hash;
+      link.setAttribute('href', '/api/auth/discord/start?next=' + encodeURIComponent(next));
+    }
+  } catch (e) {}
+}
+function paintAccountIndex(s) {
+  var box = $('#acc-box');
+  if (!box) return;
+  if (!s || !s.ok || !s.user) {
+    box.innerHTML = '<div class="acc-card"><div style="flex:1;min-width:220px"><div class="an">'
+      + (LANG === 'tr' ? 'Discord ile giriş yap' : 'Sign in with Discord')
+      + '</div><p class="lb-note" style="margin:2px 0 0">'
+      + (LANG === 'tr' ? 'Giriş yapınca hesabın burada görünür, mesajların adına kaydedilir.' : 'Your account appears here after sign-in; messages are saved under your name.')
+      + '</p></div><a class="btn solid sm" id="acc-login-btn" href="/api/auth/discord/start?next='
+      + encodeURIComponent(location.pathname + location.search.split('#')[0] + '#iletisim')
+      + '"><i class="fa-brands fa-discord"></i><span>Discord</span></a></div>';
+    return;
+  }
+  var u = s.user, g = s.game;
+  var html = '<div class="acc-card"><img src="' + esc(u.avatar || 'images/bot.svg') + '" alt="">'
+    + '<div style="flex:1;min-width:220px"><div class="an">' + esc(u.username || 'Üye') + '</div>';
+  if (u.email) html += '<p class="lb-note" style="margin:2px 0 0">✉️ ' + esc(u.email) + '</p>';
+  if (g && s.botOnline) {
+    html += '<div class="acc-stats">'
+      + '<span class="acc-stat">💸<b>' + Number(g.total || 0).toLocaleString(LANG === 'tr' ? 'tr-TR' : 'en-US') + '</b>' + (LANG === 'tr' ? 'Toplam' : 'Total') + '</span>'
+      + '<span class="acc-stat">🏆<b>Lv ' + esc(String(g.level != null ? g.level : '—')) + '</b>' + Number(g.xp || 0).toLocaleString(LANG === 'tr' ? 'tr-TR' : 'en-US') + ' XP</span>'
+      + '</div>';
+  } else {
+    html += '<p class="lb-note" style="margin:2px 0 0">✅ ' + (LANG === 'tr' ? 'Giriş aktif — mesajların bu hesaba kaydedilir.' : 'Signed in — messages are saved to this account.') + ' <a href="risebunny.html#hesabim">' + (LANG === 'tr' ? 'Cüzdanı gör →' : 'See wallet →') + '</a></p>';
+  }
+  html += '</div><a class="btn line sm rb-logout" href="/api/me?logout=1"><i class="fa-solid fa-right-from-bracket"></i><span>'
+    + (LANG === 'tr' ? 'Çıkış' : 'Logout') + '</span></a></div>';
+  box.innerHTML = html;
+}
 function conLoginDurumu() {
   try {
-    var note = $('#con-login-note');
+    conLoginLink();
     var giris = !!(window.RBSession && window.RBSession.ok);
+    if (window.RBSession && !window.RBSession.loading) paintAccountIndex(window.RBSession);
+    var note = $('#con-login-note');
     if (note) note.hidden = giris;
     var btn = $('#send-btn');
     if (btn) btn.disabled = !giris;
   } catch (e) {}
 }
-try { window.addEventListener('rb-session', conLoginDurumu); } catch (e) {}
+try { window.addEventListener('rb-session', function (e) {
+  try { if (e && e.detail && typeof e.detail.ok !== 'undefined' && (!window.RBSession || window.RBSession.loading)) window.RBSession = e.detail; } catch (ee) {}
+  conLoginDurumu();
+}); } catch (e) {}
 try { window.addEventListener('rb-login', conLoginDurumu); } catch (e) {}
 try { document.addEventListener('visibilitychange', function () { if (!document.hidden && window.RBLogin) window.RBLogin.yenile().catch(function () {}); }); } catch (e) {}
 
