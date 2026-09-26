@@ -10,8 +10,11 @@ function loginBtnHTML(next) {
   return '<a class="btn sm solid" href="/api/auth/discord/start?next=' + encodeURIComponent(n) + '" style="white-space:nowrap"><i class="fa-brands fa-discord"></i><span data-i18n="tr">Discord ile Giriş</span><span data-i18n="en">Login with Discord</span></a>';
 }
 function chipHTML(u) {
+  /* Hesap bağlantısı sayfa-farkındalıklı: risebunny sayfasında hesabım bölümüne,
+     index'te iletişim bölümüne gider. */
+  var hesapHedef = /risebunny\.html|\/risebunny/.test(location.pathname) ? '/risebunny#hesabim' : '/#iletisim';
   return '<span class="rb-discord-chip">'
-    + '<a href="/risebunny#hesabim" title="Hesabım"><img src="' + u.avatar + '" alt=""></a>'
+    + '<a href="' + hesapHedef + '" title="Hesabım"><img src="' + u.avatar + '" alt=""></a>'
     + '<a href="#" class="rb-logout" title="Çıkış"><i class="fa-solid fa-right-from-bracket"></i></a>'
     + '</span>';
 }
@@ -70,13 +73,21 @@ function syncLangBtns() {
     if (isEn) b.classList.toggle('active', cur === 'en');
   });
 
-  $all('[data-i18n="tr"], [data-i18n="en"]').forEach(function (el) {
-    if (el.dataset.i18n === cur) el.style.display = 'inline';
-    else el.style.display = 'none';
+  /* DIKKAT: data-i18n iki anlama gelebilir:
+     1) risebunny.html tarzı: data-i18n="tr|en" → dil değeri, göster/gizle
+     2) index.html tarzı: data-i18n="anahtar" → app.js çeviri sözlüğü anahtarı
+     Sadece GERÇEK dil değerlerine (tr|en) dokun; anahtarları bozma! */
+  $all('[data-i18n]').forEach(function (el) {
+    var v = el.dataset.i18n;
+    if (v === 'tr' || v === 'en') {
+      el.style.display = (v === cur) ? 'inline' : 'none';
+    }
   });
-  $all('[data-i18n-block="tr"], [data-i18n-block="en"]').forEach(function (el) {
-    if (el.dataset.i18nBlock === cur) el.style.display = 'block';
-    else el.style.display = 'none';
+  $all('[data-i18n-block]').forEach(function (el) {
+    var v = el.dataset.i18nBlock;
+    if (v === 'tr' || v === 'en') {
+      el.style.display = (v === cur) ? 'block' : 'none';
+    }
   });
 
   $all('[data-tr]').forEach(function (el) {
