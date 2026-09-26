@@ -288,10 +288,16 @@ if (form) form.addEventListener('submit', function (e) {
   if (cooldown()) { toast(t('form_rate'), 'error'); return; }
   var btn = $('#send-btn'); btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> …';
+  var s = window.RBSession;
+  var payload = { subject: subject, message: message, lang: lang === 'en' ? 'en' : 'tr' };
+  if (s && s.ok && s.user) {
+    payload.discordId = s.user.id;
+    payload.username = s.user.username;
+  }
   fetch('/api/contact', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ subject: subject, message: message, lang: lang === 'en' ? 'en' : 'tr' })
+    body: JSON.stringify(payload)
   }).then(function (r) {
     if (r.status === 401) { toast(t('form_login'), 'error'); conLoginDurumu(); throw new Error('login'); }
     if (!r.ok) throw new Error('contact failed');

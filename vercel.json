@@ -3,6 +3,7 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/api/session/restore", "destination": "/api/session" },
+    { "source": "/api/me", "destination": "/api/session" },
     { "source": "/api/shop/catalog", "destination": "/api/shop" },
     { "source": "/api/shop/buy", "destination": "/api/shop" },
     { "source": "/api/coupon/redeem", "destination": "/api/user" },
@@ -10,7 +11,6 @@
     { "source": "/api/deletion/status", "destination": "/api/user" },
     { "source": "/api/log", "destination": "/api/user" },
     { "source": "/api/notify", "destination": "/api/user" },
-    { "source": "/api/contact", "destination": "/api/user" },
     { "source": "/api/launcher/verify", "destination": "/api/launcher" },
     { "source": "/api/launcher/token", "destination": "/api/launcher" },
     { "source": "/api/launcher/device", "destination": "/api/launcher" },
@@ -20,7 +20,11 @@
     { "source": "/api/leaderboard/level", "destination": "/api/leaderboard" },
     { "source": "/api/stats", "destination": "/api/public" },
     { "source": "/api/status", "destination": "/api/public" },
-    { "source": "/api/topgg/vote", "destination": "/api/webhooks" }
+    { "source": "/api/firebase-config", "destination": "/api/public" },
+    { "source": "/api/topgg/vote", "destination": "/api/webhooks" },
+    { "source": "/api/config/configs", "destination": "/api/auth/discord/config" },
+    { "source": "/api/config/configs/:id", "destination": "/api/auth/discord/config" },
+    { "source": "/api/contact", "destination": "/api/auth/discord/config" }
   ],
   "headers": [
     {

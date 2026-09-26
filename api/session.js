@@ -1,9 +1,9 @@
 import { setSession, getSession, clearSession, botBase, botHeaders } from '../lib/_session.js';
-import { FB_KEY, readJson, fbCreds, avatarUrl, siteBase } from '../lib/_helpers.js';
+import { FB_KEY, readJson, fbCreds, avatarUrl, siteBase, originalPath } from '../lib/_helpers.js';
 
 export default async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
-  const op = url.pathname;
+  const op = originalPath(req, url);
 
   // POST /api/session - Firebase ID token ile oturum oluştur
   if (op === '/api/session' && req.method === 'POST') {
@@ -51,7 +51,8 @@ export default async function handler(req, res) {
   // GET /api/me - Mevcut oturum bilgisi
   if (op === '/api/me' && req.method === 'GET') {
     const base = siteBase(req);
-    const logout = url.searchParams.get('logout') === '1';
+    const logoutUrl = new URL(req.url, base);
+    const logout = logoutUrl.searchParams.get('logout') === '1';
     if (logout) {
       clearSession(res, req);
       return res.json({ ok: false });
