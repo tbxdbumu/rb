@@ -350,9 +350,28 @@ if (form) form.addEventListener('submit', function (e) {
   }).then(function (r) {
     if (r.status === 401) { toast(t('form_login'), 'error'); conLoginDurumu(); throw new Error('login'); }
     if (!r.ok) return r.json().catch(function () { return null; }).then(function (j) { throw new Error((j && j.error) || ('HTTP ' + r.status)); });
+    return r.json().catch(function () { return {}; });
+  }).then(function (j) {
     try { localStorage.setItem('rb_con_last', String(Date.now())); } catch (e2) {}
-    toast(t('form_success'), 'success');
     form.reset();
+    /* Mesaj Firestore'a kaydedildi (ok:true). botLog Discord sahip-log
+       iletiminin durumunu söyler — 'sent' değilse kullanıcıya da göster,
+       yoksa hata sessizce kayboluyor ("log düşmüyor" şikayeti). */
+    var bl = j && j.botLog;
+    if (!bl || bl === 'sent') {
+      toast(t('form_success'), 'success');
+    } else {
+      var neden = String(bl);
+      var acik = (LANG === 'tr'
+        ? 'Mesaj kaydedildi, ancak Discord sahip loguna düşmedi'
+        : 'Message saved, but did not reach the Discord owner log');
+      if (neden.indexOf('no-bot-config') > -1) neden = LANG === 'tr' ? 'bot bağlantısı tanımsız (BOT_API_URL/SECRET)' : 'bot link missing (BOT_API_URL/SECRET)';
+      else if (neden.indexOf('http-401') > -1 || neden.indexOf('unauthorized') > -1) neden = LANG === 'tr' ? 'bot anahtarı eşleşmiyor (BOT_API_SECRET)' : 'bot secret mismatch (BOT_API_SECRET)';
+      else if (neden.indexOf('kanal-yok') > -1) neden = LANG === 'tr' ? 'sahip log kanalı bulunamadı (OWNER_LOG)' : 'owner log channel missing (OWNER_LOG)';
+      else if (neden.indexOf('gonderim-basarisiz') > -1) neden = LANG === 'tr' ? 'bot kanala yazamadı (izinleri kontrol et)' : 'bot could not write to channel (check permissions)';
+      try { console.warn('[contact] botLog:', j.botLog); } catch (e3) {}
+      toast(acik + ': ' + neden, 'error');
+    }
   }).catch(function (err) {
     if (err && err.message === 'login') return;
     var detay = (err && err.message) ? (': ' + err.message) : '';
