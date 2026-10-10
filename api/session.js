@@ -1,6 +1,14 @@
 import { setSession, getSession, clearSession, botBase, botHeaders } from '../lib/_session.js';
 import { FB_KEY, readJson, fbCreds, avatarUrl, siteBase, originalPath } from '../lib/_helpers.js';
 
+/* RiseBunny: bot karaliste anahtarı (karalist_<id>) — oturum + launcher girişi. */
+function karalisteMesaji(sebep) {
+  const s = String(sebep || '').slice(0, 200);
+  return '🚫 Karalistedesiniz.'
+    + (s ? ` Sebep: ${s}.` : '')
+    + ' Bunun bir hata olduğunu düşünüyorsanız Discord üzerinden benimle iletişime geçin: https://dsc.gg/risebunny';
+}
+
 export default async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const op = originalPath(req, url);
@@ -37,6 +45,10 @@ export default async function handler(req, res) {
           if (br.ok) {
             const bj = await br.json();
             username = bj.username || username;
+            /* RiseBunny: karaliste kullanıcı siteye giriş yapamaz. */
+            if (bj.karaliste === true) {
+              return res.status(403).json({ ok: false, karaliste: true, error: karalisteMesaji(bj.sebep) });
+            }
           }
         } catch {}
       }
@@ -83,7 +95,15 @@ export default async function handler(req, res) {
         const r = await fetch(`${bBase}/api/user/${encodeURIComponent(s.id)}`, {
           headers: botHeaders()
         });
-        if (r.ok) { out.game = await r.json(); out.botOnline = true; }
+        if (r.ok) {
+          out.game = await r.json();
+          out.botOnline = true;
+          /* RiseBunny: oturum açıkken karalisteye alınan kullanıcı da düşer. */
+          if (out.game && out.game.karaliste === true) {
+            clearSession(res, req);
+            return res.status(403).json({ ok: false, karaliste: true, error: karalisteMesaji(out.game.sebep) });
+          }
+        }
         else out.botNeden = 'http-' + r.status;
       } catch { out.botNeden = 'erisim-yok'; }
     }

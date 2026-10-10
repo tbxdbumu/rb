@@ -11,6 +11,14 @@ function randCode() {
   return s;
 }
 
+/* RiseBunny: bot karaliste anahtarı (karalist_<id>) — site + launcher girişi. */
+function karalisteMesaji(sebep) {
+  const s = String(sebep || '').slice(0, 200);
+  return '🚫 Karalistedesiniz.'
+    + (s ? ` Sebep: ${s}.` : '')
+    + ' Bunun bir hata olduğunu düşünüyorsanız Discord üzerinden benimle iletişime geçin: https://dsc.gg/risebunny';
+}
+
 const launcherDocUrl = (code) =>
   `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/launcher_logins/${code}?key=${FB_KEY}`;
 
@@ -59,6 +67,12 @@ export default async function handler(req, res) {
             isPremium = true;
             daysLeft = u.premium.daysLeft || 30;
             role = 'vip';
+          }
+          if (u.karaliste === true) {
+            return res.status(403).json({
+              ok: false, premium: false, discordId: id,
+              karaliste: true, error: karalisteMesaji(u.sebep)
+            });
           }
         }
       } catch (e) { console.error('[launcher] bot user fetch err:', e.message); }
@@ -223,6 +237,12 @@ export default async function handler(req, res) {
             daysLeft = u.premium.daysLeft || 30;
             if (u.premium.paidUntil) paidUntil = u.premium.paidUntil;
             role = 'vip';
+          }
+          if (u.karaliste === true) {
+            return res.status(403).json({
+              ok: false, active: false, karaliste: true,
+              error: karalisteMesaji(u.sebep)
+            });
           }
         }
       } catch {}

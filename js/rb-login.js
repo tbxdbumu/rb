@@ -4,6 +4,19 @@
 var DURUM = { cookie: null, firebase: null, hazir: false, bridgeHata: '' };
 var BASLADI = false;
 
+/* RiseBunny: karaliste kullaniciya site uzerinde gorunur uyarı. */
+function karalisteGoster(mesaj) {
+  try {
+    DURUM.karaliste = mesaj || 'Karalistedesiniz.';
+    if (document.getElementById('rb-karaliste')) return;
+    var d = document.createElement('div');
+    d.id = 'rb-karaliste';
+    d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b3261e;color:#fff;padding:12px 16px;font:600 14px/1.5 system-ui,sans-serif;text-align:center;';
+    d.textContent = mesaj || DURUM.karaliste;
+    (document.body || document.documentElement).appendChild(d);
+  } catch (e) {}
+}
+
 function olay() {
   try { window.RBSession = DURUM.cookie
     ? { loading: false, ok: true, user: DURUM.cookie, fb: DURUM.cookie.fb || null, game: DURUM.cookie.game || null, botOnline: !!DURUM.cookie.botOnline, botNeden: DURUM.cookie.botNeden || null }
@@ -45,6 +58,7 @@ async function cookieOku() {
         try { localStorage.setItem('rb_discord', JSON.stringify({ username: j.user.username || '' })); } catch (e) {}
         return true;
       }
+      if (j && j.karaliste) karalisteGoster(j.error);
       return false;
     } catch (e) { await bekle(800); }
   }
@@ -96,6 +110,7 @@ async function cookieOnar() {
     }).catch(() => null);
     const j = r ? await r.json().catch(() => null) : null;
     if (j && j.ok) return cookieOku();
+    if (j && j.karaliste) karalisteGoster(j.error);
     return false;
   } catch (e) { return false; }
 }
