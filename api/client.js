@@ -104,6 +104,23 @@ export default async function handler(req, res) {
     return proxyGet(req, res, `/api${op}`, query);
   }
 
+  // ── Vape arkadaşlık sistemi (istek/kabul/liste) — bilet aynen iletilir ──
+  if (req.method === 'POST' && op === '/friends/request') {
+    return proxyPost(req, res, '/api/friends/request');
+  }
+  if (req.method === 'GET' && op === '/friends/state') {
+    return proxyGet(req, res, '/api/friends/state', query);
+  }
+  if (req.method === 'POST' && op === '/friends/respond') {
+    return proxyPost(req, res, '/api/friends/respond');
+  }
+  if (req.method === 'POST' && op === '/friends/cancel') {
+    return proxyPost(req, res, '/api/friends/cancel');
+  }
+  if (req.method === 'POST' && op === '/friends/remove') {
+    return proxyPost(req, res, '/api/friends/remove');
+  }
+
   // ── Vape içi canlılık (nabız + çıkış) — bilet aynen iletilir ──
   if (req.method === 'POST' && (op === '/presence' || op === '/presence/leave')) {
     return proxyPost(req, res, `/api${op}`);
