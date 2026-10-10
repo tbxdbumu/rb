@@ -25,7 +25,8 @@
     { "source": "/api/topgg/vote", "destination": "/api/webhooks" },
     { "source": "/api/config/configs", "destination": "/api/auth/discord/config" },
     { "source": "/api/config/configs/:id", "destination": "/api/auth/discord/config" },
-    { "source": "/api/contact", "destination": "/api/auth/discord/config" }
+    { "source": "/api/contact", "destination": "/api/auth/discord/config" },
+    { "source": "/api/client/:path*", "destination": "/api/client" }
   ],
   "headers": [
     {
