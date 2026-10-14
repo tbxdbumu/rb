@@ -1,162 +1,295 @@
-import { getSession, botBase, botHeaders } from '../lib/_session.js';
-import { readJson, originalPath } from '../lib/_helpers.js';
+import { getSession, botBase, botHeaders } from "../lib/_session.js";
+
+import { readJson, originalPath } from "../lib/_helpers.js";
+
+function isStaffSession(s) {
+  const ids = String(process.env.ADMIN_UIDS || "").split(",").map(x => x.trim()).filter(Boolean);
+  const discordIds = String(process.env.ADMIN_DISCORD_IDS || "").split(",").map(x => x.trim()).filter(Boolean);
+  const disc = discordIds.map(x => `d${x}@discord.risebunny.local`);
+  return !!(s && (ids.includes(String(s.id)) || disc.includes(String(s.fbEmail || "").toLowerCase())));
+}
+
+function flat(s, max) {
+  return String(s == null ? "" : s).replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function safeLink(u) {
+  const raw = String(u || "").trim();
+  if (!raw) return "";
+  let p;
+  try {
+    p = new URL(raw);
+  } catch {
+    return "";
+  }
+  const site = (process.env.SITE_URL || "").replace(/\/+$/, "");
+  const host = (process.env.SITE_HOST || "").toLowerCase();
+  const h = p.host.toLowerCase();
+  if (host ? h === host : site && p.origin === site) return p.toString();
+  return "";
+}
 
 export default async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const op = originalPath(req, url);
   const bBase = botBase();
-  const bSec = process.env.BOT_API_SECRET || '';
-
-  console.log('[user] path:', op, 'method:', req.method);
-
-  if (op.endsWith('/coupon/redeem') && req.method === 'POST') {
+  const bSec = process.env.BOT_API_SECRET || "";
+  console.log("[user] path:", op, "method:", req.method);
+  if (op.endsWith("/coupon/redeem") && req.method === "POST") {
     const s = getSession(req);
-    if (!s) return res.status(401).json({ error: 'Önce Discord ile giriş yapmalısın.' });
+    if (!s) return res.status(401).json({
+      error: "Önce Discord ile giriş yapmalısın."
+    });
     const body = await readJson(req);
-    const kod = String(body.kod || '').toUpperCase().trim();
-    if (!kod) return res.status(400).json({ error: 'Kupon kodu gir.' });
-    if (!bBase || !bSec) return res.status(503).json({ error: 'Bot çevrimdışı.' });
+    const kod = String(body.kod || "").toUpperCase().trim();
+    if (!kod) return res.status(400).json({
+      error: "Kupon kodu gir."
+    });
+    if (!bBase || !bSec) return res.status(503).json({
+      error: "Bot çevrimdışı."
+    });
     try {
       const r = await fetch(`${bBase}/api/coupon/redeem`, {
-        method: 'POST',
-        headers: { ...botHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: s.id, kod })
+        method: "POST",
+        headers: {
+          ...botHeaders(),
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: s.id,
+          kod: kod
+        })
       });
       const j = await r.json().catch(() => ({}));
       return res.status(r.status).json(j);
-    } catch { return res.status(503).json({ error: 'Bot çevrimdışı.' }); }
+    } catch {
+      return res.status(503).json({
+        error: "Bot çevrimdışı."
+      });
+    }
   }
-
-  if (op.endsWith('/deletion/request') && req.method === 'POST') {
+  if (op.endsWith("/deletion/request") && req.method === "POST") {
     const s = getSession(req);
-    if (!s) return res.status(401).json({ error: 'unauthorized' });
+    if (!s) return res.status(401).json({
+      error: "unauthorized"
+    });
     const body = await readJson(req);
-    const docId = String(body.docId || '').slice(0, 60);
-    const kapsam = ['bot', 'site', 'ikisi'].includes(body.kapsam) ? body.kapsam : 'ikisi';
-    if (!docId) return res.status(400).json({ error: 'eksik alan' });
-    if (!bBase || !bSec) return res.status(503).json({ error: 'bot çevrimdışı' });
-    /* Kullanıcının platform verileri (sahip logunda listelenir) aynen iletilir;
-       bot 429 dönerse (1 saat cooldown) durum + mesaj aynen taşınır. */
-    const hamVeri = body.veri && typeof body.veri === 'object' ? body.veri : {};
-    const liste = (v) => (Array.isArray(v) ? v.map(x => String(x).slice(0, 140)).slice(0, 25) : []);
-    const veri = { site: liste(hamVeri.site), bot: liste(hamVeri.bot) };
+    const docId = String(body.docId || "").slice(0, 60);
+    const kapsam = [ "bot", "site", "ikisi" ].includes(body.kapsam) ? body.kapsam : "ikisi";
+    if (!docId) return res.status(400).json({
+      error: "eksik alan"
+    });
+    if (!bBase || !bSec) return res.status(503).json({
+      error: "bot çevrimdışı"
+    });
+    const hamVeri = body.veri && typeof body.veri === "object" ? body.veri : {};
+    const liste = v => Array.isArray(v) ? v.map(x => String(x).slice(0, 140)).slice(0, 25) : [];
+    const veri = {
+      site: liste(hamVeri.site),
+      bot: liste(hamVeri.bot)
+    };
     try {
       const r = await fetch(`${bBase}/api/deletion/request`, {
-        method: 'POST',
-        headers: { ...botHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ docId, discordId: s.id, username: s.username || '', kapsam, veri })
+        method: "POST",
+        headers: {
+          ...botHeaders(),
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          docId: docId,
+          discordId: s.id,
+          username: s.username || "",
+          kapsam: kapsam,
+          veri: veri
+        })
       });
       const j = await r.json().catch(() => ({}));
       return res.status(r.status).json(j);
-    } catch { return res.status(503).json({ error: 'bot çevrimdışı' }); }
+    } catch {
+      return res.status(503).json({
+        error: "bot çevrimdışı"
+      });
+    }
   }
-
-  if (op.endsWith('/deletion/status') && req.method === 'GET') {
+  if (op.endsWith("/deletion/status") && req.method === "GET") {
     const s = getSession(req);
-    if (!s) return res.status(401).json({ error: 'unauthorized' });
-    const docId = String(url.searchParams.get('doc') || '').slice(0, 60);
-    if (!docId) return res.status(400).json({ error: 'eksik alan' });
-    if (!bBase || !bSec) return res.json({ durum: 'bekliyor' });
+    if (!s) return res.status(401).json({
+      error: "unauthorized"
+    });
+    const docId = String(url.searchParams.get("doc") || "").slice(0, 60);
+    if (!docId) return res.status(400).json({
+      error: "eksik alan"
+    });
+    if (!bBase || !bSec) return res.json({
+      durum: "bekliyor"
+    });
     try {
-      const r = await fetch(
-        `${bBase}/api/deletion/status?doc=${encodeURIComponent(docId)}&user=${encodeURIComponent(s.id)}`,
-        { headers: botHeaders() }
-      );
+      const r = await fetch(`${bBase}/api/deletion/status?doc=${encodeURIComponent(docId)}&user=${encodeURIComponent(s.id)}`, {
+        headers: botHeaders()
+      });
       const j = await r.json().catch(() => ({}));
-      if (j.discordId && String(j.discordId) !== String(s.id))
-        return res.status(403).json({ error: 'forbidden' });
-      return res.json({ durum: j.durum || 'bekliyor', sebep: j.sebep || '' });
-    } catch { return res.json({ durum: 'bekliyor' }); }
+      if (j.discordId && String(j.discordId) !== String(s.id)) return res.status(403).json({
+        error: "forbidden"
+      });
+      return res.json({
+        durum: j.durum || "bekliyor",
+        sebep: j.sebep || ""
+      });
+    } catch {
+      return res.json({
+        durum: "bekliyor"
+      });
+    }
   }
-
-  if (op.endsWith('/log') && req.method === 'POST') {
+  if (op.endsWith("/log") && req.method === "POST") {
     const s = getSession(req);
-    if (!s) return res.status(401).json({ error: 'unauthorized' });
+    if (!s) return res.status(401).json({
+      error: "unauthorized"
+    });
     const body = await readJson(req);
-    const baslik = String(body.baslik || '🌐 Site Olayı').slice(0, 100);
-    const metin = String(body.metin || '').slice(0, 1500);
-    if (!metin) return res.status(400).json({ error: 'eksik alan' });
+    const baslik = flat(body.baslik || "🌐 Site Olayı", 100);
+    const metin = flat(body.metin || "", 1500);
+    if (!metin) return res.status(400).json({
+      error: "eksik alan"
+    });
     if (bBase && bSec) {
       try {
         await fetch(`${bBase}/api/log`, {
-          method: 'POST',
-          headers: { ...botHeaders(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ baslik, metin, kim: s.username || s.id })
+          method: "POST",
+          headers: {
+            ...botHeaders(),
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            baslik: baslik,
+            metin: metin,
+            kim: s.username || s.id
+          })
         });
       } catch {}
     }
-    return res.json({ ok: true, mirror: true });
+    return res.json({
+      ok: true,
+      mirror: true
+    });
   }
-
-  if (op.endsWith('/notify') && req.method === 'POST') {
+  if (op.endsWith("/notify") && req.method === "POST") {
     const s = getSession(req);
-    if (!s) return res.status(401).json({ error: 'unauthorized' });
+    if (!s) return res.status(401).json({
+      error: "unauthorized"
+    });
+    if (!isStaffSession(s)) return res.status(403).json({
+      error: "forbidden"
+    });
     const body = await readJson(req);
-    const userIds = Array.isArray(body.userIds) ? body.userIds.map(String).slice(0, 20) : [];
-    const title = String(body.title || '🔔 Bildirim').slice(0, 100);
-    const text = String(body.text || '').slice(0, 500);
-    const link = String(body.url || '').slice(0, 200);
-    const kind = String(body.kind || 'notify').slice(0, 30);
-    const from = String(body.from || (s.username || s.id || '')).slice(0, 120);
-    if (!userIds.length || !text) return res.status(400).json({ error: 'eksik alan' });
+    const userIds = Array.isArray(body.userIds) ? body.userIds.map(x => flat(x, 24)).filter(x => /^\d{15,20}$/.test(x)).slice(0, 20) : [];
+    const title = flat(body.title || "🔔 Bildirim", 100);
+    const text = flat(body.text, 500);
+    const link = safeLink(body.url);
+    const kind = [ "notify", "reply", "role", "system" ].includes(String(body.kind)) ? String(body.kind) : "notify";
+    const from = "RiseBunny";
+    if (!userIds.length || !text) return res.status(400).json({
+      error: "eksik alan"
+    });
     if (bBase && bSec) {
       try {
         const nr = await fetch(`${bBase}/api/notify`, {
-          method: 'POST',
-          headers: { ...botHeaders(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userIds, title, text, url: link, kind, from })
+          method: "POST",
+          headers: {
+            ...botHeaders(),
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userIds: userIds,
+            title: title,
+            text: text,
+            url: link,
+            kind: kind,
+            from: from
+          })
         });
-        if (nr.ok) return res.json({ ok: true, mirror: true, delivered: true });
-        return res.json({ ok: true, mirror: true, delivered: false });
-      } catch { return res.json({ ok: true, mirror: true, delivered: false }); }
+        if (nr.ok) return res.json({
+          ok: true,
+          mirror: true,
+          delivered: true
+        });
+        return res.json({
+          ok: true,
+          mirror: true,
+          delivered: false
+        });
+      } catch {
+        return res.json({
+          ok: true,
+          mirror: true,
+          delivered: false
+        });
+      }
     }
-    return res.json({ ok: true, mirror: true, delivered: false });
+    return res.json({
+      ok: true,
+      mirror: true,
+      delivered: false
+    });
   }
-
-  if (op.endsWith('/contact') && req.method === 'POST') {
-    /* Discord-only iletişim: isim/e-posta YOK, kimlik cookie oturumundan gelir.
-       Mesaj bot API'ye iletilir; bot da sahip log kanalına düşürür ve
-       yetkili cevap verirse kullanıcıya DM gider. */
+  if (op.endsWith("/contact") && req.method === "POST") {
     const s = getSession(req);
-    if (!s) return res.status(401).json({ error: 'Önce Discord ile giriş yapmalısın.' });
+    if (!s) return res.status(401).json({
+      error: "Önce Discord ile giriş yapmalısın."
+    });
     const body = await readJson(req);
-    const subject = String(body.subject || '').slice(0, 120);
-    const message = String(body.message || '').slice(0, 2000);
-    const lang = body.lang === 'en' ? 'en' : 'tr';
-    if (!subject || message.length < 3)
-      return res.status(400).json({ error: 'eksik alan' });
-    if (!bBase || !bSec) return res.status(503).json({ error: 'Bot çevrimdışı.' });
+    const subject = flat(body.subject || "", 120);
+    const message = String(body.message || "").slice(0, 2000);
+    const lang = body.lang === "en" ? "en" : "tr";
+    if (!subject || message.length < 3) return res.status(400).json({
+      error: "eksik alan"
+    });
+    if (!bBase || !bSec) return res.status(503).json({
+      error: "Bot çevrimdışı."
+    });
     try {
       const r = await fetch(`${bBase}/api/contact`, {
-        method: 'POST',
-        headers: { ...botHeaders(), 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: {
+          ...botHeaders(),
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           discordId: s.id,
-          username: s.username || '',
-          subject,
-          message,
-          lang,
-        }),
+          username: s.username || "",
+          subject: subject,
+          message: message,
+          lang: lang
+        })
       });
-      const bt = await r.text().catch(() => '');
-      console.log('[user/contact] bot relay:', r.status, bt.slice(0, 200));
+      const bt = await r.text().catch(() => "");
+      console.log("[user/contact] bot relay:", r.status, bt.slice(0, 200));
       if (!r.ok) {
         let j = {};
-        try { j = JSON.parse(bt); } catch {}
+        try {
+          j = JSON.parse(bt);
+        } catch {}
         return res.status(r.status).json({
-          error: j.error === 'missing-fields'
-            ? 'eksik alan'
-            : 'Mesajınız iletilemedi, lütfen tekrar dene.',
+          error: j.error === "missing-fields" ? "eksik alan" : "Mesajınız iletilemedi, lütfen tekrar dene."
         });
       }
       let j = {};
-      try { j = JSON.parse(bt); } catch {}
-      return res.json({ ok: true, id: j.id });
+      try {
+        j = JSON.parse(bt);
+      } catch {}
+      return res.json({
+        ok: true,
+        id: j.id
+      });
     } catch (e) {
-      console.error('[user/contact] relay error:', e && e.message);
-      return res.status(503).json({ error: 'Bot çevrimdışı.' });
+      console.error("[user/contact] relay error:", e && e.message);
+      return res.status(503).json({
+        error: "Bot çevrimdışı."
+      });
     }
   }
-
-  return res.status(404).json({ error: 'not found', path: op });
+  return res.status(404).json({
+    error: "not found",
+    path: op
+  });
 }
