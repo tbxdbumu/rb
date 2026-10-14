@@ -8,8 +8,7 @@
 <title data-i18n="tr">Güncelleme Notları · RiseBunny</title>
 <title data-i18n="en">Changelog · RiseBunny</title>
 <meta name="description" content="RiseBunny bot ve site güncelleme notları.">
-<style>
-:root{
+<style>:root{
   --bg:#ffffff; --ink:#111827; --muted:#4b5563; --faint:#9ca3af;
   --line:#e5e7eb; --accent:#2563eb; --accent-ink:#1d4ed8; --r:10px;
 }
@@ -80,7 +79,6 @@ html[lang="en"] [data-i18n-block="en"]{display:block}
   <div class="card">
     <h2><span class="num">1</span><span data-i18n="tr">Sürümler</span><span data-i18n="en">Versions</span></h2>
 
-    
     <div id="versions"></div>
   </div>
 </main>
@@ -92,8 +90,7 @@ html[lang="en"] [data-i18n-block="en"]{display:block}
 </footer>
 </div>
 
-<script>
-const titles={tr:"Güncelleme Notları · RiseBunny",en:"Changelog · RiseBunny"};
+<script>const titles={tr:"Güncelleme Notları · RiseBunny",en:"Changelog · RiseBunny"};
 function setLang(lang){
   document.documentElement.lang=lang;
   document.title=titles[lang];
@@ -111,7 +108,6 @@ const params=new URLSearchParams(location.search);
 const saved=typeof localStorage!=='undefined'&&localStorage.getItem('rb_lang');
 setLang(params.get('lang')||(saved||'tr'));
 
-// Version data
 const versions = [
   {
     version: "v2.1.1",
