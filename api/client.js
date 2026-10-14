@@ -1,147 +1,107 @@
 import { botBase } from '../lib/_session.js';
+import { originalPath } from '../lib/_helpers.js';
 
-/* RiseBunny oyun istemcisi (Vape) için herkese açık proxy.
- *
- * Bot (croxydb destekli) doğrudan internete açık değildir; istemci ise
- * gizli anahtar (x-bot-secret) gönderemez. Bu dosya YALNIZCA istemcinin
- * güvenli şekilde çağırabileceği salt-okunur bot uçlarını
- * https://risebunny.vercel.app/api/client/* altında yayınlar.
- * Yazma uçları (oy/yükleme/silme/düzenleme) istemcinin launcher biletini
- * (Authorization: Bearer <discordId.exp.HMAC>) aynen bota iletir; bot
- * TICKET_SECRET ile doğrular. Sır burada tutulmaz, yalnızca iletilir.
- *
- * Bot adresi Vercel env BOT_API_URL'den gelir; tanımsızsa 503 dönülür ve
- * istemci yerel (çevrimdışı) modda çalışmaya devam eder.
- */
+/* Vape istemcisi → bot köprüsü: /api/client/<bot-yolu> isteklerini botun
+   kendi HTTP API'sine aktarır. İstemcinin (RisebunnyApi.java) kullandığı
+   uçlar whitelist'lidir; bot admin uçlarına (/api/user/:id, /api/shop gibi
+   x-bot-secret isteyenler) geçit yoktur.
 
-function cors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
+   Eşlemeler (istemci apiBase = .../api/client):
+     GET  /dogrula/{id}      → bot /api/dogrula/{id}
+     GET  /user/{id}          → bot /api/kullanici/{id}
+     GET  /config/{id}        → bot /api/config/{id}
+     /public/*                → bot /api/public/*   (yazma uçları launcher bileti ister)
+     /friends/*               → bot /api/friends/* (launcher bileti ister)
+     /presence, /presence/leave, /presence/same → bot aynısı (bilet ister)
+     /party/*                 → bot /api/party/*   (bilet ister)
+
+   NOT: bu dosya rb-main'deki api/vape.js'ten farklı olarak Authorization
+   başlığını /public/, /friends/, /party/ ve presence uçlarına da iletir —
+   botun _ticketIzinli doğrulaması başlıktan okur. */
+
+const ALLOW_PREFIXES = [
+  '/dogrula/',
+  '/kullanici/',
+  '/config/',
+  '/public/',
+  '/friends/',
+  '/party/',
+];
+const ALLOW_EXACT = new Set([
+  '/public',
+  '/presence',
+  '/presence/leave',
+  '/presence/same',
+]);
+
+const TICKET_PREFIXES = [
+  '/public/',
+  '/friends/',
+  '/party/',
+  '/presence',
+];
+
+const BOT_TIMEOUT_MS = 9500;
+const MAX_BODY = 1.5 * 1024 * 1024; // config base64 ~1 MB sınırına başlık payı
 
 async function readBody(req) {
-  try {
-    const chunks = [];
-    for await (const c of req) chunks.push(c);
-    const raw = Buffer.concat(chunks).toString('utf8');
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
+  const chunks = [];
+  let size = 0;
+  for await (const c of req) {
+    size += c.length;
+    if (size > MAX_BODY) throw new Error('body too large');
+    chunks.push(c);
   }
-}
-
-async function proxyGet(req, res, target, query) {
-  const bBase = botBase();
-  if (!bBase) return res.status(503).json({ ok: false, error: 'Bot API bağlı değil.' });
-  try {
-    const qs = query ? `?${query}` : '';
-    const auth = req.headers.authorization || '';
-    const r = await fetch(`${bBase}${target}${qs}`, {
-      headers: { ...(auth ? { Authorization: auth } : {}) }
-    });
-    const text = await r.text();
-    res.status(r.status);
-    res.setHeader('Content-Type', 'application/json');
-    return res.send(text);
-  } catch (e) {
-    return res.status(502).json({ ok: false, error: 'Bot verisi alınamadı.' });
-  }
-}
-
-async function proxyPost(req, res, target) {
-  const bBase = botBase();
-  if (!bBase) return res.status(503).json({ ok: false, error: 'Bot API bağlı değil.' });
-  try {
-    const body = await readBody(req);
-    const auth = req.headers.authorization || '';
-    const r = await fetch(`${bBase}${target}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(auth ? { Authorization: auth } : {})
-      },
-      body: JSON.stringify(body)
-    });
-    const text = await r.text();
-    res.status(r.status);
-    res.setHeader('Content-Type', 'application/json');
-    return res.send(text);
-  } catch (e) {
-    return res.status(502).json({ ok: false, error: 'Bot verisi alınamadı.' });
-  }
+  return Buffer.concat(chunks);
 }
 
 export default async function handler(req, res) {
-  cors(res);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  const bBase = botBase();
+  if (!bBase) return res.status(502).json({ error: 'BOT_API_URL tanimli degil' });
+
   const url = new URL(req.url, `https://${req.headers.host}`);
-  // /api/client/... önekini at, bot yoluna çevir.
-  const op = url.pathname.replace(/^\/api\/client/, '') || '/';
-  const query = url.searchParams.toString();
+  /* x-vercel-original-url rewrite'ten ÖNCEKI (gerçek) yolu verir:
+     /api/client/public/configs → op = /public/configs → bot /api/public/configs */
+  const op = originalPath(req, url).replace(/^\/api\/client/, '') || '/';
+  const allowed = ALLOW_PREFIXES.some(p => op.startsWith(p)) || ALLOW_EXACT.has(op);
+  if (!allowed) return res.status(404).json({ error: 'yol izinli degil', path: op });
 
-  // ── Premium doğrulama + Discord kimliği (ad + avatar dahil) ──
-  if (req.method === 'GET' && /^\/dogrula\/[0-9]{15,20}$/.test(op)) {
-    return proxyGet(req, res, `/api${op}`, '');
-  }
-
-  // ── Hesap özeti (cüzdan, seviye, pelerin) ──
-  if (req.method === 'GET' && /^\/user\/[0-9]{15,20}$/.test(op)) {
-    return proxyGet(req, res, `/api/kullanici/${op.split('/').pop()}`, '');
-  }
-
-  // ── Kişisel onaylı configler: /config/<discordId>?durum=approved ──
-  if (req.method === 'GET' && /^\/config\/[0-9A-Za-z._-]{1,40}$/.test(op)) {
-    return proxyGet(req, res, `/api${op}`, query);
+  const headers = { 'user-agent': 'RiseBunnySiteProxy' };
+  if (TICKET_PREFIXES.some(p => op.startsWith(p))) {
+    const auth = req.headers['authorization'];
+    if (auth && /^Bearer [\w.-]{10,300}$/i.test(String(auth))) {
+      headers['authorization'] = String(auth);
+    }
   }
 
-  // ── Herkese açık katalog + indirme (yazar adı/avatar dahil) ──
-  if (req.method === 'GET' && op === '/public/configs') {
-    return proxyGet(req, res, '/api/public/configs', query);
-  }
-  if (req.method === 'GET' && /^\/public\/config\/[0-9A-Za-z._-]{1,40}$/.test(op)) {
-    return proxyGet(req, res, `/api${op}`, query);
-  }
-
-  // ── Vape arkadaşlık sistemi (istek/kabul/liste) — bilet aynen iletilir ──
-  if (req.method === 'POST' && op === '/friends/request') {
-    return proxyPost(req, res, '/api/friends/request');
-  }
-  if (req.method === 'GET' && op === '/friends/state') {
-    return proxyGet(req, res, '/api/friends/state', query);
-  }
-  if (req.method === 'POST' && op === '/friends/respond') {
-    return proxyPost(req, res, '/api/friends/respond');
-  }
-  if (req.method === 'POST' && op === '/friends/cancel') {
-    return proxyPost(req, res, '/api/friends/cancel');
-  }
-  if (req.method === 'POST' && op === '/friends/remove') {
-    return proxyPost(req, res, '/api/friends/remove');
+  const init = {
+    method: req.method,
+    headers,
+    signal: AbortSignal.timeout(BOT_TIMEOUT_MS),
+  };
+  if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+    try {
+      const body = await readBody(req);
+      if (body.length) init.body = body;
+      headers['content-type'] = req.headers['content-type'] || 'application/json';
+    } catch (e) {
+      return res.status(413).json({ error: String(e.message || e) });
+    }
   }
 
-  // ── Vape içi canlılık (nabız + çıkış) — bilet aynen iletilir ──
-  if (req.method === 'POST' && (op === '/presence' || op === '/presence/leave')) {
-    return proxyPost(req, res, `/api${op}`);
+  try {
+    const hedef = `${bBase}/api${op}${url.search || ''}`;
+    const cevap = await fetch(hedef, init);
+    const metin = await cevap.text();
+    res.status(cevap.status)
+      .setHeader('Content-Type', cevap.headers.get('content-type') || 'application/json')
+      .send(metin || '{}');
+  } catch (e) {
+    res.status(502).json({ error: 'bot yanit vermedi', detay: String((e && e.message) || e) });
   }
-
-  // ── Yazma uçları: launcher bileti aynen iletilir ──
-  if (req.method === 'POST' && op === '/public/vote') {
-    return proxyPost(req, res, '/api/public/vote');
-  }
-  if (req.method === 'POST' && op === '/public/upload') {
-    return proxyPost(req, res, '/api/public/upload');
-  }
-  if (req.method === 'GET' && op === '/public/mine') {
-    return proxyGet(req, res, '/api/public/mine', query);
-  }
-  if (req.method === 'POST' && op === '/public/delete') {
-    return proxyPost(req, res, '/api/public/delete');
-  }
-  if (req.method === 'POST' && op === '/public/edit') {
-    return proxyPost(req, res, '/api/public/edit');
-  }
-
-  return res.status(404).json({ ok: false, error: 'not found', path: op });
 }
