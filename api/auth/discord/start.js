@@ -9,7 +9,7 @@ export default function handler(req, res) {
     const cbPath = process.env.DISCORD_CALLBACK_PATH || "/api/auth/discord/callback";
     const redirect = `${base}${cbPath}`;
     const url = new URL(req.url, base);
-    let device = String(url.searchParams.get("device") || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 8);
+    let device = String(url.searchParams.get("device") || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 12);
     let next = safeNext(url.searchParams.get("next"));
     if (!device) {
       const m = String(next).match(/[?&]device=([A-Za-z0-9]{4,12})/);

@@ -442,7 +442,7 @@ export default async function handler(req, res) {
           code: code
         });
       }
-      const code = String(url.searchParams.get("code") || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 8);
+      const code = String(url.searchParams.get("code") || "").replace(/[^A-Za-z0-9]/g, "").slice(0, 12);
       if (!code) return res.status(400).json({
         ok: false
       });
@@ -492,7 +492,8 @@ export default async function handler(req, res) {
           status: "done",
           id: discordId,
           username: f.username?.stringValue || "",
-          avatar: f.avatar?.stringValue || ""
+          avatar: f.avatar?.stringValue || "",
+          accessToken: mintAccessToken(discordId)
         };
         await fetch(launcherDocUrl(code), {
           method: "DELETE"
