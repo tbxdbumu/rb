@@ -57,13 +57,6 @@
     $("#st-users").textContent = v(sim.users);
     $("#st-votes").textContent = v(sim.votes);
     if (LIVE && sim.commands) $("#st-cmds").textContent = fmt(sim.commands);
-    if (LIVE && sim.categories) {
-      var cmdCard = $("#st-cmds") && $("#st-cmds").closest(".stat-card");
-      if (cmdCard) {
-        var small = cmdCard.querySelector("small");
-        if (small) small.textContent = fmt(sim.categories) + (LANG === "tr" ? " kategori" : " categories");
-      }
-    }
     var tag = LIVE ? LANG === "tr" ? "● canlı" : "● live" : LANG === "tr" ? "○ veri yok" : "○ no data";
     [ "st-servers-src", "st-users-src", "st-votes-src" ].forEach(function(id) {
       var e = document.getElementById(id);
