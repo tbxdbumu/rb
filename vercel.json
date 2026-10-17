@@ -23,7 +23,7 @@
     { "source": "/api/status", "destination": "/api/public" },
     { "source": "/api/firebase-config", "destination": "/api/public" },
     { "source": "/api/topgg/vote", "destination": "/api/webhooks" },
-    { "source": "/api/client/:path*", "destination": "/api/client" },
+    { "source": "/api/client/:rest*", "destination": "/api/client?rest=:rest*" },
     { "source": "/api/v1/:rest*", "destination": "/api/vape?rest=:rest*" },
     { "source": "/api/config/configs", "destination": "/api/auth/discord/config" },
     { "source": "/api/config/configs/:id", "destination": "/api/auth/discord/config" },

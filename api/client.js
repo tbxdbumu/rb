@@ -65,9 +65,17 @@ export default async function handler(req, res) {
   if (!bBase) return res.status(502).json({ error: 'BOT_API_URL tanimli degil' });
 
   const url = new URL(req.url, `https://${req.headers.host}`);
-  /* x-vercel-original-url rewrite'ten ÖNCEKI (gerçek) yolu verir:
-     /api/client/public/configs → op = /public/configs → bot /api/public/configs */
-  const op = originalPath(req, url).replace(/^\/api\/client/, '') || '/';
+  /* Gerçek yol artık rewrite'in kendi parametresiyle geliyor:
+       /api/client/:rest*  ->  /api/client?rest=:rest*
+     Önceden x-vercel-original-url header'ı okunuyordu; header PRODUCTION'DA
+     GELMİYOR (canlıda ölçüldü: "yol izinli degil", path "/"), yani istemcinin
+     /public, /friends, /party, /presence ucalarinin hepsi 404 donuyordu.
+     Sıra: query -> req.url -> header. */
+  const rest = req.query?.rest;
+  const op = (rest
+    ? (Array.isArray(rest) ? rest.join('/') : String(rest))
+    : String(req.url || '').split('?')[0]
+  ).replace(/^\/+|\/+$/g, '') || '/';
   const allowed = ALLOW_PREFIXES.some(p => op.startsWith(p)) || ALLOW_EXACT.has(op);
   if (!allowed) return res.status(404).json({ error: 'yol izinli degil', path: op });
 

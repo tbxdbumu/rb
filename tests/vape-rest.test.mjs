@@ -19,6 +19,7 @@ const SECRET = 'test-secret-0123456789abcdef';
 process.env.SESSION_SECRET = SECRET;
 process.env.BOT_API_URL = 'https://bot.test';
 process.env.BOT_API_SECRET = 'bot-secret';
+process.env.RISEBUNNY_SEED_KEY = 'seed-anahtari';
 
 /* ── Sahte bot ───────────────────────────────────────────────────────────── */
 const bot = new Map();
@@ -170,6 +171,57 @@ console.log('\n=== 7) register + bilinmeyen rota ===');
   const r = await call('GET', `${T}/yok/boyle/bir/yol`);
   check('404', r.status === 404, r);
   check('zarf dogru', r.json?.successful === false && typeof r.json?.error === 'string', r.json);
+}
+
+console.log('\n=== 8) config tohumlama (bizim veritabanimiza yazma) ===');
+{
+  const gonder = (path, body, seedKey) => new Promise(async (resolve) => {
+    const res = {
+      statusCode: 0, setHeader() {},
+      end(chunk) { let j = null; try { j = JSON.parse(chunk); } catch {} resolve({ status: this.statusCode, json: j }); },
+    };
+    const req = {
+      method: 'POST',
+      query: { rest: path },
+      url: '/api/vape',
+      headers: seedKey ? { 'x-seed-key': seedKey } : {},
+      async *[Symbol.asyncIterator]() { yield Buffer.from(JSON.stringify(body)); },
+    };
+    await handler(req, res);
+  });
+
+  const r = await gonder('_seed', { configs: [{ name: 'Legit', modules: { Aimbot: true } }] }, 'seed-anahtari');
+  check('dogru anahtarla 200', r.status === 200, r);
+  check('1 yazildi', r.json?.data?.yazilan === 1, r.json);
+  check('bot\'a gitti', botDump()['/public/profiller']?.name === 'Legit', Object.keys(botDump()));
+  check('modul icerigi korundu',
+    botDump()['/public/profiller']?.modules?.Aimbot === true, botDump()['/public/profiller']);
+
+  const yanlis = await gonder('_seed', { configs: [{}] }, 'yanlis-anahtar');
+  check('yanlis anahtar 401', yanlis.status === 401, yanlis);
+
+  const dizi = await gonder('_seed', [{ name: 'Dogrudan dizi' }], 'seed-anahtari');
+  check('dizi formu da kabul', dizi.status === 200 && dizi.json?.data?.yazilan === 1, dizi.json);
+
+  const bozuk = await gonder('_seed', { configs: 'dizi degil' }, 'seed-anahtari');
+  check('bozuk govde 400', bozuk.status === 400, bozuk);
+}
+
+console.log('\n=== 9) seed kapaliyken guvenli ===');
+{
+  delete process.env.RISEBUNNY_SEED_KEY;
+  const res = {
+    statusCode: 0, setHeader() {},
+    end(chunk) { let j = null; try { j = JSON.parse(chunk); } catch {} this.out = { status: this.statusCode, json: j }; },
+  };
+  const req = {
+    method: 'POST', query: { rest: '_seed' }, url: '/api/vape',
+    headers: { 'x-seed-key': 'herhangi' },
+    async *[Symbol.asyncIterator]() { yield Buffer.from('{"configs":[]}'); },
+  };
+  await handler(req, res);
+  check('anahtar tanimli degilse 503', res.out.status === 503, res.out);
+  check('hicbir sey yazilmadi', !('/public/profiller' in botDump() && false));
 }
 
 console.log(`\n===== ${pass} gecti, ${fail} kaldi =====`);

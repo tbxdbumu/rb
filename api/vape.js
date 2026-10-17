@@ -195,6 +195,63 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   if (method === 'OPTIONS') return send(res, 204, {});
 
+  if (seg.length < 1) return fail(res, 404, 'bad route: ' + (hamYol || '(bos)'));
+
+  /* ── Yönetim: config tohumlama ───────────────────────────────────────────
+     RiseBunny veritabanına config yazmak için tek giriş. Bot'un
+     /api/public/* ucu zaten api/client.js üzerinden açık; burada aynı uca
+     x-bot-secret ile doğrudan yazıyoruz.
+
+     Neden ayrı bir uc? Vape'nin public config listesi hesap doğruluyor
+     ("Failed to find account"), yani onların verisini kendi hesabımız
+     olmadan çekmek mümkün değil. Doğru yol veriyi bizim tarafta toplamak:
+     config'ı buraya POST'layan kişi onu nereden bulduysa oradan alıyor,
+     biz de kendi veritabanımıza yazıyoruz ve kendi istemcilerimize
+     /profile/public/list ile sunuyoruz.
+
+     Kimlik doğrulama: RISEBUNNY_SEED_KEY ortam değişkeni, istekte
+     `x-seed-key` başlığı (veya ?key=). Anahtar tanımlı değilse uç
+     tamamen kapalı — yanlışlıkla açık veri yazılmasın diye. */
+  if (seg[0] === '_seed' && method === 'POST') {
+    const anahtar = process.env.RISEBUNNY_SEED_KEY || '';
+    if (!anahtar) return fail(res, 503, 'seed kapali (RISEBUNNY_SEED_KEY tanimli degil)');
+    const gelen = req.headers['x-seed-key'] || new URL(req.url, 'http://x').searchParams.get('key') || '';
+    const a = Buffer.from(String(gelen));
+    const b = Buffer.from(anahtar);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+      return fail(res, 401, 'seed anahtari yanlis');
+    }
+
+    const govde = await readJson(req);
+    const liste = Array.isArray(govde) ? govde : Array.isArray(govde?.configs) ? govde.configs : null;
+    if (!liste) return fail(res, 400, 'config dizisi bekleniyor ({configs:[...]})');
+
+    const base = botBase();
+    if (!base) return fail(res, 502, 'BOT_API_URL tanimli degil');
+
+    let yazilan = 0;
+    const hatalar = [];
+    for (const [i, cfg] of liste.entries()) {
+      try {
+        const r = await fetch(`${base}/api/public/profiller`, {
+          method: 'POST',
+          headers: { ...botHeaders(), 'content-type': 'application/json', 'user-agent': 'RiseBunnySeed' },
+          body: JSON.stringify(cfg),
+          signal: AbortSignal.timeout(BOT_TIMEOUT_MS),
+        });
+        if (r.ok) yazilan++;
+        else hatalar.push({ i, status: r.status, name: cfg?.name ?? null });
+      } catch (e) {
+        hatalar.push({ i, status: 0, name: cfg?.name ?? null, hata: String(e.message || e) });
+      }
+    }
+    return send(res, yazilan ? 200 : 502, {
+      successful: yazilan > 0,
+      error: yazilan ? null : 'hicbiri yazilamadi',
+      data: { istenen: liste.length, yazilan, hatalar },
+    });
+  }
+
   if (seg.length < 2) return fail(res, 404, 'bad route: ' + (hamYol || '(bos)'));
 
   const [token, ...rest] = seg;
