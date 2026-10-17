@@ -72,10 +72,17 @@ export default async function handler(req, res) {
      /public, /friends, /party, /presence ucalarinin hepsi 404 donuyordu.
      Sıra: query -> req.url -> header. */
   const rest = req.query?.rest;
-  const op = (rest
+  const ham = rest
     ? (Array.isArray(rest) ? rest.join('/') : String(rest))
-    : String(req.url || '').split('?')[0]
-  ).replace(/^\/+|\/+$/g, '') || '/';
+    : String(req.url || '').split('?')[0].replace(/^\/api\/client\/?/, '');
+  /* ALLOW_PREFIXES/ALLOW_EXACT girdileri BAŞTA '/' ile yazılmış
+     ("/dogrula/", "/public"). Rewrite parametresi slash'SİZ gelir
+     (rest=dogrula/9851...), req.url ise "/dogrula/..." şeklinde. İkisini de
+     tek biçime getiriyoruz: baştaki slash'i normalize et, sondakini at.
+     (Canlıda ölçtük: slash yoksa allowlist'e takılıp 404 dönüyor.) */
+  const op = ('/' + ham.replace(/^\/+/, ''))
+    .replace(/\/{2,}/g, '/')
+    .replace(/\/+$/, '') || '/';
   const allowed = ALLOW_PREFIXES.some(p => op.startsWith(p)) || ALLOW_EXACT.has(op);
   if (!allowed) return res.status(404).json({ error: 'yol izinli degil', path: op });
 
