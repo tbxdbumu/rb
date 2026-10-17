@@ -62,13 +62,13 @@ function call(method, path, body) {
     };
     const req = {
       method,
-      // vercel.json'daki rewrite "/api/v1/:path*" -> "/api/vape" yönlendirmesi
-      // gerçek yolu x-vercel-original-url header'ında taşır; handler onu
-      // originalPath() ile okuyor (api/client.js ile aynı kalıp).
+      // vercel.json: "/api/v1/:rest*" -> "/api/vape?rest=:rest*"
+      // Gercek yol query'den gelir. (x-vercel-original-url production'da
+      // gelmediği için ona güvenilmiyor — api/client.js de bu yüzden canlıda
+      // "yol izinli degil /" veriyor.)
+      query: { rest: path.split('/').filter(Boolean).join('/') },
       url: '/api/vape',
-      headers: {
-        'x-vercel-original-url': path.startsWith('/') ? path : '/api/v1/' + path,
-      },
+      headers: {},
       async *[Symbol.asyncIterator]() { if (body) yield Buffer.from(JSON.stringify(body)); },
     };
     await handler(req, res);

@@ -153,20 +153,36 @@ function accountInfo(id, username) {
 }
 
 /* ── Handler ────────────────────────────────────────────────────────────────
-   Dosya adi `api/vape.js`, rota `/api/v1/:path*` (vercel.json) ile geliyor.
-   Catch-all dosya adı (`[...path].js`) denendi: build'de görünüyor ama Vercel
-   `/api/v1/*` isteklerini 404 ile yanıtladı — dosya sistemi eşleşmesi
-   yakalanmıyordu. Repo zaten aynı sorunu `api/client.js` ile çözmüş; biz de
-   onun kalıbını kullanıyoruz:
+   Dosya adi `api/vape.js`; rota vercel.json'daki
+   "/api/v1/:rest*" -> "/api/vape?rest=:rest*" rewrite'i ile geliyor.
 
-     { "source": "/api/client/:path*", "destination": "/api/client" }
+   Önceki iki deneme ve neden çalışmadılar:
+     1. api/v1/[...path].js — build'e giriyor ama /api/v1/* 404 donuyor,
+        dosya sistemi eşleşmesi yakalanmıyor.
+     2. api/vape.js + x-vercel-original-url — header PRODUCTION'DA GELMIYOR
+        (api/client.js de aynı yüzden canlıda "yol izinli degil /" veriyor).
+        Yani header'a güvenilemez.
 
-   Rewrite yönlendirmeden ÖNCEKİ gerçek yolu `x-vercel-original-url` header'ı
-   taşır; `originalPath()` onu okuyor. Jeton iki nokta üst üste geldiği için
-   ham yolu bölmüyoruz, tek tek böluyoruz. */
+   Bu yüzden yol rewrite'in kendi parametresiyle taşınıyor (:rest*) ve
+   req.query.rest üzerinden okunuyor. Altta iki yedek daha var: query -> req.url
+   -> x-vercel-original-url. Hangisi gelirse gelsin rota çözülüyor. */
+function gercekYol(req) {
+  const q = req?.query?.rest;
+  if (q) return Array.isArray(q) ? q.join('/') : String(q);
+  const ham = originalPath(req, null);
+  if (ham && ham !== '/' && !ham.startsWith('/api/vape')) return ham;
+  const url = String(req?.url || '');
+  if (url && !url.startsWith('/api/vape')) return url;
+  return '';
+}
+
 export default async function handler(req, res) {
-  const hamYol = originalPath(req, null) || String(req.url || '');
-  const seg = String(hamYol).replace(/^\/api\/v1\/?/, '').split('/').filter(Boolean);
+  const hamYol = gercekYol(req);
+  const seg = String(hamYol)
+    .split('?')[0]
+    .replace(/^\/api\/v1\/?/, '')
+    .split('/')
+    .filter(Boolean);
 
   const method = String(req.method || 'GET').toUpperCase();
 
@@ -175,7 +191,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   if (method === 'OPTIONS') return send(res, 204, {});
 
-  if (seg.length < 2) return fail(res, 404, 'bad route');
+  if (seg.length < 2) return fail(res, 404, 'bad route: ' + (hamYol || '(bos)'));
 
   const [token, ...rest] = seg;
   const route = rest.join('/').replace(/\/+$/, '');
