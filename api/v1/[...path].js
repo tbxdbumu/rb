@@ -1,0 +1,270 @@
+/* RiseBunny — Vape Online REST uyumluluk katmanı.
+ *
+ * Vape 4.22 istemcisi şu tabanı kullanıyor:
+ *
+ *   ApiServices.resolveBaseUrl()             System.getenv("VAPE_ONLINE_BASE_URL")
+ *                                             (varsayılan "https://online.vape.chat")
+ *   ApiAccessTokenProvider.getAccessToken()  NativeBridge.gat()   ← bizim DLL'imiz
+ *   ZeusConnectionManager static{}           System.getenv("VAPE_ZEUS_ADDRESS")
+ *                                             (varsayılan "zeus-prod.vape.chat:8091")
+ *
+ * Yani istemci "kimin sunucusu" sorusunu ortam değişkeninden soruyor; jar'da
+ * tek bir sabit adres yok. Loader bu iki değişkeni ve jetonu kendi verdiği için
+ * tüm online katman kendi sunucumuza bağlanır.
+ *
+ * Zarf ApiResponse.fromJson'dan — doğrulandı (canlı onlar sunucusu da aynı):
+ *   {"data": null, "error": "Failed to find account", "successful": false}
+ *
+ * ── Kapı ──────────────────────────────────────────────────────────────────
+ * OnlineConnectionManager.initialize() kararı:
+ *
+ *   if (getAccountInfo() == null)  -> REGISTRATION_OFFLINE (ekranda görülen bu)
+ *   if (banned)                    -> BANNED
+ *   else if (registered)           -> REGISTERED + connect()
+ *   else                           -> UNREGISTERED (sadece arkadaş sekmesi kapanır)
+ *
+ * `licensed` okunuyor ama HİÇ kullanılmıyor. Yani geçerli bir REGISTERED
+ * cevabı yeterli.
+ *
+ * ── Neden bot API'sine çeviriyoruz ────────────────────────────────────────
+ * Config ve friends verisi zaten var: api/client.js, istemci isteklerini
+ * BOT_API_URL'deki Discord botuna aktarıyor. Bu katman aynı veriyi Vape
+ * protokolüne çeviriyor — ikinci bir veritabanı işletmiyoruz, bot zaten
+ * doğru kaynak. (Kendi Firestore kopyamızla yapılan ilk deneme çalışıyordu
+ * ama friends/config için veri orada değil.)
+ */
+import crypto from 'node:crypto';
+import { PROJECT, FB_KEY } from '../../lib/_helpers.js';
+import { botBase, botHeaders } from '../../lib/_session.js';
+
+/* ── Kimlik ─────────────────────────────────────────────────────────────────
+   Launcher'ın verdiği bilet aynen burada doğrulanır: {discordId}.{expMs}.{hmac}
+   api/launcher.js:31 verifyLauncherToken ile birebir aynı imza. */
+const SECRET = () => process.env.SESSION_SECRET || '';
+
+function verifyToken(token) {
+  const parts = String(token || '').split('.');
+  if (parts.length !== 3) return null;
+  const [tokId, expires, sig] = parts;
+  const s = SECRET();
+  if (!s || s.length < 16) return null;
+  const expect = crypto.createHmac('sha256', s).update(`${tokId}.${expires}`).digest('hex');
+  const a = Buffer.from(expect);
+  const b = Buffer.from(sig);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  if (!/^\d{15,20}$/.test(tokId)) return null;
+  if (!Number(expires) || Date.now() > Number(expires)) return null;
+  return tokId;
+}
+
+/* ── Bot köprüsü ────────────────────────────────────────────────────────────
+   api/client.js'in yaptığı çağrı, Vape yolundan. Bot bir zaman aşımı koyuyor
+   (BOT_TIMEOUT_MS = 9500); aynı bütçeyi kullanıyoruz ki istekler üst üste
+   binip istemcideki CompletableFuture'lar birikmesin. */
+const BOT_TIMEOUT_MS = 9500;
+const MAX_BODY = 1.5 * 1024 * 1024;
+
+async function readBody(req) {
+  const chunks = [];
+  let size = 0;
+  for await (const c of req) {
+    size += c.length;
+    if (size > MAX_BODY) throw new Error('body too large');
+    chunks.push(c);
+  }
+  return Buffer.concat(chunks);
+}
+
+async function readJson(req) {
+  try {
+    const buf = await readBody(req);
+    return buf.length ? JSON.parse(buf.toString('utf8')) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** `GET botBase()+yol` → JSON (hata durumunda null). */
+async function botGet(op, bilet) {
+  const base = botBase();
+  if (!base) return null;
+  try {
+    const r = await fetch(`${base}/api${op}`, {
+      headers: { ...botHeaders(), 'user-agent': 'RiseBunnyVapeCompat' },
+      signal: AbortSignal.timeout(BOT_TIMEOUT_MS),
+    });
+    const t = await r.text();
+    if (!r.ok) return null;
+    try { return JSON.parse(t || 'null'); } catch { return null; }
+  } catch { return null; }
+}
+
+/** `POST botBase()+yol` gövde → JSON. */
+async function botPost(op, bilet, govde) {
+  const base = botBase();
+  if (!base) return null;
+  try {
+    const r = await fetch(`${base}/api${op}`, {
+      method: 'POST',
+      headers: {
+        ...botHeaders(),
+        'user-agent': 'RiseBunnyVapeCompat',
+        'content-type': 'application/json',
+        ...(bilet ? { authorization: `Bearer ${bilet}` } : {}),
+      },
+      body: JSON.stringify(govde ?? {}),
+      signal: AbortSignal.timeout(BOT_TIMEOUT_MS),
+    });
+    const t = await r.text();
+    if (!r.ok) return null;
+    try { return JSON.parse(t || 'null'); } catch { return null; }
+  } catch { return null; }
+}
+
+/* ── Zarf ────────────────────────────────────────────────────────────────── */
+function send(res, status, govde) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store');
+  res.end(JSON.stringify(govde));
+}
+const ok = (res, data) => send(res, 200, { successful: true, error: null, data });
+const fail = (res, status, error) => send(res, status, { successful: false, error, data: null });
+
+/* ── Hesap ──────────────────────────────────────────────────────────────────
+   AccountInfoResponse.fromJson şu alanları ZORUNLU okuyor:
+     userId, licensed, registered, profiles, banned   → get().getAsBoolean()
+   username ve accountCreation null-güvenli getString ile okunuyor.
+   accountCreation parseApiDate'in fallback listesine uyacak ISO-8601 olmalı
+   (…'sssZ'), aksi halde ParseException → initialize()'ın catch(Throwable)'ı →
+   REGISTRATION_OFFLINE. */
+const asLong = (s) => Number(BigInt(String(s)));
+
+function accountInfo(id, username) {
+  return {
+    userId: asLong(id),
+    username: username || id,
+    accountCreation: new Date().toISOString(),
+    licensed: true,
+    registered: true,
+    profiles: true,
+    banned: false,
+  };
+}
+
+/* ── Handler ────────────────────────────────────────────────────────────────
+   Vercel `api/v1/[...path].js` → req.query.path = "/api/v1/" SONRASI. */
+export default async function handler(req, res) {
+  const seg = Array.isArray(req.query?.path)
+    ? req.query.path
+    : String(req.query?.path || '').split('/').filter(Boolean);
+
+  const method = String(req.method || 'GET').toUpperCase();
+
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  if (method === 'OPTIONS') return send(res, 204, {});
+
+  if (seg.length < 2) return fail(res, 404, 'bad route');
+
+  const [token, ...rest] = seg;
+  const route = rest.join('/').replace(/\/+$/, '');
+  const id = verifyToken(token);
+  if (!id) return fail(res, 401, 'bad token');
+
+  /* ── Kapı ────────────────────────────────────────────────────────────────
+     Kullanıcı adı bot'tan gelir; düşerse Discord ID yazılır (AccountInfo
+     username alanı null'a izin veriyor, ama görsel olarak kimse görmesin). */
+  if (route === 'authenticated' && method === 'GET') {
+    const k = await botGet(`/kullanici/${id}`, token);
+    const kullanici = k?.data || k?.user || k;
+    const ad = typeof kullanici?.username === 'string'
+      ? kullanici.username
+      : typeof k?.username === 'string' ? k.username : undefined;
+    return ok(res, accountInfo(id, ad));
+  }
+
+  /* ── Kullanıcı verisi (config + friends senkronu) ─────────────────────────
+     UserDataResponse.fromJson şu bekliyor:
+       profiles (UUID -> RemoteProfileData), publicProfiles (userId -> ...),
+       friends (JsonArray, opsiyonel), otherData (JsonArray, opsiyonel) */
+  if (route === 'profile/private/all' && method === 'GET') {
+    const c = await botGet(`/config/${id}`, token);
+    const veri = c?.data || c || {};
+    const profil = veri.profiles || veri.configs || {};
+    return ok(res, {
+      profiles: profil && typeof profil === 'object' ? profil : {},
+      publicProfiles: veri.publicProfiles || {},
+      friends: Array.isArray(veri.friends) ? veri.friends : [],
+      otherData: Array.isArray(veri.otherData) ? veri.otherData : [],
+    });
+  }
+
+  if (route === 'profile/private/save/user' && method === 'POST') {
+    const govde = await readJson(req);
+    await botPost(`/config/${id}/kullanici`, token, govde);
+    return ok(res, true);
+  }
+
+  if (route === 'profile/private/save/profile' && method === 'POST') {
+    const govde = await readJson(req);
+    await botPost(`/config/${id}/profil`, token, govde);
+    return ok(res, govde);
+  }
+
+  if (route === 'profile/private/reserve' && method === 'POST') {
+    const uuid = crypto.randomUUID();
+    await botPost(`/config/${id}/profil/ayir`, token, { profileId: uuid });
+    return ok(res, uuid);
+  }
+
+  /* ── Ayarlar ──────────────────────────────────────────────────────────────
+     SettingsApi.loadSettings zarf bekliyor (successful/error/data).
+     SettingsApi.saveSettings ise GÖVDEYİ DÜZ payload olarak okuyor —
+     ApiHttpClient.post(url, payloadClass, payload), zarf değil. */
+  if (route.startsWith('settings/load/')) {
+    const scope = route.slice('settings/load/'.length);
+    const c = await botGet(`/config/${id}/ayar/${scope}`, token);
+    const veri = c?.data || c;
+    return ok(res, veri && typeof veri === 'object' ? veri : {});
+  }
+
+  if (route.startsWith('settings/save/')) {
+    const scope = route.slice('settings/save/'.length);
+    const govde = await readJson(req);
+    await botPost(`/config/${id}/ayar/${scope}`, token, govde);
+    return send(res, 200, govde);
+  }
+
+  /* ── Kayıt ───────────────────────────────────────────────────────────────
+     Bu akış launcher'da zaten tamamlanıyor; buradaki uç yalnızca REGISTERED
+     durumunu sabitler. */
+  if (route.startsWith('register/')) {
+    return ok(res, { registered: true, via: 'launcher' });
+  }
+
+  /* ── Herkese açık profiller ───────────────────────────────────────────────
+     PagedResult.fromJson alttı alanın hepsini zorunlu okuyor
+     (content, last, totalPages, totalElements, size, numberOfElements); biri
+     eksikse NPE → catch(Throwable) → REGISTRATION_OFFLINE, yani arkadaşlar
+     sessizce açılmaz. */
+  if (route === 'profile/public/list' && method === 'POST') {
+    const c = await botGet('/public/profiller', token);
+    const liste = Array.isArray(c?.data) ? c.data : Array.isArray(c) ? c : [];
+    return ok(res, {
+      content: liste,
+      last: true,
+      totalPages: 1,
+      totalElements: liste.length,
+      size: liste.length,
+      numberOfElements: liste.length,
+    });
+  }
+
+  if (route === 'profile/public/tags' && method === 'GET') {
+    return ok(res, []);
+  }
+
+  return fail(res, 404, 'unknown route: ' + route);
+}
