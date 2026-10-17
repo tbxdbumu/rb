@@ -40,7 +40,7 @@ globalThis.fetch = async (url, opts = {}) => {
   return { ok: true, status: 200, text: async () => JSON.stringify(bot.get(op)) };
 };
 
-const { default: handler } = await import('../api/v1/[...path].js');
+const { default: handler } = await import('../api/vape.js');
 
 const ID = '985126554306773063';
 function token(ttlH = 12) {
@@ -62,9 +62,13 @@ function call(method, path, body) {
     };
     const req = {
       method,
-      // Vercel: "/api/v1/" SONRASI
-      query: { path: path.split('/').filter(Boolean) },
-      headers: {},
+      // vercel.json'daki rewrite "/api/v1/:path*" -> "/api/vape" yönlendirmesi
+      // gerçek yolu x-vercel-original-url header'ında taşır; handler onu
+      // originalPath() ile okuyor (api/client.js ile aynı kalıp).
+      url: '/api/vape',
+      headers: {
+        'x-vercel-original-url': path.startsWith('/') ? path : '/api/v1/' + path,
+      },
       async *[Symbol.asyncIterator]() { if (body) yield Buffer.from(JSON.stringify(body)); },
     };
     await handler(req, res);

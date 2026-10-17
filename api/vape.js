@@ -34,8 +34,8 @@
  * ama friends/config için veri orada değil.)
  */
 import crypto from 'node:crypto';
-import { PROJECT, FB_KEY } from '../../lib/_helpers.js';
-import { botBase, botHeaders } from '../../lib/_session.js';
+import { originalPath } from '../lib/_helpers.js';
+import { botBase, botHeaders } from '../lib/_session.js';
 
 /* ── Kimlik ─────────────────────────────────────────────────────────────────
    Launcher'ın verdiği bilet aynen burada doğrulanır: {discordId}.{expMs}.{hmac}
@@ -153,11 +153,20 @@ function accountInfo(id, username) {
 }
 
 /* ── Handler ────────────────────────────────────────────────────────────────
-   Vercel `api/v1/[...path].js` → req.query.path = "/api/v1/" SONRASI. */
+   Dosya adi `api/vape.js`, rota `/api/v1/:path*` (vercel.json) ile geliyor.
+   Catch-all dosya adı (`[...path].js`) denendi: build'de görünüyor ama Vercel
+   `/api/v1/*` isteklerini 404 ile yanıtladı — dosya sistemi eşleşmesi
+   yakalanmıyordu. Repo zaten aynı sorunu `api/client.js` ile çözmüş; biz de
+   onun kalıbını kullanıyoruz:
+
+     { "source": "/api/client/:path*", "destination": "/api/client" }
+
+   Rewrite yönlendirmeden ÖNCEKİ gerçek yolu `x-vercel-original-url` header'ı
+   taşır; `originalPath()` onu okuyor. Jeton iki nokta üst üste geldiği için
+   ham yolu bölmüyoruz, tek tek böluyoruz. */
 export default async function handler(req, res) {
-  const seg = Array.isArray(req.query?.path)
-    ? req.query.path
-    : String(req.query?.path || '').split('/').filter(Boolean);
+  const hamYol = originalPath(req, null) || String(req.url || '');
+  const seg = String(hamYol).replace(/^\/api\/v1\/?/, '').split('/').filter(Boolean);
 
   const method = String(req.method || 'GET').toUpperCase();
 
