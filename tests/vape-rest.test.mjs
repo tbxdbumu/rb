@@ -102,7 +102,13 @@ console.log('\n=== 2) authenticated — AccountInfoResponse.fromJson zorunlu ala
   for (const k of ['userId', 'licensed', 'registered', 'profiles', 'banned']) {
     check(`zorunlu alan: ${k}`, d?.[k] !== undefined, d);
   }
-  check('userId sayi', typeof d?.userId === 'number', d);
+  // userId STRING olarak gelmeli: Discord ID'leri 2^53'un ustunde, JS'te
+  // Number'a cevrilince yuvarlaniyordu (canlida ...73100 olarak olculmustu).
+  // Gson JsonPrimitive.getAsLong() string icin Long.parseLong yoluna duser.
+  check('userId string ve KAYIPSIZ', d?.userId === ID, d);
+  check('userId sayi DEGIL', typeof d?.userId !== 'number', d);
+  check('2^53 ustu deger yuvarlanmiyor',
+    BigInt(d?.userId) === 985126554306773063n, d);
   check('username bot\'tan geldi', d?.username === 'ahmetbs', d);
   check('registered === true', d?.registered === true, d);
   check('accountCreation parseApiDate uyumlu',

@@ -137,13 +137,17 @@ const fail = (res, status, error) => send(res, status, { successful: false, erro
    username ve accountCreation null-güvenli getString ile okunuyor.
    accountCreation parseApiDate'in fallback listesine uyacak ISO-8601 olmalı
    (…'sssZ'), aksi halde ParseException → initialize()'ın catch(Throwable)'ı →
-   REGISTRATION_OFFLINE. */
-const asLong = (s) => Number(BigInt(String(s)));
+   REGISTRATION_OFFLINE.
 
+   userId STRING olarak gönderiliyor, sayı değil. Discord kimlikleri 2^53'ün
+   üstünde (985126554306773063 > 9007199254740992), JS tarafında Number'a
+   çevrilince yuvarlanıyor — canlıda 985126554306773100 olarak ölçtük. Gson'da
+   JsonPrimitive.getAsLong() string için Long.parseLong(getAsString()) yoluna
+   düşer, yani string hem kayıpsız hem getAsLong() ile uyumlu. */
 function accountInfo(id, username) {
   return {
-    userId: asLong(id),
-    username: username || id,
+    userId: String(id),
+    username: username || String(id),
     accountCreation: new Date().toISOString(),
     licensed: true,
     registered: true,
