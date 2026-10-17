@@ -156,7 +156,46 @@ function accountInfo(id, username) {
   };
 }
 
-/* ── Handler ────────────────────────────────────────────────────────────────
+/* ── Config dönüşümü ────────────────────────────────────────────────────────
+   RiseBunny config kayıtları bot'ta şu şekilde duruyor (ölçüldü):
+
+     { id:"179182301531286929", name:"Bedwars", description:"Legit bedwars config i",
+       sharerId:"985126554306773063", sharerName:"ahmetbs", sharerAvatar:"https://…",
+       downloads:2, votes:0, voted:false, createdAt:1791823015312 }
+
+   Vape istemcisi ise PublicProfileSummary.fromJson ile şunları okuyor:
+     tags(JsonArray), profileId(long), owner(PublicProfileUser),
+     name, version, likes, dislikes, shareCode
+
+   PublicProfileUser.fromJson: userId(long) + username(string). username yoksa
+   null dönüp profili düşürüyor — o yüzden sharerName her zaman gönderiliyor.
+
+   id 1.79e18, yani 2^53'ün çok üstünde; getAsLong() string'i de kabul ettiği
+   için profilId'yi string gönderiyoruz (userId ile aynı sebep).
+
+   shareCode BİLEREK GÖNDERİLMİYOR: kullanıcı config listesinin üstündeki paylaşım
+   kodunun görünmesini istemiyordu. getString alanı yoksa null döner, client
+   da o satırı çizmez. */
+function configOzeti(cfg, kategori) {
+  const id = String(cfg?.id ?? '');
+  if (!id) return null;
+  return {
+    profileId: id,
+    name: typeof cfg?.name === 'string' && cfg.name ? cfg.name : 'Profile',
+    version: Number.isFinite(cfg?.version) ? cfg.version : 1,
+    likes: Number.isFinite(cfg?.votes) ? cfg.votes : 0,
+    dislikes: 0,
+    tags: kategori ? [String(kategori)] : [],
+    owner: {
+      userId: String(cfg?.sharerId ?? '0'),
+      username: typeof cfg?.sharerName === 'string' && cfg.sharerName
+        ? cfg.sharerName
+        : (typeof cfg?.name === 'string' ? cfg.name : null),
+    },
+    // shareCode yok — bilerek.
+  };
+}
+   /* ── Handler ────────────────────────────────────────────────────────────────
    Dosya adi `api/vape.js`; rota vercel.json'daki
    "/api/v1/:rest*" -> "/api/vape?rest=:rest*" rewrite'i ile geliyor.
 
@@ -164,8 +203,7 @@ function accountInfo(id, username) {
      1. api/v1/[...path].js — build'e giriyor ama /api/v1/* 404 donuyor,
         dosya sistemi eşleşmesi yakalanmıyor.
      2. api/vape.js + x-vercel-original-url — header PRODUCTION'DA GELMIYOR
-        (api/client.js de aynı yüzden canlıda "yol izinli degil /" veriyor).
-        Yani header'a güvenilemez.
+        (api/client.js de aynı yüzden canlıda "yol izinli degil" veriyordu).
 
    Bu yüzden yol rewrite'in kendi parametresiyle taşınıyor (:rest*) ve
    req.query.rest üzerinden okunuyor. Altta iki yedek daha var: query -> req.url
@@ -336,16 +374,33 @@ export default async function handler(req, res) {
      eksikse NPE → catch(Throwable) → REGISTRATION_OFFLINE, yani arkadaşlar
      sessizce açılmaz. */
   if (route === 'profile/public/list' && method === 'POST') {
-    const c = await botGet('/public/profiller', token);
-    const liste = Array.isArray(c?.data) ? c.data : Array.isArray(c) ? c : [];
+    const govde = await readJson(req);
+    const c = await botGet('/public/configs', token);
+    const ham = Array.isArray(c?.configs) ? c.configs
+      : Array.isArray(c?.data) ? c.data
+      : Array.isArray(c) ? c : [];
+    const kategori = c?.kategori || govde?.mode || null;
+    const content = ham.map(cfg => configOzeti(cfg, kategori)).filter(Boolean);
     return ok(res, {
-      content: liste,
+      content,
       last: true,
       totalPages: 1,
-      totalElements: liste.length,
-      size: liste.length,
-      numberOfElements: liste.length,
+      totalElements: content.length,
+      size: content.length,
+      numberOfElements: content.length,
     });
+  }
+
+  /* Tekil görüntüleme — PublicProfile.fromJson. */
+  const tekil = /^profile\/public\/(\d+)\/(view|download|update)$/.exec(route);
+  if (tekil && method === 'GET') {
+    const id = tekil[1];
+    const c = await botGet(`/public/config/${id}`, token);
+    const ham = c?.config || c?.data || c;
+    if (!ham) return fail(res, 404, 'config bulunamadi');
+    const ozet = configOzeti(ham, c?.kategori);
+    if (!ozet) return fail(res, 404, 'config bulunamadi');
+    return ok(res, ozet);
   }
 
   if (route === 'profile/public/tags' && method === 'GET') {

@@ -224,5 +224,54 @@ console.log('\n=== 9) seed kapaliyken guvenli ===');
   check('hicbir sey yazilmadi', !('/public/profiller' in botDump() && false));
 }
 
+console.log('\n=== 10) bot config kayitlarinin istemciye cevrilmesi ===');
+{
+  // Bot'un gercek config sekli (canlidan olculdu).
+  botSeed('/public/configs', {
+    ok: true, count: 2, kategori: 'top',
+    configs: [
+      { id: '179182301531286929', name: 'Bedwars', description: 'Legit bedwars config i',
+        sharerId: '985126554306773063', sharerName: 'ahmetbs',
+        sharerAvatar: 'https://cdn.discordapp.com/avatars/985126554306773063/x.png',
+        downloads: 2, votes: 5, voted: false, createdAt: 1791823015312 },
+      { id: '179182306335890796', name: 'Skywars', description: 'Legit Skywars config i',
+        sharerId: '985126554306773063', sharerName: 'ahmetbs',
+        downloads: 1, votes: 3, voted: false, createdAt: 1791823063358 },
+    ],
+  });
+
+  const r = await call('POST', `${T}/profile/public/list`, { mode: 'POPULAR' });
+  const d = r.json?.data;
+  check('list 200', r.status === 200, r);
+  check('iki config dondu', d?.content?.length === 2, d);
+  check('totalElements dogru', d?.totalElements === 2, d);
+
+  const ilk = d?.content?.[0];
+  // PublicProfileSummary.fromJson'in okudugu alanlar
+  check('name', ilk?.name === 'Bedwars', ilk);
+  check('profileId string ve KAYIPSIZ', ilk?.profileId === '179182301531286929', ilk);
+  check('version sayi', ilk?.version === 1, ilk);
+  check('likes <- votes', ilk?.likes === 5, ilk);
+  check('dislikes 0', ilk?.dislikes === 0, ilk);
+  check('tags <- kategori', ilk?.tags?.[0] === 'top', ilk);
+  // PublicProfileUser.fromJson: userId + username (yoksa profil dusuyor)
+  check('owner.userId string', ilk?.owner?.userId === '985126554306773063', ilk?.owner);
+  check('owner.username', ilk?.owner?.username === 'ahmetbs', ilk?.owner);
+
+  // Kullanicinin istegi: paylasim kodu LISTEDE GORUNMESIN.
+  check('shareCode GONDERILMIYOR', !('shareCode' in (ilk || {})), ilk);
+
+  // Bos katalog
+  bot.set('/public/configs', { ok: true, count: 0, configs: [] });
+  const bos = await call('POST', `${T}/profile/public/list`, {});
+  check('bos katalog bos sayfa', bos.json?.data?.content?.length === 0, bos.json);
+  check('bos katalogda last=true', bos.json?.data?.last === true, bos.json);
+
+  // Bot cevap vermezse catlama
+  bot.delete('/public/configs');
+  const hata = await call('POST', `${T}/profile/public/list`, {});
+  check('bot yoksa bos sayfa', hata.json?.data?.content?.length === 0, hata.json);
+}
+
 console.log(`\n===== ${pass} gecti, ${fail} kaldi =====`);
 process.exit(fail ? 1 : 0);
