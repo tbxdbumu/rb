@@ -140,8 +140,11 @@ console.log('\n=== 4) settings ===');
   check('load veri dondu', l.json?.data?.guiScale === 2, l.json);
 
   const bos = await call('GET', `${T}/settings/load/yok-boyle-bir-scope`);
-  check('bilinmeyen scope bos nesne',
-    bos.json?.data && Object.keys(bos.json.data).length === 0, bos.json);
+  /* Artık 404. Resmî istemci yalnız "global" ve "online" ister
+   * (SettingsScope.getRouteName()). Bilinmeyen kapsama bos obje donmek,
+   * istemcide boxed Boolean unbox NPE'sine yol aciyordu (olculdu:
+   * GlobalSettingsController.load), o yuzden acik hata veriyoruz. */
+  check('bilinmeyen scope 404', bos.status === 404, bos.json);
 }
 
 console.log('\n=== 5) profile/public/list — PagedResult.fromJson 6 zorunlu alan ===');
@@ -271,6 +274,51 @@ console.log('\n=== 10) bot config kayitlarinin istemciye cevrilmesi ===');
   bot.delete('/public/configs');
   const hata = await call('POST', `${T}/profile/public/list`, {});
   check('bot yoksa bos sayfa', hata.json?.data?.content?.length === 0, hata.json);
+}
+
+console.log('\n=== 11) ayar payload\'lari bos OLMAMALI (unbox NPE) ===');
+{
+  // Canli olcum: data:{} -> GlobalSettingsPayload.firstRun null ->
+  // GlobalSettingsController.load() icinde Boolean unbox -> NPE ->
+  // OnlineConnectionManager.initialize() zinciri kirilir.
+  const g = await call('GET', `${T}/settings/load/global`);
+  const gd = g.json?.data;
+  check('global 200', g.status === 200, g);
+  check('firstRun dolu (Boolean, null degil)', typeof gd?.firstRun === 'boolean', gd);
+  check('cache dolu', typeof gd?.cache === 'boolean', gd);
+  check('firstRun ilk calistirmada true', gd?.firstRun === true, gd);
+
+  const o = await call('GET', `${T}/settings/load/online`);
+  const od = o.json?.data;
+  check('online 200', o.status === 200, o);
+  const zorunlu = ['inventorySwitchMode','partyShowTarget','autoLogin','showSelf',
+                   'showUsername','showInventoryKeybind','friendStates',
+                   'shareInventory','showServer','pingKeybind'];
+  const eksik = zorunlu.filter(k => od?.[k] === undefined || od[k] === null);
+  check('online\'da 10 alanin tamami dolu', eksik.length === 0, { eksik, od });
+  check('showInventoryKeybind dizi', Array.isArray(od?.showInventoryKeybind), od);
+  check('friendStates nesne', od?.friendStates && typeof od.friendStates === 'object', od);
+
+  // Yol adi kucuk harfli (SettingsScope.getRouteName()).
+  const k = await call('GET', `${T}/settings/load/global`);
+  check('kucuk harfli yol da calisiyor', k.json?.data?.firstRun !== undefined, k);
+  const bilinmeyen = await call('GET', `${T}/settings/ayar/BOGUS`);
+  check('bilinmeyen kapsam 404', bilinmeyen.status === 404, bilinmeyen);
+}
+
+console.log('\n=== 12) ayar kaydetme: eksik alanlar varsayilanla tamamlanir ===');
+{
+  const s = await call('POST', `${T}/settings/save/online`, { showSelf: false });
+  const sd = s.json;
+  check('save 200', s.status === 200, s);
+  check('kaydedilen deger donuyor', sd?.showSelf === false, sd);
+  check('kaydedilmeyen alan varsayilan', sd?.showUsername === true, sd);
+  check('dizi alanlar yine dolu', Array.isArray(sd?.pingKeybind), sd);
+
+  // Temizlenmis govde (null/array) kirletmemeli.
+  const bozuk = await call('POST', `${T}/settings/save/global`, [1, 2, 3]);
+  check('dizi govde kabul edilir, varsayilan doner',
+    bozuk.status === 200 && typeof bozuk.json?.firstRun === 'boolean', bozuk);
 }
 
 console.log(`\n===== ${pass} gecti, ${fail} kaldi =====`);

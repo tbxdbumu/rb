@@ -195,7 +195,55 @@ function configOzeti(cfg, kategori) {
     // shareCode yok — bilerek.
   };
 }
-   /* ── Handler ────────────────────────────────────────────────────────────────
+   /* ── Ayar payload varsayılanları ─────────────────────────────────────────────
+   Alan adları ve tipleri resmî jar'dan çözüldü (javap/CFR):
+
+   SettingsScope.getRouteName()      -> "global" | "online"
+   SettingsDataType.GLOBAL           -> GlobalSettingsPayload
+   SettingsDataType.ONLINE           -> OnlineSettingsPayload
+
+   GlobalSettingsPayload
+     @SerializedName("firstRun")  Boolean firstRun
+     @SerializedName("cache")     Boolean cacheEnabled
+   (ikisi de boxed Boolean; null kalırsa unbox NPE veriyor)
+
+   OnlineSettingsPayload
+     @SerializedName("inventorySwitchMode")  Integer
+     @SerializedName("partyShowTarget")      Boolean
+     @SerializedName("autoLogin")            Boolean
+     @SerializedName("showSelf")             Boolean
+     @SerializedName("showUsername")         Boolean
+     @SerializedName("showInventoryKeybind") JsonArray
+     @SerializedName("friendStates")         Map<Long, Boolean>
+     @SerializedName("shareInventory")       Boolean
+     @SerializedName("showServer")           Boolean
+     @SerializedName("pingKeybind")          JsonArray
+
+   friendStates dikkat: harici sunucuda arkadaş listesinin KALICI hali
+   burada tutulur — resmî istemci arkadaşlarını bu payload'tan geri yükler. */
+function ayarVarsayilani(scope) {
+  switch (scope) {
+    case 'global':
+      return { firstRun: true, cache: false };
+    case 'online':
+      return {
+        inventorySwitchMode: 0,
+        partyShowTarget: true,
+        autoLogin: true,
+        showSelf: true,
+        showUsername: true,
+        showInventoryKeybind: [],
+        friendStates: {},
+        shareInventory: false,
+        showServer: true,
+        pingKeybind: [],
+      };
+    default:
+      return null;
+  }
+}
+
+/* ── Handler ────────────────────────────────────────────────────────────────
    Dosya adi `api/vape.js`; rota vercel.json'daki
    "/api/v1/:rest*" -> "/api/vape?rest=:rest*" rewrite'i ile geliyor.
 
@@ -346,19 +394,51 @@ export default async function handler(req, res) {
   /* ── Ayarlar ──────────────────────────────────────────────────────────────
      SettingsApi.loadSettings zarf bekliyor (successful/error/data).
      SettingsApi.saveSettings ise GÖVDEYİ DÜZ payload olarak okuyor —
-     ApiHttpClient.post(url, payloadClass, payload), zarf değil. */
+     ApiHttpClient.post(url, payloadClass, payload), zarf değil.
+
+     KRİTİK: data BOŞ OLAMAZ. Canlıda ölçüldü:
+         200 GET /settings/load/global  ->  {"successful":true,"data":{}}
+         Exception java.lang.NullPointerException
+           at gg.vape.manager.client.GlobalSettingsController.load(:67)
+           at gg.vape.manager.client.OnlineConnectionManager.initialize(:573)
+     Sebep: GlobalSettingsPayload alanları boxed Boolean —
+         @SerializedName("firstRun") Boolean firstRun;
+         @SerializedName("cache")   Boolean cacheEnabled;
+     Boş obje -> ikisi de null -> load() içinde `this.settings.isFirstRun()`
+     çağrısında UNBOX NPE veriyor ve initializeManagers zinciri kırılıyor.
+     initializeDefaults() null'u doldurur ama YALNIZCA hata YOLUNDA
+     çağrılıyor; biz hata üretmediğimiz için hiç çağrılmıyor.
+
+     Bu yüzden her iki scope için de tam alan listesi gönderiyoruz ve
+     kaydedilmiş değerlerin üstüne VARSAYILANLARI seriyoruz — eksik alan
+     asla null kalmıyor.
+
+     Rotalar KÜÇÜK harfli: SettingsScope.getRouteName() -> "global" | "online"
+     (SettingsDataType: GLOBAL->GlobalSettingsPayload, ONLINE->OnlineSettingsPayload) */
   if (route.startsWith('settings/load/')) {
-    const scope = route.slice('settings/load/'.length);
+    const scope = route.slice('settings/load/'.length).toLowerCase();
+    const varsayilan = ayarVarsayilani(scope);
+    if (!varsayilan) {
+      return fail(res, 404, `bilinmeyen ayar kapsami: ${scope} (global | online)`);
+    }
     const c = await botGet(`/config/${id}/ayar/${scope}`, token);
-    const veri = c?.data || c;
-    return ok(res, veri && typeof veri === 'object' ? veri : {});
+    const kayitli = c?.data && typeof c.data === 'object' ? c.data
+      : (c && typeof c === 'object' && !c.error ? c : null);
+    return ok(res, { ...varsayilan, ...(kayitli || {}) });
   }
 
   if (route.startsWith('settings/save/')) {
-    const scope = route.slice('settings/save/'.length);
+    const scope = route.slice('settings/save/'.length).toLowerCase();
+    const varsayilan = ayarVarsayilani(scope);
+    if (!varsayilan) {
+      return fail(res, 404, `bilinmeyen ayar kapsami: ${scope} (global | online)`);
+    }
     const govde = await readJson(req);
-    await botPost(`/config/${id}/ayar/${scope}`, token, govde);
-    return send(res, 200, govde);
+    const temiz = (govde && typeof govde === 'object' && !Array.isArray(govde)) ? govde : {};
+    // Kaydet; bot ucu yoksa sessizce geç — istemci zarfı ZATEN 200 aldı,
+    // cevabı bozmamak ve oyunu düşürmemek birincil amaç.
+    await botPost(`/config/${id}/ayar/${scope}`, token, temiz);
+    return send(res, 200, { ...varsayilan, ...temiz });
   }
 
   /* ── Kayıt ───────────────────────────────────────────────────────────────
